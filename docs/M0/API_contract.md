@@ -104,7 +104,7 @@ rebuilds or validates.
 This occurs when InferGate rejects the request itself, including malformed JSON,
 missing or invalid M0 fields, and unsupported streaming.
 
-- HTTP status: `400 Bad Request`.
+- HTTP status: `400 Bad Request` / `422 Unprocessable Content`.
 - The request is not sent to a backend.
 - InferGate generates the response body.
 
