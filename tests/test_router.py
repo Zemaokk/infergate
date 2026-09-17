@@ -64,4 +64,4 @@ def test_error_blank_backendlist():
         }
     )
     with pytest.raises(NoBackendAvailableError):
-            router.select("model")
+        router.select("model")
