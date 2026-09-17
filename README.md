@@ -7,3 +7,6 @@ The current architecture, scope, milestones, and engineering constraints are doc
 The learning and AI contribution boundaries are documented in [docs/COLLABORATION_CONTRACT.md](docs/COLLABORATION_CONTRACT.md).
 
 API direction: Chat Completions is the M0 compatibility baseline; a non-streaming Responses API adapter is planned after the shared gateway core is complete. See [ADR-0001](docs/decisions/0001-api-surface.md).
+
+To implement the current milestone from the existing contracts through local
+end-to-end verification, follow the [M0 full workflow guide](docs/M0/FULL_WORKFLOW_GUIDE.md).

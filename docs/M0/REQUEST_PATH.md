@@ -41,7 +41,7 @@ with the gateway metadata header.
 1. The client sends the request to the FastAPI endpoint.
 2. The endpoint parses the JSON payload and invokes request validation.
 3. Validation rejects the request before backend selection.
-4. The FastAPI endpoint returns the gateway-defined `422 Unprocessable Content` response.
+4. The FastAPI endpoint returns the gateway-defined `400 Bad Request` response.
 
 **Output:** the client receives a gateway validation error. No request is sent
 to a backend.
