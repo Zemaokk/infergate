@@ -139,3 +139,66 @@ async def test_gateway_returns_502_on_backend_transport_failure():
             }
             assert r.headers["content-type"] == "application/json"
             assert r.headers["x-infergate-backend"] == "backend-a"
+
+
+@pytest.mark.asyncio
+async def test_gateway_forwards_explicit_stream_false():
+    stream_false_payload = {
+        **payload,
+        "stream": False,
+    }
+
+    def handler(request: httpx.Request):
+        assert json.loads(request.content) == stream_false_payload
+        return httpx.Response(
+            status_code=200,
+            content=backend_body,
+            headers={"Content-Type": "application/json"},
+        )
+
+    async with httpx.AsyncClient(
+        transport=httpx.MockTransport(handler)
+    ) as backend_base_client:
+        router = RoundRobinRouter(
+            {"test-model": [Backend(id="backend-a", base_url="http://backend-a")]}
+        )
+        app = create_app(router, BackendClient(backend_base_client))
+
+        async with httpx.AsyncClient(
+            transport=httpx.ASGITransport(app=app), base_url="http://gateway"
+        ) as gateway_client:
+            await gateway_client.post(
+                url="/v1/chat/completions", json=stream_false_payload
+            )
+
+
+@pytest.mark.asyncio
+async def test_gateway_rejects_stream_true_before_backend_selection():
+    def handler(request: httpx.Request) -> httpx.Response:
+        raise AssertionError("Backend must not be called")
+
+    async with httpx.AsyncClient(
+        transport=httpx.MockTransport(handler)
+    ) as backend_base_client:
+        router = RoundRobinRouter(
+            {"test-model": [Backend(id="backend-a", base_url="http://backend-a")]}
+        )
+        app = create_app(router, BackendClient(backend_base_client))
+
+        async with httpx.AsyncClient(
+            transport=httpx.ASGITransport(app=app), base_url="http://gateway"
+        ) as gateway_client:
+            r = await gateway_client.post(
+                url="/v1/chat/completions", json={**payload, "stream": True}
+            )
+            assert r.status_code == 400
+            assert r.json() == {
+                "error": {
+                    "message": "Streaming is not supported in M0.",
+                    "type": "invalid_request_error",
+                    "param": "stream",
+                    "code": None,
+                }
+            }
+            assert r.headers["content-type"] == "application/json"
+            assert r.headers.get("x-infergate-backend") is None

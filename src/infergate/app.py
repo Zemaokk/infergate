@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Response
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, StrictBool
 
 from infergate.backend_client import BackendClient, BackendTransportError
 from infergate.router import NoBackendAvailableError, RoundRobinRouter
@@ -9,6 +9,7 @@ from infergate.router import NoBackendAvailableError, RoundRobinRouter
 class ChatCompletionRequest(BaseModel):
     model_config = {"extra": "allow"}
     model: str
+    stream: StrictBool = False
 
 
 def create_app(router: RoundRobinRouter, backend_client: BackendClient) -> FastAPI:
@@ -16,8 +17,22 @@ def create_app(router: RoundRobinRouter, backend_client: BackendClient) -> FastA
 
     @app.post("/v1/chat/completions")
     async def create_chat_completion(request: ChatCompletionRequest) -> Response:
-        payload = request.model_dump()
+        payload = request.model_dump(exclude_unset=True)
         model = request.model
+
+        # 拒绝 stream: true
+        if request.stream:
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "error": {
+                        "message": "Streaming is not supported in M0.",
+                        "type": "invalid_request_error",
+                        "param": "stream",
+                        "code": None,
+                    }
+                },
+            )
 
         # 选择模型，如果无可用，报503
         try:
