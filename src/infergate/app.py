@@ -1,6 +1,7 @@
 from typing import Literal
 
-from fastapi import FastAPI, Response
+from fastapi import FastAPI, Request, Response
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, StrictBool, StrictStr
 
@@ -25,6 +26,30 @@ class ChatCompletionRequest(BaseModel):
 
 def create_app(router: RoundRobinRouter, backend_client: BackendClient) -> FastAPI:
     app = FastAPI()
+
+    @app.exception_handler(RequestValidationError)
+    async def request_valid_e_handler(
+        _request: Request, exc: RequestValidationError
+    ) -> Response:
+        first_error = exc.errors()[0]
+
+        if first_error["type"] == "json_invalid":
+            param = None
+        else:
+            location = [str(part) for part in first_error["loc"] if part != "body"]
+            param = ".".join(location) or None
+
+        return JSONResponse(
+            status_code=400,
+            content={
+                "error": {
+                    "message": "Invalid request body.",
+                    "type": "invalid_request_error",
+                    "param": param,
+                    "code": None,
+                }
+            },
+        )
 
     @app.post("/v1/chat/completions")
     async def create_chat_completion(request: ChatCompletionRequest) -> Response:

@@ -251,22 +251,28 @@ async def test_gateway_preserves_unknown_message_fields():
 
 
 @pytest.mark.parametrize(
-    "invalid_payload",
+    ("invalid_payload", "expected_param"),
     [
-        {"model": "test-model"},
-        {"model": "test-model", "messages": []},
-        {
-            "model": "test-model",
-            "messages": [{"role": "invalid-role", "content": "hello"}],
-        },
-        {
-            "model": "test-model",
-            "messages": [{"role": "user", "content": 123}],
-        },
+        ({"model": "test-model"}, "messages"),
+        ({"model": "test-model", "messages": []}, "messages"),
+        (
+            {
+                "model": "test-model",
+                "messages": [{"role": "invalid-role", "content": "hello"}],
+            },
+            "messages.0.role",
+        ),
+        (
+            {
+                "model": "test-model",
+                "messages": [{"role": "user", "content": 123}],
+            },
+            "messages.0.content",
+        ),
     ],
 )
 @pytest.mark.asyncio
-async def test_gateway_rejects_invalid_messages(invalid_payload):
+async def test_gateway_rejects_invalid_messages(invalid_payload, expected_param):
     def handler(request: httpx.Request) -> httpx.Response:
         raise AssertionError("Backend must not be called")
 
@@ -284,5 +290,42 @@ async def test_gateway_rejects_invalid_messages(invalid_payload):
             r = await gateway_client.post(
                 url="/v1/chat/completions", json=invalid_payload
             )
-            assert r.status_code == 422
-            assert r.headers.get("x-infergate-backend") is None
+            assert r.status_code == 400
+            assert r.json() == {
+                "error": {
+                    "message": "Invalid request body.",
+                    "type": "invalid_request_error",
+                    "param": expected_param,
+                    "code": None,
+                }
+            }
+
+
+@pytest.mark.asyncio
+async def test_non_bool_stream():
+    def handler(request: httpx.Request) -> httpx.Response:
+        raise AssertionError("Backend must not be called")
+
+    async with httpx.AsyncClient(
+        transport=httpx.MockTransport(handler)
+    ) as backend_base_client:
+        router = RoundRobinRouter(
+            {"test-model": [Backend(id="backend-a", base_url="http://backend-a")]}
+        )
+        app = create_app(router, BackendClient(backend_base_client))
+
+        async with httpx.AsyncClient(
+            transport=httpx.ASGITransport(app=app), base_url="http://gateway"
+        ) as gateway_client:
+            r = await gateway_client.post(
+                url="/v1/chat/completions", json={**basic_payload, "stream": "false"}
+            )
+            assert r.status_code == 400
+            assert r.json() == {
+                "error": {
+                    "message": "Invalid request body.",
+                    "type": "invalid_request_error",
+                    "param": "stream",
+                    "code": None,
+                }
+            }

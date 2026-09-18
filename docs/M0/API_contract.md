@@ -104,9 +104,29 @@ rebuilds or validates.
 This occurs when InferGate rejects the request itself, including malformed JSON,
 missing or invalid M0 fields, and unsupported streaming.
 
-- HTTP status: `400 Bad Request` / `422 Unprocessable Content`.
+- HTTP status: `400 Bad Request`.
 - The request is not sent to a backend.
 - InferGate generates the response body.
+- `X-InferGate-Backend` is not added because no backend was selected.
+
+For request-schema validation failures, InferGate reports the first invalid
+field using a dot-separated path. The leading `body` component from the
+internal validation location is omitted. For example, an invalid role in the
+first message is reported as `messages.0.role`. Malformed JSON has no field
+path, so `param` is `null`.
+
+Example schema-validation response:
+
+```json
+{
+  "error": {
+    "message": "Invalid request body.",
+    "type": "invalid_request_error",
+    "param": "messages.0.role",
+    "code": null
+  }
+}
+```
 
 Example for `stream: true`:
 
