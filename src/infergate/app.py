@@ -2,7 +2,7 @@ from fastapi import FastAPI, Response
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
-from infergate.backend_client import BackendClient
+from infergate.backend_client import BackendClient, BackendTransportError
 from infergate.router import NoBackendAvailableError, RoundRobinRouter
 
 
@@ -36,9 +36,25 @@ def create_app(router: RoundRobinRouter, backend_client: BackendClient) -> FastA
             )
             return error_response
 
-        backend_response = await backend_client.forward(
-            backend=backend, path="/v1/chat/completions", payload=payload
-        )
+        # 调用 backend_client 发送请求，连接失败报 502
+        try:
+            backend_response = await backend_client.forward(
+                backend=backend, path="/v1/chat/completions", payload=payload
+            )
+        except BackendTransportError:
+            error_response = JSONResponse(
+                status_code=502,
+                headers={"X-InferGate-Backend": backend.id},
+                content={
+                    "error": {
+                        "message": "Cannot connect to backend.",
+                        "type": "gateway_error",
+                        "param": None,
+                        "code": "backend_transport_failure",
+                    }
+                },
+            )
+            return error_response
 
         # 构造请求头
         headers = {"X-InferGate-Backend": backend.id}

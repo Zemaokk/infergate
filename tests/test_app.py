@@ -105,3 +105,37 @@ async def test_gateway_returns_503_when_no_backend_is_available():
             }
             assert r.headers.get("content-type") == "application/json"
             assert r.headers.get("x-infergate-backend") is None
+
+
+@pytest.mark.asyncio
+async def test_gateway_returns_502_on_backend_transport_failure():
+    def handler(request: httpx.Request) -> httpx.Response:
+        raise httpx.ConnectError(
+            "Connection failed",
+            request=request,
+        )
+
+    async with httpx.AsyncClient(
+        transport=httpx.MockTransport(handler)
+    ) as backend_base_client:
+        router = RoundRobinRouter(
+            {"test-model": [Backend(id="backend-a", base_url="http://backend-a")]}
+        )
+        app = create_app(router, BackendClient(backend_base_client))
+
+        async with httpx.AsyncClient(
+            transport=httpx.ASGITransport(app=app), base_url="http://gateway"
+        ) as gateway_client:
+            r = await gateway_client.post(url="/v1/chat/completions", json=payload)
+
+            assert r.status_code == 502
+            assert r.json() == {
+                "error": {
+                    "message": "Cannot connect to backend.",
+                    "type": "gateway_error",
+                    "param": None,
+                    "code": "backend_transport_failure",
+                }
+            }
+            assert r.headers["content-type"] == "application/json"
+            assert r.headers["x-infergate-backend"] == "backend-a"

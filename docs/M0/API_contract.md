@@ -162,6 +162,7 @@ times out, so no backend HTTP response exists.
 
 - HTTP status: `502 Bad Gateway`.
 - InferGate generates the response body.
+- Add `X-InferGate-Backend: <backend-id>` for the selected backend.
 - Do not retry in M0.
 
 ```json
