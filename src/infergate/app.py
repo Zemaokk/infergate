@@ -1,14 +1,25 @@
+from typing import Literal
+
 from fastapi import FastAPI, Response
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, StrictBool
+from pydantic import BaseModel, Field, StrictBool, StrictStr
 
 from infergate.backend_client import BackendClient, BackendTransportError
 from infergate.router import NoBackendAvailableError, RoundRobinRouter
 
 
+class ChatMessage(BaseModel):
+    model_config = {"extra": "allow"}
+
+    role: Literal["developer", "system", "user", "assistant"]
+    content: StrictStr
+
+
 class ChatCompletionRequest(BaseModel):
     model_config = {"extra": "allow"}
-    model: str
+
+    model: StrictStr
+    messages: list[ChatMessage] = Field(min_length=1)
     stream: StrictBool = False
 
 

@@ -7,10 +7,21 @@ from infergate.app import create_app
 from infergate.backend_client import BackendClient
 from infergate.router import Backend, RoundRobinRouter
 
-payload = {
+basic_payload = {
     "model": "test-model",
     "messages": [{"role": "user", "content": "hello"}],
     "temperature": 0.7,
+}
+
+message_payload = {
+    "model": "test-model",
+    "messages": [
+        {
+            "role": "user",
+            "content": "hello",
+            "name": "test-user",
+        }
+    ],
 }
 
 backend_body = b'{"id": "response-001", "output": "hello"}'
@@ -21,7 +32,7 @@ error_body = b'{"error":"backend_failed"}'
 async def test_gateway_forwards_successful_response():
     def handler(request: httpx.Request) -> httpx.Response:
         assert request.url == "http://backend-a/v1/chat/completions"
-        assert json.loads(request.content) == payload
+        assert json.loads(request.content) == basic_payload
 
         return httpx.Response(
             status_code=200,
@@ -40,7 +51,9 @@ async def test_gateway_forwards_successful_response():
         async with httpx.AsyncClient(
             transport=httpx.ASGITransport(app=app), base_url="http://gateway"
         ) as gateway_client:
-            r = await gateway_client.post(url="/v1/chat/completions", json=payload)
+            r = await gateway_client.post(
+                url="/v1/chat/completions", json=basic_payload
+            )
 
             assert r.status_code == 200
             assert r.content == backend_body
@@ -52,7 +65,7 @@ async def test_gateway_forwards_successful_response():
 async def test_gateway_forwards_backend_http_error_without_content_type():
     def handler(request: httpx.Request) -> httpx.Response:
         assert request.url == "http://backend-a/v1/chat/completions"
-        assert json.loads(request.content) == payload
+        assert json.loads(request.content) == basic_payload
 
         return httpx.Response(
             status_code=500,
@@ -70,7 +83,9 @@ async def test_gateway_forwards_backend_http_error_without_content_type():
         async with httpx.AsyncClient(
             transport=httpx.ASGITransport(app=app), base_url="http://gateway"
         ) as gateway_client:
-            r = await gateway_client.post(url="/v1/chat/completions", json=payload)
+            r = await gateway_client.post(
+                url="/v1/chat/completions", json=basic_payload
+            )
 
             assert r.status_code == 500
             assert r.content == error_body
@@ -92,7 +107,9 @@ async def test_gateway_returns_503_when_no_backend_is_available():
         async with httpx.AsyncClient(
             transport=httpx.ASGITransport(app=app), base_url="http://gateway"
         ) as gateway_client:
-            r = await gateway_client.post(url="/v1/chat/completions", json=payload)
+            r = await gateway_client.post(
+                url="/v1/chat/completions", json=basic_payload
+            )
 
             assert r.status_code == 503
             assert r.json() == {
@@ -126,7 +143,9 @@ async def test_gateway_returns_502_on_backend_transport_failure():
         async with httpx.AsyncClient(
             transport=httpx.ASGITransport(app=app), base_url="http://gateway"
         ) as gateway_client:
-            r = await gateway_client.post(url="/v1/chat/completions", json=payload)
+            r = await gateway_client.post(
+                url="/v1/chat/completions", json=basic_payload
+            )
 
             assert r.status_code == 502
             assert r.json() == {
@@ -144,7 +163,7 @@ async def test_gateway_returns_502_on_backend_transport_failure():
 @pytest.mark.asyncio
 async def test_gateway_forwards_explicit_stream_false():
     stream_false_payload = {
-        **payload,
+        **basic_payload,
         "stream": False,
     }
 
@@ -189,7 +208,7 @@ async def test_gateway_rejects_stream_true_before_backend_selection():
             transport=httpx.ASGITransport(app=app), base_url="http://gateway"
         ) as gateway_client:
             r = await gateway_client.post(
-                url="/v1/chat/completions", json={**payload, "stream": True}
+                url="/v1/chat/completions", json={**basic_payload, "stream": True}
             )
             assert r.status_code == 400
             assert r.json() == {
@@ -201,4 +220,69 @@ async def test_gateway_rejects_stream_true_before_backend_selection():
                 }
             }
             assert r.headers["content-type"] == "application/json"
+            assert r.headers.get("x-infergate-backend") is None
+
+
+@pytest.mark.asyncio
+async def test_gateway_preserves_unknown_message_fields():
+    def handler(request: httpx.Request) -> httpx.Response:
+        assert json.loads(request.content) == message_payload
+        return httpx.Response(
+            status_code=200,
+            content=backend_body,
+            headers={"Content-Type": "application/json"},
+        )
+
+    async with httpx.AsyncClient(
+        transport=httpx.MockTransport(handler)
+    ) as backend_base_client:
+        router = RoundRobinRouter(
+            {"test-model": [Backend(id="backend-a", base_url="http://backend-a")]}
+        )
+        app = create_app(router, BackendClient(backend_base_client))
+
+        async with httpx.AsyncClient(
+            transport=httpx.ASGITransport(app=app), base_url="http://gateway"
+        ) as gateway_client:
+            r = await gateway_client.post(
+                url="/v1/chat/completions", json={**message_payload}
+            )
+            assert r.status_code == 200
+
+
+@pytest.mark.parametrize(
+    "invalid_payload",
+    [
+        {"model": "test-model"},
+        {"model": "test-model", "messages": []},
+        {
+            "model": "test-model",
+            "messages": [{"role": "invalid-role", "content": "hello"}],
+        },
+        {
+            "model": "test-model",
+            "messages": [{"role": "user", "content": 123}],
+        },
+    ],
+)
+@pytest.mark.asyncio
+async def test_gateway_rejects_invalid_messages(invalid_payload):
+    def handler(request: httpx.Request) -> httpx.Response:
+        raise AssertionError("Backend must not be called")
+
+    async with httpx.AsyncClient(
+        transport=httpx.MockTransport(handler)
+    ) as backend_base_client:
+        router = RoundRobinRouter(
+            {"test-model": [Backend(id="backend-a", base_url="http://backend-a")]}
+        )
+        app = create_app(router, BackendClient(backend_base_client))
+
+        async with httpx.AsyncClient(
+            transport=httpx.ASGITransport(app=app), base_url="http://gateway"
+        ) as gateway_client:
+            r = await gateway_client.post(
+                url="/v1/chat/completions", json=invalid_payload
+            )
+            assert r.status_code == 422
             assert r.headers.get("x-infergate-backend") is None
