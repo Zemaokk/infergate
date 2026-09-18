@@ -76,3 +76,32 @@ async def test_gateway_forwards_backend_http_error_without_content_type():
             assert r.content == error_body
             assert r.headers.get("content-type") is None
             assert r.headers.get("x-infergate-backend") == "backend-a"
+
+
+@pytest.mark.asyncio
+async def test_gateway_returns_503_when_no_backend_is_available():
+    def handler(request: httpx.Request) -> httpx.Response:
+        raise AssertionError("Backend must not be called")
+
+    async with httpx.AsyncClient(
+        transport=httpx.MockTransport(handler)
+    ) as backend_base_client:
+        router = RoundRobinRouter({})
+        app = create_app(router, BackendClient(backend_base_client))
+
+        async with httpx.AsyncClient(
+            transport=httpx.ASGITransport(app=app), base_url="http://gateway"
+        ) as gateway_client:
+            r = await gateway_client.post(url="/v1/chat/completions", json=payload)
+
+            assert r.status_code == 503
+            assert r.json() == {
+                "error": {
+                    "message": "No backend is available for the requested model.",
+                    "type": "gateway_error",
+                    "param": None,
+                    "code": "no_backend_available",
+                }
+            }
+            assert r.headers.get("content-type") == "application/json"
+            assert r.headers.get("x-infergate-backend") is None

@@ -121,7 +121,28 @@ Example for `stream: true`:
 }
 ```
 
-### 2. Backend HTTP error
+### 2. No backend available
+
+This occurs when no backend is configured for the requested model, or when its
+configured backend list is empty.
+
+- HTTP status: `503 Service Unavailable`.
+- InferGate generates the response body.
+- The request is not sent to a backend.
+- `X-InferGate-Backend` is not added because no backend was selected.
+
+```json
+{
+  "error": {
+    "message": "No backend is available for the requested model.",
+    "type": "gateway_error",
+    "param": null,
+    "code": "no_backend_available"
+  }
+}
+```
+
+### 3. Backend HTTP error
 
 This occurs when a connection to the selected backend succeeds and the backend
 returns a non-success HTTP status.
@@ -134,7 +155,7 @@ returns a non-success HTTP status.
 
 InferGate does not replace a backend-generated HTTP error with a gateway error.
 
-### 3. Backend transport failure
+### 4. Backend transport failure
 
 This occurs when InferGate cannot connect to the selected backend or the request
 times out, so no backend HTTP response exists.
