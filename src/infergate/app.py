@@ -1,12 +1,18 @@
+from collections.abc import AsyncIterator
 from typing import Literal
 
 from fastapi import FastAPI, Request, Response
 from fastapi.exceptions import RequestValidationError
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field, StrictBool, StrictStr
 from starlette.types import Lifespan
 
 from infergate.api_errors import create_error_response
-from infergate.backend_client import BackendClient, BackendTransportError
+from infergate.backend_client import (
+    BackendClient,
+    BackendStreamResponse,
+    BackendTransportError,
+)
 from infergate.router import NoBackendAvailableError, RoundRobinRouter
 
 
@@ -23,6 +29,15 @@ class ChatCompletionRequest(BaseModel):
     model: StrictStr
     messages: list[ChatMessage] = Field(min_length=1)
     stream: StrictBool = False
+
+
+# 转发并确保关闭下游 streaming response
+async def stream_backend_body(response: BackendStreamResponse) -> AsyncIterator[bytes]:
+    try:
+        async for chunk in response.aiter_bytes():
+            yield chunk
+    finally:
+        await response.aclose()
 
 
 def create_app(
@@ -56,15 +71,6 @@ def create_app(
         payload = request.model_dump(exclude_unset=True)
         model = request.model
 
-        # 拒绝 stream: true
-        if request.stream:
-            return create_error_response(
-                status_code=400,
-                message="Streaming is not supported in M0.",
-                error_type="invalid_request_error",
-                param="stream",
-            )
-
         # 选择 backend，如果无可用，报503
         try:
             backend = router.select(model=model)
@@ -78,9 +84,14 @@ def create_app(
 
         # 调用 backend_client 发送请求，连接失败报 502
         try:
-            backend_response = await backend_client.forward(
-                backend=backend, path="/v1/chat/completions", payload=payload
-            )
+            if request.stream:
+                backend_response = await backend_client.open_stream(
+                    backend=backend, path="/v1/chat/completions", payload=payload
+                )
+            else:
+                backend_response = await backend_client.forward(
+                    backend=backend, path="/v1/chat/completions", payload=payload
+                )
         except BackendTransportError:
             return create_error_response(
                 status_code=502,
@@ -95,11 +106,19 @@ def create_app(
         if backend_response.content_type is not None:
             headers["Content-Type"] = backend_response.content_type
 
-        r = Response(
-            content=backend_response.body,
-            status_code=backend_response.status_code,
-            headers=headers,
-        )
+        if request.stream:
+            r = StreamingResponse(
+                content=stream_backend_body(backend_response),
+                status_code=backend_response.status_code,
+                headers=headers,
+            )
+        else:
+            r = Response(
+                content=backend_response.body,
+                status_code=backend_response.status_code,
+                headers=headers,
+            )
+
         return r
 
     return app

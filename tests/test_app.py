@@ -173,27 +173,25 @@ async def test_gateway_forwards_explicit_stream_false():
         assert r.status_code == 200
 
 
-# gateway 应拒绝 stream = true 的请求
+# 测试 stream = true 的请求
 @pytest.mark.asyncio
-async def test_gateway_rejects_stream_true_before_backend_selection():
+async def test_gateway_forwards_streaming_response():
     def handler(request: httpx.Request) -> httpx.Response:
-        raise AssertionError("Backend must not be called")
+        assert json.loads(request.content) == {**basic_payload, "stream": True}
+        return httpx.Response(
+            status_code=200,
+            content=b"data: first\n\ndata: second\n\n",
+            headers={"Content-Type": "text/event-stream"},
+        )
 
     async with gateway_client(handler) as client:
         r = await client.post(
             url="/v1/chat/completions", json={**basic_payload, "stream": True}
         )
-        assert r.status_code == 400
-        assert r.json() == {
-            "error": {
-                "message": "Streaming is not supported in M0.",
-                "type": "invalid_request_error",
-                "param": "stream",
-                "code": None,
-            }
-        }
-        assert r.headers["content-type"] == "application/json"
-        assert r.headers.get("x-infergate-backend") is None
+        assert r.status_code == 200
+        assert r.content == b"data: first\n\ndata: second\n\n"
+        assert r.headers["content-type"] == "text/event-stream"
+        assert r.headers.get("x-infergate-backend") == "backend-a"
 
 
 # gateway 不对未知 message 参数修改，直接发送给 client -> backend
