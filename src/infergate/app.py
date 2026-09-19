@@ -4,6 +4,7 @@ from fastapi import FastAPI, Request, Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, StrictBool, StrictStr
+from starlette.types import Lifespan
 
 from infergate.backend_client import BackendClient, BackendTransportError
 from infergate.router import NoBackendAvailableError, RoundRobinRouter
@@ -24,8 +25,12 @@ class ChatCompletionRequest(BaseModel):
     stream: StrictBool = False
 
 
-def create_app(router: RoundRobinRouter, backend_client: BackendClient) -> FastAPI:
-    app = FastAPI()
+def create_app(
+    router: RoundRobinRouter,
+    backend_client: BackendClient,
+    lifespan: Lifespan | None = None,
+) -> FastAPI:
+    app = FastAPI(lifespan=lifespan)
 
     @app.exception_handler(RequestValidationError)
     async def request_valid_e_handler(
