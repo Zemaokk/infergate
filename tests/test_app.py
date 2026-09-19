@@ -170,6 +170,7 @@ async def test_gateway_forwards_explicit_stream_false():
 
     async with gateway_client(handler) as client:
         r = await client.post(url="/v1/chat/completions", json=stream_false_payload)
+        assert r.status_code == 200
 
 
 # gateway 应拒绝 stream = true 的请求
@@ -270,3 +271,53 @@ async def test_non_bool_stream():
                 "code": None,
             }
         }
+
+
+@pytest.mark.asyncio
+async def test_gateway_round_robins_across_two_backends():
+    requested_urls: list[str] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requested_urls.append(str(request.url))
+
+        return httpx.Response(
+            status_code=200,
+            content=backend_body,
+            headers={"Content-Type": "application/json"},
+        )
+
+    backend_ids: list[str] = []
+
+    router = RoundRobinRouter(
+        {
+            "test-model": [
+                Backend(id="backend-a", base_url="http://backend-a"),
+                Backend(id="backend-b", base_url="http://backend-b"),
+            ]
+        }
+    )
+    async with gateway_client(handler, router=router) as client:
+        for _ in range(5):
+            response = await client.post(
+                "/v1/chat/completions",
+                json=basic_payload,
+            )
+
+            assert response.status_code == 200
+            backend_ids.append(response.headers["x-infergate-backend"])
+
+    assert backend_ids == [
+        "backend-a",
+        "backend-b",
+        "backend-a",
+        "backend-b",
+        "backend-a",
+    ]
+
+    assert requested_urls == [
+        "http://backend-a/v1/chat/completions",
+        "http://backend-b/v1/chat/completions",
+        "http://backend-a/v1/chat/completions",
+        "http://backend-b/v1/chat/completions",
+        "http://backend-a/v1/chat/completions",
+    ]
