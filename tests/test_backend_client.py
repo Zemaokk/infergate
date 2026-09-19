@@ -72,3 +72,69 @@ async def test_backend_client_transport_error():
     e_msg = str(e.value)
     assert "Transport failure for backend chatcmpl-mock-001" in e_msg
     assert isinstance(e.value.__cause__, httpx.ConnectError)
+
+
+@pytest.mark.asyncio
+async def test_backend_client_opens_stream_without_reading_it_eagerly():
+    class TrackingStream(httpx.AsyncByteStream):
+        def __init__(self) -> None:
+            self.iterated = False
+            self.closed = False
+
+        async def __aiter__(self):
+            self.iterated = True
+            yield b"data: first\n\n"
+            yield b"data: second\n\n"
+
+        async def aclose(self) -> None:
+            self.closed = True
+
+    stream = TrackingStream()
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        assert request.url == "http://127.0.0.1:8001/v1/chat/completions"
+        assert json.loads(request.content) == test_request
+        return httpx.Response(
+            status_code=200,
+            headers={"Content-Type": "text/event-stream"},
+            stream=stream,
+        )
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        backend_client = BackendClient(client)
+        response = await backend_client.open_stream(
+            Backend(id="backend-a", base_url="http://127.0.0.1:8001/"),
+            path="/v1/chat/completions",
+            payload=test_request,
+        )
+
+        assert response.status_code == 200
+        assert response.content_type == "text/event-stream"
+        assert not stream.iterated
+        assert not stream.closed
+        assert b"".join([chunk async for chunk in response.aiter_bytes()]) == (
+            b"data: first\n\ndata: second\n\n"
+        )
+
+        await response.aclose()
+
+        assert stream.iterated
+        assert stream.closed
+
+
+@pytest.mark.asyncio
+async def test_backend_client_open_stream_maps_transport_error():
+    def handler(request: httpx.Request) -> httpx.Response:
+        raise httpx.ConnectError("Connection failed", request=request)
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        backend_client = BackendClient(client)
+
+        with pytest.raises(BackendTransportError) as exc_info:
+            await backend_client.open_stream(
+                Backend(id="backend-a", base_url="http://127.0.0.1:8001/"),
+                path="/v1/chat/completions",
+                payload=test_request,
+            )
+
+    assert isinstance(exc_info.value.__cause__, httpx.ConnectError)
