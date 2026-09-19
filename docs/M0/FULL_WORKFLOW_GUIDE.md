@@ -82,7 +82,7 @@ uv sync
 uv run pytest -q
 ```
 
-开始本作业时，预期已有 8 个测试通过。依赖库产生的 deprecation warning
+当前 M0 基线共有 24 个测试通过。依赖库产生的 deprecation warning
 不等于功能测试失败，但应保留原始输出，避免把真正的失败误判成 warning。
 
 再阅读以下文件，顺序不要颠倒：
@@ -465,7 +465,7 @@ if transport fails:
 ```bash
 uv run uvicorn infergate.mock_backend:app --port 8001
 uv run uvicorn infergate.mock_backend:app --port 8002
-uv run uvicorn infergate.app:app --port 8000
+uv run uvicorn infergate.runtime:app --port 8000
 ```
 
 若修改 `[tool.fastapi]` 默认入口，README 必须同步说明默认启动的是哪个服务。
@@ -539,7 +539,7 @@ uv run uvicorn infergate.mock_backend:app --host 127.0.0.1 --port 8002
 ```
 
 ```bash
-uv run uvicorn infergate.app:app --host 127.0.0.1 --port 8000
+uv run uvicorn infergate.runtime:app --host 127.0.0.1 --port 8000
 ```
 
 第四个终端发送请求：

@@ -98,7 +98,7 @@ receive
 
 ## 6. 迭代路线与验收标准
 
-### M0：最小转发闭环
+### M0：最小转发闭环（已完成）
 
 范围：
 
@@ -207,4 +207,4 @@ receive
 
 ## 10. 当前下一步
 
-只开始 M0。先定义 Chat Completions 的最小请求与响应，再分别实现 mock backend、backend client 和 round-robin router，最后由 API layer 把它们连接起来。当前不实现 Responses API，但核心模块不得依赖 Chat Completions 专属字段。
+M0 已完成自动化测试和本地三进程验收。下一步先为 M1 明确 streaming、timeout、health check 和客户端断开取消的行为合同，再开始实现。Responses API 仍留在 M4；共享 gateway core 不应依赖 Chat Completions 专属字段。
