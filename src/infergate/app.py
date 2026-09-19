@@ -65,7 +65,7 @@ def create_app(
                 param="stream",
             )
 
-        # 选择模型，如果无可用，报503
+        # 选择 backend，如果无可用，报503
         try:
             backend = router.select(model=model)
         except NoBackendAvailableError:

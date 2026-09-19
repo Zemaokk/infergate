@@ -162,11 +162,13 @@ AI 在本项目中应当：
 
 ## 12. 当前约定
 
-我们现在处于 **M0、learning mode**。
+我们现在处于 **M1、learning mode**。M0 已完成并保持可运行；已知但不阻塞
+M1 的技术债暂不修复。
 
-- 作者主导：最小 API contract、mock backend 的关键响应、round-robin router、核心测试断言
-- 共同完成：FastAPI endpoint、HTTPX 转发、测试组织
-- AI 主导：依赖与配置检查、脚手架、文档和重复样板
+- 作者主导：streaming 核心控制流、backend 健康状态与状态转换
+- 共同完成：timeout、cancellation propagation、FastAPI/HTTPX 集成和测试
+- AI 主导：工作计划、文档、测试 fixtures 和重复样板
 
-第一个核心 task 是定义 `/v1/chat/completions` 的最小请求与响应 contract；在 contract 确定前不开始实现路由。
-
+M1 先完成 streaming、timeout、health check 和客户端断开取消的行为合同，再
+开始实现。第一个核心 task 是 streaming passthrough；作者先写请求路径预测和
+最小伪代码，AI 再做 focused review。
