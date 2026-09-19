@@ -1,6 +1,6 @@
 # M1 Streaming Passthrough Contract
 
-**Status:** Accepted for first implementation  
+**Status:** Implemented and verified
 **Endpoint:** `POST /v1/chat/completions`  
 **Scope:** `stream: true` request forwarding and response streaming
 
@@ -10,6 +10,10 @@ This contract extends the accepted M0 behavior. Requests with omitted
 The author completed the request-path prediction and explained why downstream
 response cleanup belongs to the body iterator rather than the endpoint's local
 scope.
+
+Verification covers incremental body iteration, normal cleanup, task
+cancellation, ASGI client disconnect, transport failure before response
+headers, and body-read failure after response commitment.
 
 ## 1. Input and validation
 

@@ -1,12 +1,15 @@
+import asyncio
 import json
 from collections.abc import AsyncGenerator, Callable
 from contextlib import asynccontextmanager
+from typing import cast
 
 import httpx
 import pytest
+from fastapi.responses import StreamingResponse
 
-from infergate.app import create_app
-from infergate.backend_client import BackendClient
+from infergate.app import create_app, stream_backend_body
+from infergate.backend_client import BackendClient, BackendStreamResponse
 from infergate.router import Backend, RoundRobinRouter
 
 basic_payload = {
@@ -28,6 +31,40 @@ message_payload = {
 
 backend_body = b'{"id": "response-001", "output": "hello"}'
 error_body = b'{"error":"backend_failed"}'
+
+
+class ControlledBackendStream:
+    def __init__(self) -> None:
+        self.release_second_chunk = asyncio.Event()
+        self.waiting_for_second_chunk = asyncio.Event()
+        self.closed = False
+
+    async def _chunks(self) -> AsyncGenerator[bytes]:
+        yield b"data: first\n\n"
+        self.waiting_for_second_chunk.set()
+        await self.release_second_chunk.wait()
+        yield b"data: second\n\n"
+
+    def aiter_bytes(self) -> AsyncGenerator[bytes]:
+        return self._chunks()
+
+    async def aclose(self) -> None:
+        self.closed = True
+
+
+class FailingBackendStream:
+    def __init__(self) -> None:
+        self.closed = False
+
+    async def _chunks(self) -> AsyncGenerator[bytes]:
+        yield b"data: first\n\n"
+        raise httpx.ReadError("Backend stream failed")
+
+    def aiter_bytes(self) -> AsyncGenerator[bytes]:
+        return self._chunks()
+
+    async def aclose(self) -> None:
+        self.closed = True
 
 
 def make_default_router() -> RoundRobinRouter:
@@ -60,6 +97,83 @@ async def gateway_client(
             transport=httpx.ASGITransport(app), base_url="http://gateway"
         ) as client:
             yield client
+
+
+@pytest.mark.asyncio
+async def test_stream_backend_body_closes_response_after_normal_exhaustion():
+    response = ControlledBackendStream()
+    response.release_second_chunk.set()
+    body = stream_backend_body(cast(BackendStreamResponse, response))
+
+    chunks = [chunk async for chunk in body]
+
+    assert chunks == [b"data: first\n\n", b"data: second\n\n"]
+    assert response.closed
+
+
+@pytest.mark.asyncio
+async def test_stream_backend_body_closes_response_when_cancelled():
+    response = ControlledBackendStream()
+    body = stream_backend_body(cast(BackendStreamResponse, response))
+
+    assert await anext(body) == b"data: first\n\n"
+    assert not response.closed
+
+    next_chunk = asyncio.create_task(anext(body))
+    await response.waiting_for_second_chunk.wait()
+    next_chunk.cancel()
+
+    with pytest.raises(asyncio.CancelledError):
+        await next_chunk
+
+    assert response.closed
+
+
+@pytest.mark.asyncio
+async def test_streaming_response_closes_downstream_on_client_disconnect():
+    response = ControlledBackendStream()
+    body = stream_backend_body(cast(BackendStreamResponse, response))
+    streaming_response = StreamingResponse(body, media_type="text/event-stream")
+    first_chunk_sent = asyncio.Event()
+    sent_messages: list[dict[str, object]] = []
+
+    async def receive() -> dict[str, str]:
+        await first_chunk_sent.wait()
+        return {"type": "http.disconnect"}
+
+    async def send(message: dict[str, object]) -> None:
+        sent_messages.append(message)
+        if (
+            message["type"] == "http.response.body"
+            and message.get("body") == b"data: first\n\n"
+        ):
+            first_chunk_sent.set()
+
+    await streaming_response(
+        {"type": "http", "asgi": {"spec_version": "2.3"}},
+        receive,
+        send,
+    )
+
+    assert first_chunk_sent.is_set()
+    assert not response.release_second_chunk.is_set()
+    assert response.closed
+    assert not any(
+        message.get("body") == b"data: second\n\n" for message in sent_messages
+    )
+
+
+@pytest.mark.asyncio
+async def test_stream_backend_body_closes_response_after_read_error():
+    response = FailingBackendStream()
+    body = stream_backend_body(cast(BackendStreamResponse, response))
+
+    assert await anext(body) == b"data: first\n\n"
+
+    with pytest.raises(httpx.ReadError):
+        await anext(body)
+
+    assert response.closed
 
 
 # happy path test
@@ -192,6 +306,22 @@ async def test_gateway_forwards_streaming_response():
         assert r.content == b"data: first\n\ndata: second\n\n"
         assert r.headers["content-type"] == "text/event-stream"
         assert r.headers.get("x-infergate-backend") == "backend-a"
+
+
+@pytest.mark.asyncio
+async def test_gateway_returns_502_when_stream_open_fails():
+    def handler(request: httpx.Request) -> httpx.Response:
+        raise httpx.ConnectError("Connection failed", request=request)
+
+    async with gateway_client(handler) as client:
+        response = await client.post(
+            url="/v1/chat/completions",
+            json={**basic_payload, "stream": True},
+        )
+
+    assert response.status_code == 502
+    assert response.json()["error"]["code"] == "backend_transport_failure"
+    assert response.headers["x-infergate-backend"] == "backend-a"
 
 
 # gateway 不对未知 message 参数修改，直接发送给 client -> backend

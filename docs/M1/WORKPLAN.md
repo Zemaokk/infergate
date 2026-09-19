@@ -1,6 +1,6 @@
 # M1 工作计划：Streaming 与后端健康
 
-**状态：** M1.1 streaming contract 已接受，进入 first attempt  
+**状态：** M1.1 streaming passthrough 已验证；下一步是 M1.2 timeout contract
 **模式：** Learning mode  
 **完成标准：** 流式响应不会在网关中完整缓冲；单个后端失效时，健康后端仍能
 服务请求。
@@ -46,7 +46,8 @@ M1 只包含：
 ### M1.1 Streaming passthrough contract（A 类）
 
 当前产物：[STREAMING_CONTRACT.md](STREAMING_CONTRACT.md)。作者已完成请求路径
-预测、最小伪代码和资源生命周期 teach-back；下一步是 first implementation。
+预测、最小伪代码、资源生命周期 teach-back 和 first implementation。自动化测试
+覆盖增量迭代、正常关闭、取消、客户端断开，以及响应提交前后的失败边界。
 
 作者先完成：
 
