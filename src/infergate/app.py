@@ -2,10 +2,10 @@ from typing import Literal
 
 from fastapi import FastAPI, Request, Response
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, StrictBool, StrictStr
 from starlette.types import Lifespan
 
+from infergate.api_errors import create_error_response
 from infergate.backend_client import BackendClient, BackendTransportError
 from infergate.router import NoBackendAvailableError, RoundRobinRouter
 
@@ -44,16 +44,11 @@ def create_app(
             location = [str(part) for part in first_error["loc"] if part != "body"]
             param = ".".join(location) or None
 
-        return JSONResponse(
+        return create_error_response(
             status_code=400,
-            content={
-                "error": {
-                    "message": "Invalid request body.",
-                    "type": "invalid_request_error",
-                    "param": param,
-                    "code": None,
-                }
-            },
+            message="Invalid request body.",
+            error_type="invalid_request_error",
+            param=param,
         )
 
     @app.post("/v1/chat/completions")
@@ -63,34 +58,23 @@ def create_app(
 
         # 拒绝 stream: true
         if request.stream:
-            return JSONResponse(
+            return create_error_response(
                 status_code=400,
-                content={
-                    "error": {
-                        "message": "Streaming is not supported in M0.",
-                        "type": "invalid_request_error",
-                        "param": "stream",
-                        "code": None,
-                    }
-                },
+                message="Streaming is not supported in M0.",
+                error_type="invalid_request_error",
+                param="stream",
             )
 
         # 选择模型，如果无可用，报503
         try:
             backend = router.select(model=model)
         except NoBackendAvailableError:
-            error_response = JSONResponse(
+            return create_error_response(
                 status_code=503,
-                content={
-                    "error": {
-                        "message": "No backend is available for the requested model.",
-                        "type": "gateway_error",
-                        "param": None,
-                        "code": "no_backend_available",
-                    }
-                },
+                message="No backend is available for the requested model.",
+                error_type="gateway_error",
+                code="no_backend_available",
             )
-            return error_response
 
         # 调用 backend_client 发送请求，连接失败报 502
         try:
@@ -98,19 +82,13 @@ def create_app(
                 backend=backend, path="/v1/chat/completions", payload=payload
             )
         except BackendTransportError:
-            error_response = JSONResponse(
+            return create_error_response(
                 status_code=502,
                 headers={"X-InferGate-Backend": backend.id},
-                content={
-                    "error": {
-                        "message": "Cannot connect to backend.",
-                        "type": "gateway_error",
-                        "param": None,
-                        "code": "backend_transport_failure",
-                    }
-                },
+                message="Cannot connect to backend.",
+                error_type="gateway_error",
+                code="backend_transport_failure",
             )
-            return error_response
 
         # 构造请求头
         headers = {"X-InferGate-Backend": backend.id}
