@@ -14,7 +14,7 @@ The M1 streaming and backend-health acceptance record is in
 
 ## Current status
 
-M0 is complete, and the M1 implementation has passed technical acceptance.
+M0 and M1 are complete. M2 has not started.
 InferGate currently provides:
 
 - a validated `POST /v1/chat/completions` endpoint with non-streaming and

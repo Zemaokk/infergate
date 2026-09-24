@@ -1,6 +1,6 @@
 # M1 工作计划：Streaming 与后端健康
 
-**状态：** M1.1–M1.4 技术验收完成；作者 teach-back 待完成
+**状态：** M1.1–M1.4 技术验收与作者 teach-back 完成；M1 完成，M2 未启动
 **模式：** Learning mode  
 **完成标准：** 流式响应不会在网关中完整缓冲；单个后端失效时，健康后端仍能
 服务请求。
@@ -65,7 +65,7 @@ AI 随后：
 
 ### M1.2 Timeout 与 cancellation contract（B 类）
 
-当前草案：[TIMEOUT_CANCELLATION_CONTRACT.md](TIMEOUT_CANCELLATION_CONTRACT.md)。
+当前合同：[TIMEOUT_CANCELLATION_CONTRACT.md](TIMEOUT_CANCELLATION_CONTRACT.md)。
 已定义 timeout 与客户端响应提交的边界；作者接受 `connect/pool=5s`、
 `write/read=30s`，不设总时长。四类配置及响应提交前后的失败路径已经验证。
 
@@ -142,3 +142,20 @@ receive request
 
 如果它们开始阻塞 M1 测试或运行，再作为独立小任务处理，不与 streaming 或 health
 状态机混在同一提交中。
+
+## 6. M1 简短复盘
+
+1. **现在能解释什么：** 作者解释了流式响应提交前后的错误边界、下游 response
+   的生命周期，以及健康探测只改变后续选路、不追溯取消已选中 backend 的请求。
+   对 A 的探测失败后，已在 A 上的请求沿自身路径结束；若 A 尚未恢复，新请求
+   跳过 A。若所有 backend 都不可选，则返回 503。
+2. **任务分工：** 作者主导 streaming 控制流、健康状态和 health-aware router
+   第一版；AI 主导工作计划、mock 与测试配套，并共同完成 timeout、探测循环和
+   runtime 集成。
+3. **关键不变量：** router 的游标只在成功选中 backend 后推进；一圈都不可选时
+   保持原位。第一版的末项越界和失败时提前推进问题促成了这一条的针对性测试。
+4. **验证与边界：** 自动化测试和本地回环进程验收见
+   [ACCEPTANCE.md](ACCEPTANCE.md)。真实生产推理服务、真实网络断开、性能与
+   多进程共享健康状态仍未验证；不能从 mock 测试推断这些行为。
+5. **下一阶段：** 本轮不开始 M2。M0 的两项已记录技术债继续暂缓，除非日后
+   实际阻塞后续工作。
