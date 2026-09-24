@@ -102,3 +102,50 @@ async def test_periodic_probe_restores_backend_to_routing() -> None:
                         break
 
     assert response.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_streaming_request_uses_healthy_backend_and_preserves_body() -> None:
+    chunks = [b"data: first\n\n", b"data: second\n\n"]
+    stream_closed = False
+    inference_ports: list[int | None] = []
+
+    class BackendStream(httpx.AsyncByteStream):
+        async def __aiter__(self):
+            for chunk in chunks:
+                yield chunk
+
+        async def aclose(self) -> None:
+            nonlocal stream_closed
+            stream_closed = True
+
+    def probe_handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(503 if request.url.port == 8001 else 200)
+
+    def backend_handler(request: httpx.Request) -> httpx.Response:
+        inference_ports.append(request.url.port)
+        assert request.headers["content-type"] == "application/json"
+        return httpx.Response(
+            200,
+            headers={"content-type": "text/event-stream"},
+            stream=BackendStream(),
+        )
+
+    app = create_runtime_app(
+        probe_transport=httpx.MockTransport(probe_handler),
+        backend_transport=httpx.MockTransport(backend_handler),
+    )
+    async with app.router.lifespan_context(app):
+        async with httpx.AsyncClient(
+            transport=httpx.ASGITransport(app), base_url="http://gateway"
+        ) as client:
+            response = await client.post(
+                "/v1/chat/completions", json={**REQUEST, "stream": True}
+            )
+
+    assert response.status_code == 200
+    assert response.headers["X-InferGate-Backend"] == "backend-b"
+    assert response.headers["content-type"] == "text/event-stream"
+    assert response.content == b"".join(chunks)
+    assert inference_ports == [8002]
+    assert stream_closed

@@ -54,3 +54,14 @@ def test_normal_response():
     assert response.json()["object"] == "chat.completion"
     assert type(response.json()["choices"]) == list
     assert response.json()["choices"][0]["message"]["role"] == "assistant"
+
+
+def test_streaming_response_contains_two_sse_events():
+    response = client.post(
+        "/v1/chat/completions", json={**test_request, "stream": True}
+    )
+
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "text/event-stream; charset=utf-8"
+    assert response.content.startswith(b"data: {")
+    assert response.content.endswith(b"data: [DONE]\n\n")

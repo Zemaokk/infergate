@@ -1,7 +1,10 @@
+import asyncio
 import time
+from collections.abc import AsyncIterator
 from typing import Literal
 
 from fastapi import FastAPI, Response
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
 app = FastAPI()
@@ -19,7 +22,7 @@ class ChatCompletionRequest(BaseModel):
 
     model: str
     messages: list[Message] = Field(min_length=1)
-    stream: Literal[False] = False
+    stream: bool = False
 
 
 class Choice(BaseModel):
@@ -41,13 +44,25 @@ async def health() -> Response:
     return Response(status_code=200)
 
 
-@app.post("/v1/chat/completions")
+async def mock_stream_body() -> AsyncIterator[bytes]:
+    yield (
+        b'data: {"id":"chatcmpl-mock-001","object":"chat.completion.chunk",'
+        b'"choices":[{"delta":{"content":"Hello"}}]}\n\n'
+    )
+    await asyncio.sleep(0.3)
+    yield b"data: [DONE]\n\n"
+
+
+@app.post("/v1/chat/completions", response_model=ChatCompletionResponse)
 async def create_chat_completion(
     chatcompletionrequest: ChatCompletionRequest,
-) -> ChatCompletionResponse:
+) -> ChatCompletionResponse | StreamingResponse:
     # 1. 读取 JSON payload
     # 2. 读取请求中的 model
     # 3. 构造符合 API contract 的 mock response
+    if chatcompletionrequest.stream:
+        return StreamingResponse(mock_stream_body(), media_type="text/event-stream")
+
     response = ChatCompletionResponse(
         id="chatcmpl-mock-001",
         object="chat.completion",

@@ -1,7 +1,6 @@
 # M1 工作计划：Streaming 与后端健康
 
-**状态：** M1.1 streaming、M1.2 timeout/cancellation 和 M1.3 health 已验证；
-下一步 M1.4 集成验收
+**状态：** M1.1–M1.4 技术验收完成；作者 teach-back 待完成
 **模式：** Learning mode  
 **完成标准：** 流式响应不会在网关中完整缓冲；单个后端失效时，健康后端仍能
 服务请求。
@@ -97,6 +96,8 @@ health-aware router 的第一版；探测循环、启动集成和针对性测试
 探测，再开放请求；后续轮次在上一轮结束 5 s 后开始。
 
 ### M1.4 集成与验证（B 类）
+
+自动化测试与本地进程验证的结果见 [ACCEPTANCE.md](ACCEPTANCE.md)。
 
 至少验证：
 
