@@ -1,7 +1,7 @@
 import time
 from typing import Literal
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 from pydantic import BaseModel, Field
 
 app = FastAPI()
@@ -34,6 +34,11 @@ class ChatCompletionResponse(BaseModel):
     created: int
     model: str
     choices: list[Choice]
+
+
+@app.get("/health")
+async def health() -> Response:
+    return Response(status_code=200)
 
 
 @app.post("/v1/chat/completions")

@@ -79,6 +79,10 @@ AI 随后：
 
 ### M1.3 Backend health state（A 类）
 
+当前合同：[HEALTH_CONTRACT.md](HEALTH_CONTRACT.md)。作者已预测双 backend
+失效与恢复过程，并接受启动检查、探测策略和路由规则；下一步由作者完成状态与路由
+的第一版。health-aware router 尚未实现。
+
 作者先定义：
 
 - 最小状态集合；

@@ -7,14 +7,11 @@ from infergate.app import create_app
 from infergate.backend_client import BackendClient
 from infergate.router import Backend, RoundRobinRouter
 
-
 BACKEND_TIMEOUT = httpx.Timeout(connect=5.0, pool=5.0, write=30.0, read=30.0)
 
 
 def create_runtime_app() -> FastAPI:
-    backend_http_client = httpx.AsyncClient(
-        timeout=BACKEND_TIMEOUT, trust_env=False
-    )
+    backend_http_client = httpx.AsyncClient(timeout=BACKEND_TIMEOUT, trust_env=False)
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
