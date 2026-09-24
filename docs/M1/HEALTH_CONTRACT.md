@@ -1,6 +1,6 @@
 # M1 Backend Health Contract
 
-**Status:** State and health-aware router first implementation verified; probe loop pending
+**Status:** Implemented and verified in M1.3
 **Scope:** Health checks, backend eligibility, and model-aware routing
 
 ## 1. Goal and existing boundaries
@@ -91,10 +91,10 @@ The author accepted these M1 choices:
   select the first healthy one, then move the cursor just past that backend.
   If none is healthy, raise `NoBackendAvailableError` without moving the cursor.
 
-The health checker, state map, and router must all use the same per-application
-backend identities. The author's state and router first implementation is
-verified by focused unit tests; runtime wiring remains deferred until startup
-probes are implemented.
+The health checker, state map, and router use the same per-application backend
+identities. The author's state and router implementation is verified by focused
+unit tests. Runtime wiring starts a parallel probe round before serving requests
+and then runs non-overlapping rounds in the background.
 
 ## 4. First implementation boundary
 

@@ -1,6 +1,7 @@
 # M1 工作计划：Streaming 与后端健康
 
-**状态：** M1.1 streaming 和 M1.2 timeout/cancellation 已验证；下一步 M1.3 health
+**状态：** M1.1 streaming、M1.2 timeout/cancellation 和 M1.3 health 已验证；
+下一步 M1.4 集成验收
 **模式：** Learning mode  
 **完成标准：** 流式响应不会在网关中完整缓冲；单个后端失效时，健康后端仍能
 服务请求。
@@ -81,7 +82,7 @@ AI 随后：
 
 当前合同：[HEALTH_CONTRACT.md](HEALTH_CONTRACT.md)。作者已预测双 backend
 失效与恢复过程，并接受启动检查、探测策略和路由规则。作者完成健康状态与
-health-aware router 的第一版，针对性测试已通过；下一步实现探测循环和启动集成。
+health-aware router 的第一版；探测循环、启动集成和针对性测试已完成。
 
 作者先定义：
 
@@ -92,8 +93,8 @@ health-aware router 的第一版，针对性测试已通过；下一步实现探
 - router 如何读取可选 backend 集合；
 - 并发访问状态时的同步边界。
 
-合同已接受，health-aware router 已实现；runtime 暂时保持原路由行为，直到
-启动探测能填充健康状态后再接入。
+合同已接受，health-aware router 已实现并接入 runtime。启动时先完成并行
+探测，再开放请求；后续轮次在上一轮结束 5 s 后开始。
 
 ### M1.4 集成与验证（B 类）
 
