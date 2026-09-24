@@ -1,6 +1,6 @@
 # M1 工作计划：Streaming 与后端健康
 
-**状态：** M1.1 streaming passthrough 已验证；下一步是 M1.2 timeout contract
+**状态：** M1.1 streaming 和 M1.2 timeout/cancellation 已验证；下一步 M1.3 health
 **模式：** Learning mode  
 **完成标准：** 流式响应不会在网关中完整缓冲；单个后端失效时，健康后端仍能
 服务请求。
@@ -64,6 +64,10 @@ AI 随后：
 - 与作者共同定稿 contract 和测试边界。
 
 ### M1.2 Timeout 与 cancellation contract（B 类）
+
+当前草案：[TIMEOUT_CANCELLATION_CONTRACT.md](TIMEOUT_CANCELLATION_CONTRACT.md)。
+已定义 timeout 与客户端响应提交的边界；作者接受 `connect/pool=5s`、
+`write/read=30s`，不设总时长。四类配置及响应提交前后的失败路径已经验证。
 
 共同明确：
 

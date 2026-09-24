@@ -53,12 +53,13 @@ class ControlledBackendStream:
 
 
 class FailingBackendStream:
-    def __init__(self) -> None:
+    def __init__(self, error_type: type[httpx.TransportError]) -> None:
         self.closed = False
+        self.error_type = error_type
 
     async def _chunks(self) -> AsyncGenerator[bytes]:
         yield b"data: first\n\n"
-        raise httpx.ReadError("Backend stream failed")
+        raise self.error_type("Backend stream failed")
 
     def aiter_bytes(self) -> AsyncGenerator[bytes]:
         return self._chunks()
@@ -163,16 +164,52 @@ async def test_streaming_response_closes_downstream_on_client_disconnect():
     )
 
 
+@pytest.mark.parametrize("error_type", [httpx.ReadError, httpx.ReadTimeout])
 @pytest.mark.asyncio
-async def test_stream_backend_body_closes_response_after_read_error():
-    response = FailingBackendStream()
+async def test_stream_backend_body_closes_response_after_read_error(error_type):
+    response = FailingBackendStream(error_type)
     body = stream_backend_body(cast(BackendStreamResponse, response))
 
     assert await anext(body) == b"data: first\n\n"
 
-    with pytest.raises(httpx.ReadError):
+    with pytest.raises(error_type):
         await anext(body)
 
+    assert response.closed
+
+
+@pytest.mark.asyncio
+async def test_stream_read_timeout_after_headers_does_not_send_gateway_error():
+    response = FailingBackendStream(httpx.ReadTimeout)
+    body = stream_backend_body(cast(BackendStreamResponse, response))
+    streaming_response = StreamingResponse(
+        body, status_code=200, media_type="text/event-stream"
+    )
+    sent_messages: list[dict[str, object]] = []
+
+    async def receive() -> dict[str, str]:
+        return {"type": "http.request"}
+
+    async def send(message: dict[str, object]) -> None:
+        sent_messages.append(message)
+
+    with pytest.raises(httpx.ReadTimeout):
+        await streaming_response(
+            {"type": "http", "asgi": {"spec_version": "2.4"}},
+            receive,
+            send,
+        )
+
+    starts = [
+        message for message in sent_messages if message["type"] == "http.response.start"
+    ]
+    bodies = [
+        message.get("body")
+        for message in sent_messages
+        if message["type"] == "http.response.body"
+    ]
+    assert [message["status"] for message in starts] == [200]
+    assert bodies == [b"data: first\n\n"]
     assert response.closed
 
 
@@ -266,6 +303,24 @@ async def test_gateway_returns_502_on_backend_transport_failure():
     assert r.headers["x-infergate-backend"] == "backend-a"
 
 
+@pytest.mark.asyncio
+async def test_gateway_returns_502_on_non_streaming_body_read_timeout():
+    class TimedOutBody(httpx.AsyncByteStream):
+        async def __aiter__(self) -> AsyncGenerator[bytes]:
+            yield b"partial response"
+            raise httpx.ReadTimeout("Timed out while reading backend body")
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, stream=TimedOutBody())
+
+    async with gateway_client(handler) as client:
+        response = await client.post("/v1/chat/completions", json=basic_payload)
+
+    assert response.status_code == 502
+    assert response.json()["error"]["code"] == "backend_transport_failure"
+    assert response.headers["x-infergate-backend"] == "backend-a"
+
+
 # gateway 应无修改转发显式 stream = false 的请求
 @pytest.mark.asyncio
 async def test_gateway_forwards_explicit_stream_false():
@@ -308,10 +363,11 @@ async def test_gateway_forwards_streaming_response():
         assert r.headers.get("x-infergate-backend") == "backend-a"
 
 
+@pytest.mark.parametrize("error_type", [httpx.ConnectError, httpx.ReadTimeout])
 @pytest.mark.asyncio
-async def test_gateway_returns_502_when_stream_open_fails():
+async def test_gateway_returns_502_when_stream_open_fails(error_type):
     def handler(request: httpx.Request) -> httpx.Response:
-        raise httpx.ConnectError("Connection failed", request=request)
+        raise error_type("Backend failed before response headers", request=request)
 
     async with gateway_client(handler) as client:
         response = await client.post(

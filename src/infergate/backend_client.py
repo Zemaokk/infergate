@@ -13,6 +13,7 @@ class BackendResponse:
     content_type: str | None
 
 
+# Wrapper
 class BackendStreamResponse:
     def __init__(self, response: httpx.Response) -> None:
         self.status_code = response.status_code

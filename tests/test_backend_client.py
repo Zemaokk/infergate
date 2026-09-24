@@ -122,10 +122,11 @@ async def test_backend_client_opens_stream_without_reading_it_eagerly():
         assert stream.closed
 
 
+@pytest.mark.parametrize("error_type", [httpx.ConnectError, httpx.ReadTimeout])
 @pytest.mark.asyncio
-async def test_backend_client_open_stream_maps_transport_error():
+async def test_backend_client_open_stream_maps_transport_error(error_type):
     def handler(request: httpx.Request) -> httpx.Response:
-        raise httpx.ConnectError("Connection failed", request=request)
+        raise error_type("Backend failed", request=request)
 
     async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
         backend_client = BackendClient(client)
@@ -137,4 +138,4 @@ async def test_backend_client_open_stream_maps_transport_error():
                 payload=test_request,
             )
 
-    assert isinstance(exc_info.value.__cause__, httpx.ConnectError)
+    assert isinstance(exc_info.value.__cause__, error_type)
