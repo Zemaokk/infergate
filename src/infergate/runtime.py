@@ -19,7 +19,7 @@ def create_runtime_app() -> FastAPI:
             yield
 
     router = RoundRobinRouter(
-        {
+        routes={
             "mock-model": [
                 Backend(
                     id="backend-a",
@@ -30,7 +30,7 @@ def create_runtime_app() -> FastAPI:
                     base_url="http://127.0.0.1:8002",
                 ),
             ]
-        }
+        },
     )
 
     backend_client = BackendClient(backend_http_client)

@@ -80,8 +80,8 @@ AI 随后：
 ### M1.3 Backend health state（A 类）
 
 当前合同：[HEALTH_CONTRACT.md](HEALTH_CONTRACT.md)。作者已预测双 backend
-失效与恢复过程，并接受启动检查、探测策略和路由规则；下一步由作者完成状态与路由
-的第一版。health-aware router 尚未实现。
+失效与恢复过程，并接受启动检查、探测策略和路由规则。作者完成健康状态与
+health-aware router 的第一版，针对性测试已通过；下一步实现探测循环和启动集成。
 
 作者先定义：
 
@@ -92,7 +92,8 @@ AI 随后：
 - router 如何读取可选 backend 集合；
 - 并发访问状态时的同步边界。
 
-在合同接受前，不实现 health-aware router。
+合同已接受，health-aware router 已实现；runtime 暂时保持原路由行为，直到
+启动探测能填充健康状态后再接入。
 
 ### M1.4 集成与验证（B 类）
 
