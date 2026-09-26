@@ -130,36 +130,64 @@ def create_app(
             payload = request.model_dump(exclude_unset=True)
             model = request.model
 
-            # 选择 backend，如果无可用，报503
-            try:
-                backend = router.select(model=model)
-            except NoBackendAvailableError:
-                return create_error_response(
-                    status_code=503,
-                    message="No backend is available for the requested model.",
-                    error_type="gateway_error",
-                    code="no_backend_available",
-                )
+            max_attempts = 2
+            attempted_backend_ids = set()
+            last_error = None
+            last_backend = None
 
-            # 调用 backend_client 发送请求，连接失败报 502
-            try:
-                if request.stream:
-                    backend_response = await backend_client.open_stream(
-                        backend=backend, path="/v1/chat/completions", payload=payload
+            for attempt in range(max_attempts):
+                # 选择 backend，如果无可用，报503
+                try:
+                    backend = router.select(
+                        model=model, excluded_backend_ids=attempted_backend_ids
                     )
-                    opened_stream = backend_response
-                else:
-                    backend_response = await backend_client.forward(
-                        backend=backend, path="/v1/chat/completions", payload=payload
-                    )
-            except BackendTransportError:
-                return create_error_response(
-                    status_code=502,
-                    headers={"X-InferGate-Backend": backend.id},
-                    message="Cannot connect to backend.",
-                    error_type="gateway_error",
-                    code="backend_transport_failure",
-                )
+                except NoBackendAvailableError:
+                    if last_error is None:
+                        return create_error_response(
+                            status_code=503,
+                            message="No backend is available for the requested model.",
+                            error_type="gateway_error",
+                            code="no_backend_available",
+                        )
+                    else:
+                        return create_error_response(
+                            status_code=502,
+                            headers={"X-InferGate-Backend": last_backend.id},
+                            message="Cannot connect to backend.",
+                            error_type="gateway_error",
+                            code="backend_transport_failure",
+                        )
+
+                attempted_backend_ids.add(backend.id)
+                last_backend = backend
+
+                # 调用 backend_client 发送请求，连接失败报 502
+                try:
+                    if request.stream:
+                        backend_response = await backend_client.open_stream(
+                            backend=backend,
+                            path="/v1/chat/completions",
+                            payload=payload,
+                        )
+                        opened_stream = backend_response
+                    else:
+                        backend_response = await backend_client.forward(
+                            backend=backend,
+                            path="/v1/chat/completions",
+                            payload=payload,
+                        )
+                except BackendTransportError as e:
+                    last_error = e
+                    if not e.retryable or attempt + 1 >= max_attempts:
+                        return create_error_response(
+                            status_code=502,
+                            headers={"X-InferGate-Backend": backend.id},
+                            message="Cannot connect to backend.",
+                            error_type="gateway_error",
+                            code="backend_transport_failure",
+                        )
+                    continue  # retry
+                break  # success
 
             # 构造请求头
             headers = {"X-InferGate-Backend": backend.id}
