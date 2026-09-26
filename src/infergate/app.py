@@ -97,6 +97,7 @@ def create_app(
     ) -> Response:
 
         # check key
+        # key 合法性检验
         if x_infergate_key is None or not x_infergate_key.strip():
             return create_error_response(
                 status_code=400,
@@ -105,14 +106,14 @@ def create_app(
                 code="invalid_infergate_key",
                 param="X-InferGate-Key",
             )
-        else:
-            if not key_limiter.allow(key=x_infergate_key):
-                return create_error_response(
-                    status_code=429,
-                    message="Too many requests.",
-                    error_type="invalid_request_error",
-                    code="rate_limit_exceeded",
-                )
+        # token-bucket 限制检验
+        if not key_limiter.allow(key=x_infergate_key):
+            return create_error_response(
+                status_code=429,
+                message="Too many requests.",
+                error_type="invalid_request_error",
+                code="rate_limit_exceeded",
+            )
 
         # check total concurrency limit
         if not concurrency_limiter.try_acquire():

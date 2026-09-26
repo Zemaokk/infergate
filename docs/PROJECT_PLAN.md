@@ -122,7 +122,7 @@ receive
 
 完成标准：流式响应不会被网关完整缓冲；单个后端失效时，健康后端仍能服务请求。
 
-### M2：负载保护与公平性（第一版已完成）
+### M2：负载保护与公平性（已完成）
 
 范围：
 
@@ -210,4 +210,4 @@ receive
 
 ## 10. 当前下一步
 
-M0、M1 和约定范围内的 M2 第一版已完成验收。下一阶段为 M3 可观测性，先定义指标含义、状态与埋点位置，尚未启动。Responses API 仍留在 M4；共享 gateway core 不应依赖 Chat Completions 专属字段。
+M0、M1 和约定范围内的 M2 第一版已完成验收。M3 可观测性已启动，当前先共同定义指标含义、状态与埋点位置，见 [M3 工作计划](M3/WORKPLAN.md) 和 [指标合同草案](M3/OBSERVABILITY_CONTRACT.md)；尚未接入观测代码。Responses API 仍留在 M4；共享 gateway core 不应依赖 Chat Completions 专属字段。
