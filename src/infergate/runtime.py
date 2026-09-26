@@ -6,6 +6,7 @@ from fastapi import FastAPI
 
 from infergate.app import create_app
 from infergate.backend_client import BackendClient
+from infergate.concurrency_limiter import ConcurrencyLimiter
 from infergate.health import HealthManager
 from infergate.health_checker import HealthChecker
 from infergate.router import Backend, RoundRobinRouter
@@ -66,10 +67,16 @@ def create_runtime_app(
 
     backend_client = BackendClient(backend_http_client)
 
-    limiter = TokenBucketLimiter(capacity=2, rate=1)
+    key_limiter = TokenBucketLimiter(capacity=2, rate=1)
+
+    concurrency_limiter = ConcurrencyLimiter(limit=2)
 
     return create_app(
-        router=router, backend_client=backend_client, limiter=limiter, lifespan=lifespan
+        router=router,
+        backend_client=backend_client,
+        key_limiter=key_limiter,
+        concurrency_limiter=concurrency_limiter,
+        lifespan=lifespan,
     )
 
 

@@ -169,5 +169,6 @@ M2 的技术债暂不修复。M2 启动范围和作者第一项任务见 [M2 工
 - 共同完成：FastAPI 集成、取消时释放容量和测试
 - AI 主导：工作计划、文档、测试 fixtures 和重复样板
 
-第一个核心 task 是 per-key token bucket。作者先确认输入、状态、输出和失败行为，
-给出请求路径预测与最小伪代码，再完成第一版；AI 随后做 focused review。
+per-key token bucket 的基础实现和自动化验证已通过。当前核心 task 是 M2.2
+全局并发上限；作者先确认输入、状态、输出和失败行为，给出生命周期预测，再
+完成第一版；AI 随后做 focused review。见 [并发合同草案](M2/CONCURRENCY_CONTRACT.md)。

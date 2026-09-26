@@ -7,11 +7,11 @@ from typing import cast
 
 import httpx
 import pytest
-from fastapi.responses import StreamingResponse
 
 from infergate import token_bucket
-from infergate.app import create_app, stream_backend_body
+from infergate.app import LimitedStreamingResponse, create_app
 from infergate.backend_client import BackendClient, BackendStreamResponse
+from infergate.concurrency_limiter import ConcurrencyLimiter
 from infergate.router import Backend, RoundRobinRouter
 from infergate.token_bucket import TokenBucketLimiter
 
@@ -41,6 +41,7 @@ class ControlledBackendStream:
         self.release_second_chunk = asyncio.Event()
         self.waiting_for_second_chunk = asyncio.Event()
         self.closed = False
+        self.status_code = 200
 
     async def _chunks(self) -> AsyncGenerator[bytes]:
         yield b"data: first\n\n"
@@ -58,6 +59,7 @@ class ControlledBackendStream:
 class FailingBackendStream:
     def __init__(self, error_type: type[httpx.TransportError]) -> None:
         self.closed = False
+        self.status_code = 200
         self.error_type = error_type
 
     async def _chunks(self) -> AsyncGenerator[bytes]:
@@ -92,6 +94,7 @@ async def gateway_client(
     handler: Handler,
     router: RoundRobinRouter | None = None,
     limiter: TokenBucketLimiter | None = None,
+    concurrency_limiter: ConcurrencyLimiter | None = None,
 ) -> AsyncGenerator[httpx.AsyncClient]:
     router = router if router is not None else make_default_router()
 
@@ -102,6 +105,7 @@ async def gateway_client(
             router,
             BackendClient(backend_http_client),
             limiter if limiter is not None else TokenBucketLimiter(100, 1),
+            concurrency_limiter if concurrency_limiter is not None else ConcurrencyLimiter(10),
         )
         async with httpx.AsyncClient(
             transport=httpx.ASGITransport(app),
@@ -111,117 +115,120 @@ async def gateway_client(
             yield client
 
 
+def limited_response(response):
+    limiter = ConcurrencyLimiter(1)
+    assert limiter.try_acquire()
+    return LimitedStreamingResponse(
+        cast(BackendStreamResponse, response), limiter, {"Content-Type": "text/event-stream"}
+    ), limiter
+
+
+async def receive_request():
+    return {"type": "http.request"}
+
+
 @pytest.mark.asyncio
-async def test_stream_backend_body_closes_response_after_normal_exhaustion():
+async def test_streaming_response_closes_response_after_normal_exhaustion():
     response = ControlledBackendStream()
     response.release_second_chunk.set()
-    body = stream_backend_body(cast(BackendStreamResponse, response))
+    streaming_response, limiter = limited_response(response)
+    sent = []
 
-    chunks = [chunk async for chunk in body]
+    async def send(message):
+        sent.append(message)
 
-    assert chunks == [b"data: first\n\n", b"data: second\n\n"]
+    await streaming_response(
+        {"type": "http", "asgi": {"spec_version": "2.4"}}, receive_request, send
+    )
+    assert [m["body"] for m in sent if m["type"] == "http.response.body"] == [
+        b"data: first\n\n", b"data: second\n\n", b""
+    ]
     assert response.closed
+    assert limiter.available == 1
 
 
 @pytest.mark.asyncio
-async def test_stream_backend_body_closes_response_when_cancelled():
+async def test_streaming_response_closes_response_when_cancelled():
     response = ControlledBackendStream()
-    body = stream_backend_body(cast(BackendStreamResponse, response))
+    streaming_response, limiter = limited_response(response)
 
-    assert await anext(body) == b"data: first\n\n"
-    assert not response.closed
+    async def send(message):
+        pass
 
-    next_chunk = asyncio.create_task(anext(body))
+    task = asyncio.create_task(streaming_response(
+        {"type": "http", "asgi": {"spec_version": "2.4"}}, receive_request, send
+    ))
     await response.waiting_for_second_chunk.wait()
-    next_chunk.cancel()
-
+    assert limiter.available == 0
+    task.cancel()
     with pytest.raises(asyncio.CancelledError):
-        await next_chunk
-
+        await task
     assert response.closed
+    assert limiter.available == 1
 
 
 @pytest.mark.asyncio
 async def test_streaming_response_closes_downstream_on_client_disconnect():
     response = ControlledBackendStream()
-    body = stream_backend_body(cast(BackendStreamResponse, response))
-    streaming_response = StreamingResponse(body, media_type="text/event-stream")
+    streaming_response, limiter = limited_response(response)
     first_chunk_sent = asyncio.Event()
-    sent_messages: list[dict[str, object]] = []
+    sent_messages = []
 
-    async def receive() -> dict[str, str]:
+    async def receive():
         await first_chunk_sent.wait()
         return {"type": "http.disconnect"}
 
-    async def send(message: dict[str, object]) -> None:
+    async def send(message):
         sent_messages.append(message)
-        if (
-            message["type"] == "http.response.body"
-            and message.get("body") == b"data: first\n\n"
-        ):
+        if message.get("body") == b"data: first\n\n":
             first_chunk_sent.set()
 
     await streaming_response(
-        {"type": "http", "asgi": {"spec_version": "2.3"}},
-        receive,
-        send,
+        {"type": "http", "asgi": {"spec_version": "2.3"}}, receive, send
     )
-
     assert first_chunk_sent.is_set()
     assert not response.release_second_chunk.is_set()
     assert response.closed
-    assert not any(
-        message.get("body") == b"data: second\n\n" for message in sent_messages
-    )
+    assert limiter.available == 1
+    assert not any(m.get("body") == b"data: second\n\n" for m in sent_messages)
 
 
 @pytest.mark.parametrize("error_type", [httpx.ReadError, httpx.ReadTimeout])
 @pytest.mark.asyncio
-async def test_stream_backend_body_closes_response_after_read_error(error_type):
+async def test_streaming_response_closes_response_after_read_error(error_type):
     response = FailingBackendStream(error_type)
-    body = stream_backend_body(cast(BackendStreamResponse, response))
+    streaming_response, limiter = limited_response(response)
 
-    assert await anext(body) == b"data: first\n\n"
+    async def send(message):
+        pass
 
     with pytest.raises(error_type):
-        await anext(body)
-
+        await streaming_response(
+            {"type": "http", "asgi": {"spec_version": "2.4"}}, receive_request, send
+        )
     assert response.closed
+    assert limiter.available == 1
 
 
 @pytest.mark.asyncio
 async def test_stream_read_timeout_after_headers_does_not_send_gateway_error():
     response = FailingBackendStream(httpx.ReadTimeout)
-    body = stream_backend_body(cast(BackendStreamResponse, response))
-    streaming_response = StreamingResponse(
-        body, status_code=200, media_type="text/event-stream"
-    )
-    sent_messages: list[dict[str, object]] = []
+    streaming_response, limiter = limited_response(response)
+    sent_messages = []
 
-    async def receive() -> dict[str, str]:
-        return {"type": "http.request"}
-
-    async def send(message: dict[str, object]) -> None:
+    async def send(message):
         sent_messages.append(message)
 
     with pytest.raises(httpx.ReadTimeout):
         await streaming_response(
-            {"type": "http", "asgi": {"spec_version": "2.4"}},
-            receive,
-            send,
+            {"type": "http", "asgi": {"spec_version": "2.4"}}, receive_request, send
         )
-
-    starts = [
-        message for message in sent_messages if message["type"] == "http.response.start"
-    ]
-    bodies = [
-        message.get("body")
-        for message in sent_messages
-        if message["type"] == "http.response.body"
-    ]
-    assert [message["status"] for message in starts] == [200]
+    starts = [m for m in sent_messages if m["type"] == "http.response.start"]
+    bodies = [m.get("body") for m in sent_messages if m["type"] == "http.response.body"]
+    assert [m["status"] for m in starts] == [200]
     assert bodies == [b"data: first\n\n"]
     assert response.closed
+    assert limiter.available == 1
 
 
 # happy path test
@@ -596,3 +603,218 @@ async def test_backend_failure_does_not_refund_rate_limit(monkeypatch, failure):
     assert first.status_code == (502 if failure == "transport" else 500)
     assert second.status_code == 429
     assert calls == 1
+
+
+class CountingConcurrencyLimiter(ConcurrencyLimiter):
+    def __init__(self, limit=1):
+        super().__init__(limit)
+        self.releases = 0
+
+    def release(self):
+        self.releases += 1
+        super().release()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("stream", [False, True])
+async def test_global_capacity_rejects_other_key_until_request_finishes(stream):
+    concurrency = CountingConcurrencyLimiter()
+    entered = asyncio.Event()
+    finish = asyncio.Event()
+    calls = 0
+
+    class HeldStream(httpx.AsyncByteStream):
+        async def __aiter__(self):
+            yield b"data: first\n\n"
+            entered.set()
+            await finish.wait()
+            yield b"data: last\n\n"
+
+    async def handler(request):
+        nonlocal calls
+        calls += 1
+        if stream:
+            return httpx.Response(200, stream=HeldStream())
+        entered.set()
+        await finish.wait()
+        return httpx.Response(200, content=backend_body)
+
+    router = RoundRobinRouter({
+        "test-model": [Backend("a", "http://a"), Backend("b", "http://b")]
+    })
+    async with gateway_client(handler, router, concurrency_limiter=concurrency) as client:
+        first = asyncio.create_task(client.post(
+            "/v1/chat/completions", json={**basic_payload, "stream": stream}
+        ))
+        try:
+            await asyncio.wait_for(entered.wait(), 1)
+            assert concurrency.available == 0
+            cursor = router.cursors["test-model"]
+            rejected = await client.post(
+                "/v1/chat/completions", json=basic_payload,
+                headers={"X-InferGate-Key": "other"},
+            )
+            assert rejected.status_code == 503
+            assert rejected.json()["error"]["code"] == "concurrency_limit_exceeded"
+            assert calls == 1
+            assert router.cursors["test-model"] == cursor
+            assert concurrency.releases == 0
+        finally:
+            finish.set()
+            await first
+        assert concurrency.available == 1
+        assert concurrency.releases == 1
+        assert (await client.post("/v1/chat/completions", json=basic_payload)).status_code == 200
+    assert concurrency.releases == 2
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("failure", ["no_backend", "transport", "http_error"])
+@pytest.mark.parametrize("stream", [False, True])
+async def test_gateway_releases_capacity_on_backend_failure(failure, stream):
+    concurrency = CountingConcurrencyLimiter()
+
+    def handler(request):
+        if failure == "transport":
+            raise httpx.ConnectError("offline", request=request)
+        return httpx.Response(500, content=error_body)
+
+    router = RoundRobinRouter({}) if failure == "no_backend" else make_default_router()
+    async with gateway_client(handler, router, concurrency_limiter=concurrency) as client:
+        response = await client.post(
+            "/v1/chat/completions", json={**basic_payload, "stream": stream}
+        )
+    assert response.status_code == {"no_backend": 503, "transport": 502, "http_error": 500}[failure]
+    assert concurrency.available == 1
+    assert concurrency.releases == 1
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("stream", [False, True])
+async def test_cancel_before_backend_headers_releases_capacity(stream):
+    concurrency = CountingConcurrencyLimiter()
+    entered = asyncio.Event()
+
+    async def handler(request):
+        entered.set()
+        await asyncio.Event().wait()
+
+    async with gateway_client(handler, concurrency_limiter=concurrency) as client:
+        task = asyncio.create_task(client.post(
+            "/v1/chat/completions", json={**basic_payload, "stream": stream}
+        ))
+        try:
+            await asyncio.wait_for(entered.wait(), 1)
+            assert concurrency.available == 0
+        finally:
+            task.cancel()
+            with pytest.raises(asyncio.CancelledError):
+                await task
+    assert concurrency.available == 1
+    assert concurrency.releases == 1
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("failure_at", ["headers", "body", "close"])
+async def test_streaming_send_or_close_failure_releases_exactly_once(failure_at):
+    concurrency = CountingConcurrencyLimiter()
+    assert concurrency.try_acquire()
+
+    class Stream:
+        status_code = 200
+        started = False
+        closes = 0
+
+        async def aiter_bytes(self):
+            self.started = True
+            yield b"hello"
+
+        async def aclose(self):
+            self.closes += 1
+            await asyncio.sleep(0)
+            if failure_at == "close":
+                raise RuntimeError("close failed")
+
+    downstream = Stream()
+    response = LimitedStreamingResponse(downstream, concurrency, {})
+
+    async def send(message):
+        if failure_at == "headers" and message["type"] == "http.response.start":
+            raise RuntimeError("header send failed")
+        if failure_at == "body" and message["type"] == "http.response.body":
+            raise RuntimeError("body send failed")
+
+    with pytest.raises(RuntimeError):
+        await response(
+            {"type": "http", "asgi": {"spec_version": "2.4"}}, receive_request, send
+        )
+    assert downstream.started == (failure_at != "headers")
+    assert downstream.closes == 1
+    assert concurrency.available == 1
+    assert concurrency.releases == 1
+
+
+@pytest.mark.asyncio
+async def test_cancel_scope_allows_downstream_cleanup_to_finish():
+    import anyio
+
+    concurrency = CountingConcurrencyLimiter()
+    assert concurrency.try_acquire()
+    closed = False
+
+    class Stream:
+        status_code = 200
+
+        async def aiter_bytes(self):
+            yield b"hello"
+            await anyio.sleep_forever()
+
+        async def aclose(self):
+            nonlocal closed
+            await anyio.sleep(0)
+            closed = True
+
+    with anyio.CancelScope() as scope:
+        async def send(message):
+            if message.get("body") == b"hello":
+                scope.cancel()
+
+        await LimitedStreamingResponse(Stream(), concurrency, {})(
+            {"type": "http", "asgi": {"spec_version": "2.4"}}, receive_request, send
+        )
+    assert closed
+    assert concurrency.available == 1
+    assert concurrency.releases == 1
+
+
+@pytest.mark.asyncio
+async def test_response_construction_failure_keeps_cleanup_in_endpoint(monkeypatch):
+    from infergate import app as app_module
+
+    concurrency = CountingConcurrencyLimiter()
+    closes = 0
+
+    class Stream(httpx.AsyncByteStream):
+        async def __aiter__(self):
+            raise AssertionError("Construction failed before body iteration")
+            yield b""
+
+        async def aclose(self):
+            nonlocal closes
+            closes += 1
+
+    def handler(request):
+        return httpx.Response(200, stream=Stream())
+
+    def fail_construction(*args, **kwargs):
+        raise RuntimeError("response construction failed")
+
+    monkeypatch.setattr(app_module, "LimitedStreamingResponse", fail_construction)
+    async with gateway_client(handler, concurrency_limiter=concurrency) as client:
+        with pytest.raises(RuntimeError, match="response construction failed"):
+            await client.post(
+                "/v1/chat/completions", json={**basic_payload, "stream": True}
+            )
+    assert closes == 1
+    assert concurrency.releases == 1
+    assert concurrency.available == 1

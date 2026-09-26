@@ -14,8 +14,8 @@ The M1 streaming and backend-health acceptance record is in
 
 ## Current status
 
-M0 and M1 are complete. M2 is at the contract and author-prediction stage;
-no M2 traffic-control behavior is implemented yet. See the
+M0 and M1 are complete. M2.1 per-key rate limiting is implemented and tested;
+M2.2 global concurrency control is implemented and tested, with author teach-back pending. See the
 [M2 work plan](docs/M2/WORKPLAN.md).
 
 InferGate currently provides:
@@ -27,7 +27,9 @@ InferGate currently provides:
 - parallel startup probes, periodic `GET /health` checks, and `503` when no
   backend is healthy;
 - transparent backend status, body, and `Content-Type` forwarding;
-- stable `400`, `502`, and `503` gateway error mappings; and
+- per-key token bucket limits with `429` rejection;
+- process-wide concurrency limits with immediate `503` rejection and streaming cleanup;
+- stable `400`, `429`, `502`, and `503` gateway error mappings; and
 - automated coverage for validation, routing, transport failures, streaming
   cleanup, and the gateway request path.
 
@@ -61,6 +63,7 @@ Send the same request repeatedly:
 ```bash
 curl -i http://127.0.0.1:8000/v1/chat/completions \
   -H 'Content-Type: application/json' \
+  -H 'X-InferGate-Key: local-demo' \
   -d '{
     "model": "mock-model",
     "messages": [{"role": "user", "content": "hello"}]
@@ -73,6 +76,7 @@ The `X-InferGate-Backend` response header alternates between `backend-a` and
 ```bash
 curl -N -i http://127.0.0.1:8000/v1/chat/completions \
   -H 'Content-Type: application/json' \
+  -H 'X-InferGate-Key: local-demo' \
   -d '{
     "model": "mock-model",
     "messages": [{"role": "user", "content": "hello"}],
