@@ -38,7 +38,7 @@ class TokenBucketLimiter:
     def register(self, key: str):
         self.buckets[key] = TokenBucket(self.capacity, self.rate)
 
-    def allow(self, key: str, price: float) -> bool:
+    def allow(self, key: str, price: float = 1) -> bool:
         if key not in self.buckets:
             self.register(key)
         return self.buckets[key].consume(price)

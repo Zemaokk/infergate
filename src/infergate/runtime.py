@@ -9,6 +9,7 @@ from infergate.backend_client import BackendClient
 from infergate.health import HealthManager
 from infergate.health_checker import HealthChecker
 from infergate.router import Backend, RoundRobinRouter
+from infergate.token_bucket import TokenBucketLimiter
 
 BACKEND_TIMEOUT = httpx.Timeout(connect=5.0, pool=5.0, write=30.0, read=30.0)
 HEALTH_PROBE_DEADLINE = 2.0
@@ -65,7 +66,11 @@ def create_runtime_app(
 
     backend_client = BackendClient(backend_http_client)
 
-    return create_app(router=router, backend_client=backend_client, lifespan=lifespan)
+    limiter = TokenBucketLimiter(capacity=2, rate=1)
+
+    return create_app(
+        router=router, backend_client=backend_client, limiter=limiter, lifespan=lifespan
+    )
 
 
 app = create_runtime_app()

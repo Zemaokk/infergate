@@ -37,7 +37,9 @@ async def test_startup_probes_before_serving_and_routes_to_healthy_peer() -> Non
     )
     async with app.router.lifespan_context(app):
         async with httpx.AsyncClient(
-            transport=httpx.ASGITransport(app), base_url="http://gateway"
+            transport=httpx.ASGITransport(app),
+            base_url="http://gateway",
+            headers={"X-InferGate-Key": "runtime-test"},
         ) as client:
             response = await client.post("/v1/chat/completions", json=REQUEST)
 
@@ -61,7 +63,9 @@ async def test_all_backends_unhealthy_returns_503_without_inference() -> None:
     )
     async with app.router.lifespan_context(app):
         async with httpx.AsyncClient(
-            transport=httpx.ASGITransport(app), base_url="http://gateway"
+            transport=httpx.ASGITransport(app),
+            base_url="http://gateway",
+            headers={"X-InferGate-Key": "runtime-test"},
         ) as client:
             response = await client.post("/v1/chat/completions", json=REQUEST)
 
@@ -88,16 +92,26 @@ async def test_periodic_probe_restores_backend_to_routing() -> None:
     )
     async with app.router.lifespan_context(app):
         async with httpx.AsyncClient(
-            transport=httpx.ASGITransport(app), base_url="http://gateway"
+            transport=httpx.ASGITransport(app),
+            base_url="http://gateway",
+            headers={"X-InferGate-Key": "runtime-test"},
         ) as client:
             first = await client.post("/v1/chat/completions", json=REQUEST)
             assert first.headers["X-InferGate-Backend"] == "backend-b"
 
             backend_a_healthy = True
+            attempt = 0
             async with asyncio.timeout(1.0):
                 while True:
                     await asyncio.sleep(0.01)
-                    response = await client.post("/v1/chat/completions", json=REQUEST)
+                    # Each probe uses a fresh key so this health test cannot
+                    # exhaust the runtime's deliberately small per-key budget.
+                    attempt += 1
+                    response = await client.post(
+                        "/v1/chat/completions",
+                        json=REQUEST,
+                        headers={"X-InferGate-Key": f"health-poll-{attempt}"},
+                    )
                     if response.headers["X-InferGate-Backend"] == "backend-a":
                         break
 
@@ -137,7 +151,9 @@ async def test_streaming_request_uses_healthy_backend_and_preserves_body() -> No
     )
     async with app.router.lifespan_context(app):
         async with httpx.AsyncClient(
-            transport=httpx.ASGITransport(app), base_url="http://gateway"
+            transport=httpx.ASGITransport(app),
+            base_url="http://gateway",
+            headers={"X-InferGate-Key": "runtime-test"},
         ) as client:
             response = await client.post(
                 "/v1/chat/completions", json={**REQUEST, "stream": True}

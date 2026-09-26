@@ -2,15 +2,18 @@ import asyncio
 import json
 from collections.abc import AsyncGenerator, Callable
 from contextlib import asynccontextmanager
+from types import SimpleNamespace
 from typing import cast
 
 import httpx
 import pytest
 from fastapi.responses import StreamingResponse
 
+from infergate import token_bucket
 from infergate.app import create_app, stream_backend_body
 from infergate.backend_client import BackendClient, BackendStreamResponse
 from infergate.router import Backend, RoundRobinRouter
+from infergate.token_bucket import TokenBucketLimiter
 
 basic_payload = {
     "model": "test-model",
@@ -86,16 +89,24 @@ Handler = Callable[[httpx.Request], httpx.Response]
 
 @asynccontextmanager
 async def gateway_client(
-    handler: Handler, router: RoundRobinRouter | None = None
+    handler: Handler,
+    router: RoundRobinRouter | None = None,
+    limiter: TokenBucketLimiter | None = None,
 ) -> AsyncGenerator[httpx.AsyncClient]:
     router = router if router is not None else make_default_router()
 
     async with httpx.AsyncClient(
         transport=httpx.MockTransport(handler)
     ) as backend_http_client:
-        app = create_app(router, BackendClient(backend_http_client))
+        app = create_app(
+            router,
+            BackendClient(backend_http_client),
+            limiter if limiter is not None else TokenBucketLimiter(100, 1),
+        )
         async with httpx.AsyncClient(
-            transport=httpx.ASGITransport(app), base_url="http://gateway"
+            transport=httpx.ASGITransport(app),
+            base_url="http://gateway",
+            headers={"X-InferGate-Key": "test-key"},
         ) as client:
             yield client
 
@@ -505,3 +516,83 @@ async def test_gateway_round_robins_across_two_backends():
         "http://backend-b/v1/chat/completions",
         "http://backend-a/v1/chat/completions",
     ]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("key", [None, "", "   "])
+async def test_invalid_key_is_rejected_before_admission(key):
+    limiter = TokenBucketLimiter(1, 1)
+    router = make_default_router()
+
+    def handler(_request):
+        raise AssertionError("Invalid key must not reach backend")
+
+    async with gateway_client(handler, router, limiter) as client:
+        del client.headers["X-InferGate-Key"]
+        headers = {} if key is None else {"X-InferGate-Key": key}
+        response = await client.post(
+            "/v1/chat/completions", json=basic_payload, headers=headers
+        )
+
+    assert response.status_code == 400
+    assert limiter.buckets == {}
+    assert router.cursors["test-model"] == 0
+    assert response.json()["error"] == {
+        "message": "Invalid infergate key.",
+        "type": "invalid_request_error",
+        "param": "X-InferGate-Key",
+        "code": "invalid_infergate_key",
+    }
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("stream", [False, True])
+async def test_rate_limit_rejects_without_routing_and_keeps_keys_independent(
+    monkeypatch, stream
+):
+    monkeypatch.setattr(token_bucket, "time", SimpleNamespace(monotonic=lambda: 0.0))
+    limiter = TokenBucketLimiter(1, 1)
+    calls = []
+    router = RoundRobinRouter(
+        {"test-model": [Backend("a", "http://a"), Backend("b", "http://b")]}
+    )
+
+    def handler(request):
+        calls.append(request.url.host)
+        return httpx.Response(200, content=b"data: hello\n\n" if stream else backend_body)
+
+    async with gateway_client(handler, router, limiter) as client:
+        payload = {**basic_payload, "stream": stream}
+        first = await client.post("/v1/chat/completions", json=payload)
+        cursor_before = router.cursors["test-model"]
+        rejected = await client.post("/v1/chat/completions", json=payload)
+        assert router.cursors["test-model"] == cursor_before
+        other = await client.post(
+            "/v1/chat/completions", json=payload, headers={"X-InferGate-Key": "other"}
+        )
+
+    assert [first.status_code, rejected.status_code, other.status_code] == [200, 429, 200]
+    assert calls == ["a", "b"]
+    assert rejected.json()["error"]["code"] == "rate_limit_exceeded"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("failure", ["transport", "http"])
+async def test_backend_failure_does_not_refund_rate_limit(monkeypatch, failure):
+    monkeypatch.setattr(token_bucket, "time", SimpleNamespace(monotonic=lambda: 0.0))
+    calls = 0
+
+    def handler(request):
+        nonlocal calls
+        calls += 1
+        if failure == "transport":
+            raise httpx.ConnectError("offline", request=request)
+        return httpx.Response(500, content=error_body)
+
+    async with gateway_client(handler, limiter=TokenBucketLimiter(1, 1)) as client:
+        first = await client.post("/v1/chat/completions", json=basic_payload)
+        second = await client.post("/v1/chat/completions", json=basic_payload)
+
+    assert first.status_code == (502 if failure == "transport" else 500)
+    assert second.status_code == 429
+    assert calls == 1

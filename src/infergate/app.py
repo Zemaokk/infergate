@@ -1,7 +1,7 @@
 from collections.abc import AsyncIterator
-from typing import Literal
+from typing import Annotated, Literal
 
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Header, Request, Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field, StrictBool, StrictStr
@@ -14,6 +14,7 @@ from infergate.backend_client import (
     BackendTransportError,
 )
 from infergate.router import NoBackendAvailableError, RoundRobinRouter
+from infergate.token_bucket import TokenBucketLimiter
 
 
 class ChatMessage(BaseModel):
@@ -43,6 +44,7 @@ async def stream_backend_body(response: BackendStreamResponse) -> AsyncIterator[
 def create_app(
     router: RoundRobinRouter,
     backend_client: BackendClient,
+    limiter: TokenBucketLimiter,
     lifespan: Lifespan | None = None,
 ) -> FastAPI:
     app = FastAPI(lifespan=lifespan)
@@ -67,8 +69,30 @@ def create_app(
         )
 
     @app.post("/v1/chat/completions")
-    async def create_chat_completion(request: ChatCompletionRequest) -> Response:
+    async def create_chat_completion(
+        request: ChatCompletionRequest,
+        x_infergate_key: Annotated[str | None, Header()] = None,
+    ) -> Response:
         payload = request.model_dump(exclude_unset=True)
+
+        # check key
+        if x_infergate_key is None or not x_infergate_key.strip():
+            return create_error_response(
+                status_code=400,
+                message="Invalid infergate key.",
+                error_type="invalid_request_error",
+                code="invalid_infergate_key",
+                param="X-InferGate-Key",
+            )
+        else:
+            if not limiter.allow(key=x_infergate_key):
+                return create_error_response(
+                    status_code=429,
+                    message="Too many requests.",
+                    error_type="invalid_request_error",
+                    code="rate_limit_exceeded",
+                )
+
         model = request.model
 
         # 选择 backend，如果无可用，报503
