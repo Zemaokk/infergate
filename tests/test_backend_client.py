@@ -139,3 +139,42 @@ async def test_backend_client_open_stream_maps_transport_error(error_type):
             )
 
     assert isinstance(exc_info.value.__cause__, error_type)
+
+
+def test_transport_error_defaults_to_not_retryable():
+    error = BackendTransportError("backend failed")
+    assert error.retryable is False
+    assert str(error) == "backend failed"
+
+
+@pytest.mark.parametrize("method", ["forward", "open_stream"])
+@pytest.mark.parametrize(
+    ("error_type", "retryable"),
+    [
+        (httpx.ConnectError, True),
+        (httpx.ConnectTimeout, True),
+        (httpx.ReadError, False),
+        (httpx.ReadTimeout, False),
+        (httpx.WriteError, False),
+        (httpx.WriteTimeout, False),
+        (httpx.PoolTimeout, False),
+        (httpx.RemoteProtocolError, False),
+    ],
+)
+@pytest.mark.asyncio
+async def test_retry_classification_preserves_original_cause(method, error_type, retryable):
+    original = error_type("backend failed")
+
+    def handler(request):
+        raise original
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        backend_client = BackendClient(client)
+        with pytest.raises(BackendTransportError) as caught:
+            await getattr(backend_client, method)(
+                Backend("a", "http://a"), "/v1/chat/completions", test_request
+            )
+
+    assert caught.value.retryable is retryable
+    assert caught.value.__cause__ is original
+    assert str(caught.value) == "Transport failure for backend a"

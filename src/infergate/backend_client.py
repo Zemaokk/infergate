@@ -28,7 +28,9 @@ class BackendStreamResponse:
 
 
 class BackendTransportError(Exception):
-    pass
+    def __init__(self, *args, retryable: bool = False):
+        super().__init__(*args)
+        self.retryable = retryable
 
 
 class BackendClient:
@@ -45,8 +47,9 @@ class BackendClient:
                 r.status_code, r.content, r.headers.get("content-type")
             )
         except httpx.TransportError as e:
+            retryable = isinstance(e, (httpx.ConnectError, httpx.ConnectTimeout))
             raise BackendTransportError(
-                f"Transport failure for backend {backend.id}"
+                f"Transport failure for backend {backend.id}", retryable=retryable
             ) from e
         return backend_response
 
@@ -58,7 +61,8 @@ class BackendClient:
         try:
             response = await self._client.send(request, stream=True)
         except httpx.TransportError as e:
+            retryable = isinstance(e, (httpx.ConnectError, httpx.ConnectTimeout))
             raise BackendTransportError(
-                f"Transport failure for backend {backend.id}"
+                f"Transport failure for backend {backend.id}", retryable=retryable
             ) from e
         return BackendStreamResponse(response)
