@@ -162,13 +162,12 @@ AI 在本项目中应当：
 
 ## 12. 当前约定
 
-我们现在处于 **M1、learning mode**。M0 已完成并保持可运行；已知但不阻塞
-M1 的技术债暂不修复。
+我们现在处于 **M2、learning mode**。M0 和 M1 已完成并保持可运行；已知但不阻塞
+M2 的技术债暂不修复。M2 启动范围和作者第一项任务见 [M2 工作计划](M2/WORKPLAN.md)。
 
-- 作者主导：streaming 核心控制流、backend 健康状态与状态转换
-- 共同完成：timeout、cancellation propagation、FastAPI/HTTPX 集成和测试
+- 作者主导：per-key token bucket、全局并发及 backpressure、retry / fallback 条件判断
+- 共同完成：FastAPI 集成、取消时释放容量和测试
 - AI 主导：工作计划、文档、测试 fixtures 和重复样板
 
-M1 先完成 streaming、timeout、health check 和客户端断开取消的行为合同，再
-开始实现。第一个核心 task 是 streaming passthrough；作者先写请求路径预测和
-最小伪代码，AI 再做 focused review。
+第一个核心 task 是 per-key token bucket。作者先确认输入、状态、输出和失败行为，
+给出请求路径预测与最小伪代码，再完成第一版；AI 随后做 focused review。

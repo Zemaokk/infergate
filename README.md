@@ -14,7 +14,10 @@ The M1 streaming and backend-health acceptance record is in
 
 ## Current status
 
-M0 and M1 are complete. M2 has not started.
+M0 and M1 are complete. M2 is at the contract and author-prediction stage;
+no M2 traffic-control behavior is implemented yet. See the
+[M2 work plan](docs/M2/WORKPLAN.md).
+
 InferGate currently provides:
 
 - a validated `POST /v1/chat/completions` endpoint with non-streaming and

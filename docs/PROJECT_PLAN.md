@@ -110,7 +110,7 @@ receive
 
 完成标准：连续请求会在两个后端之间轮换；后端身份可从响应中验证；测试可以重复证明这一行为。
 
-### M1：流式传输与后端健康
+### M1：流式传输与后端健康（已完成）
 
 范围：
 
@@ -207,4 +207,4 @@ receive
 
 ## 10. 当前下一步
 
-M0 已完成自动化测试和本地三进程验收。下一步先为 M1 明确 streaming、timeout、health check 和客户端断开取消的行为合同，再开始实现。Responses API 仍留在 M4；共享 gateway core 不应依赖 Chat Completions 专属字段。
+M0 和 M1 已完成验收。M2 已进入合同与作者预测阶段；见 [M2 工作计划](M2/WORKPLAN.md)。第一个核心 task 是 per-key token bucket，尚未实现。Responses API 仍留在 M4；共享 gateway core 不应依赖 Chat Completions 专属字段。
