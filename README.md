@@ -14,10 +14,10 @@ The M1 streaming and backend-health acceptance record is in
 
 ## Current status
 
-M0 and M1 are complete. M2.1 per-key rate limiting is implemented and tested;
-M2.2 global concurrency control is implemented, tested, and explained by the author.
-M2.3 retry/fallback is at the contract and author-prediction stage. See the
-[M2 work plan](docs/M2/WORKPLAN.md).
+M0, M1, and the scoped single-process M2 implementation are complete.
+M2 passed 122 automated tests and seven local HTTP acceptance scenarios.
+See the [M2 acceptance record and limitations](docs/M2/ACCEPTANCE.md).
+M3 observability has not started.
 
 InferGate currently provides:
 
@@ -30,6 +30,7 @@ InferGate currently provides:
 - transparent backend status, body, and `Content-Type` forwarding;
 - per-key token bucket limits with `429` rejection;
 - process-wide concurrency limits with immediate `503` rejection and streaming cleanup;
+- at most two backend attempts, with fallback only for connection establishment failures;
 - stable `400`, `429`, `502`, and `503` gateway error mappings; and
 - automated coverage for validation, routing, transport failures, streaming
   cleanup, and the gateway request path.
@@ -71,8 +72,13 @@ curl -i http://127.0.0.1:8000/v1/chat/completions \
   }'
 ```
 
-The `X-InferGate-Backend` response header alternates between `backend-a` and
-`backend-b` while both are healthy. To see streaming bytes arrive separately:
+The local defaults are a burst capacity of 2 requests per key, replenished at
+1 request/second, and 2 concurrent downstream tasks across all keys. Rapidly
+repeating a key can return `429`; excess global concurrency returns `503`.
+Use `X-InferGate-Key` as a quota label, not an authentication credential.
+
+For admitted requests, `X-InferGate-Backend` alternates between `backend-a` and
+`backend-b` while both are healthy. Wait for quota to refill before this streaming example:
 
 ```bash
 curl -N -i http://127.0.0.1:8000/v1/chat/completions \
@@ -86,6 +92,22 @@ curl -N -i http://127.0.0.1:8000/v1/chat/completions \
 ```
 
 The mock backend waits briefly between its first SSE event and `[DONE]`.
-Stopping one backend removes it from routing after the next probe; stopping
-both leaves the gateway running but makes requests return `503`. A restarted
-backend rejoins after one successful probe.
+Stopping one backend removes it from routing after the next probe; before that
+probe, a connection failure can fall back to the other backend. If both fail to
+connect, an admitted request returns `502`; after probes mark both unhealthy,
+initial routing returns `503 no_backend_available`. A restarted backend rejoins
+after one successful probe.
+
+## Reproduce M2 acceptance
+
+With ports 8000–8002 unused:
+
+```bash
+uv run python scripts/verify_m2.py --output /tmp/infergate-m2-evidence.json
+```
+
+The script starts and stops its own three processes, using controlled mock
+streams and a temporary 3600-second health-probe interval to exercise fallback
+before health updates. Production runtime defaults remain unchanged.
+Key-state cleanup, multi-process quotas, total request deadlines, and performance
+validation remain outside this acceptance; see the limitations linked above.

@@ -1,9 +1,9 @@
-# M2.3 Retry / Fallback 行为合同草案
+# M2.3 Retry / Fallback 行为合同
 
-**状态：** 已启动，待作者预测与确认；尚未实现
+**状态：** 第一版已实现、验证，并完成作者 teach-back
 **分类：** A 类核心任务；作者先判断重试条件并写第一版，AI 协助异常映射和测试
 
-## 1. 第一版建议
+## 1. 第一版策略
 
 最多进行 **2 次下游尝试，包括第一次**：首次连接失败后，可以选择另一个支持
 同一 model、健康且本请求未尝试过的 backend。两次尝试串行执行，不并行发出，
@@ -25,7 +25,7 @@ ConnectTimeout。参见 [异常分类](https://www.python-httpx.org/exceptions/)
 [连接重试](https://www.python-httpx.org/advanced/transports/#http-transport)。
 下面的矩阵是本项目的保守策略选择，并非所有系统必须采用的规则。
 
-| 事件 | 第一版建议 | 理由 |
+| 事件 | 第一版策略 | 理由 |
 | --- | --- | --- |
 | `ConnectError` / `ConnectTimeout` | 满足预算与候选条件时允许 fallback | 连接建立阶段失败；并非保证下一次能成功 |
 | `PoolTimeout` | 不重试 | 本地连接池压力不靠增加一次尝试解决 |
@@ -64,12 +64,11 @@ ConnectTimeout。参见 [异常分类](https://www.python-httpx.org/exceptions/)
 总时长有固定上限：M1 的 read timeout 是等待下一段数据的超时，仍未设置总生成
 时长。不要把“次数有界”写成“端到端时长有界”。
 
-## 5. 当前代码需要扩展的接口
+## 5. 已实现的接口
 
-1. `BackendClient` 当前把所有传输错误包装为 `BackendTransportError`，通过
-   `raise ... from e` 保留原异常。需让重试判断能区分连接失败和其他错误；可在
-   边界映射错误类别或可重试标志，具体接口由作者先提出。
-2. `RoundRobinRouter.select()` 需支持按本次请求的 backend ID 集合排除候选，
+1. `BackendClient` 把传输错误包装为 `BackendTransportError`，通过
+   `raise ... from e` 保留原异常；`retryable` 默认为 False，仅连接错误置 True。
+2. `RoundRobinRouter.select()` 支持按本次请求的 backend ID 集合排除候选，
    同时保留健康筛选与游标规则。没有传排除集合时保持原行为；不论是否启用健康
    管理都必须执行排除。没有候选时游标不推进。
 3. 重试循环位于一次 admission 与资源释放的范围内，不能把整个 endpoint
@@ -86,7 +85,7 @@ ConnectTimeout。参见 [异常分类](https://www.python-httpx.org/exceptions/)
 - 第一次无候选与失败后无备用候选的状态码不同，分别验证。
 - 并发请求各自持有尝试记录，排除集合不互相污染；已有测试保持通过。
 
-## 7. 作者第一步：预测
+## 7. 作者预测与完成记录
 
 假设 A、B 均健康、支持同一 model，最多 2 次尝试，第一次选中 A：
 
@@ -95,5 +94,6 @@ ConnectTimeout。参见 [异常分类](https://www.python-httpx.org/exceptions/)
 3. A 直接返回 HTTP 503，第一版如何处理？
 4. A 连接失败，但 B 此时不健康，最终返回什么？是否再次尝试 A？
 
-先回答并确认策略；随后先实现错误分类或 router 排除中的一个小任务，测试通过
-后再接入重试循环。
+作者已完成上述预测与实现，并解释了第 4 项应返回 502、保留 A 的失败且不重试 A。
+最终集成证据见 [M2 验收记录](ACCEPTANCE.md)，包括并发请求的尝试记录独立性
+以及流式 body 已开始后不 fallback 的专项验证。

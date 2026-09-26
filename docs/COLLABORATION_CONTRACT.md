@@ -162,14 +162,13 @@ AI 在本项目中应当：
 
 ## 12. 当前约定
 
-我们现在处于 **M2、learning mode**。M0 和 M1 已完成并保持可运行；已知但不阻塞
-M2 的技术债暂不修复。M2 启动范围和作者第一项任务见 [M2 工作计划](M2/WORKPLAN.md)。
+我们保持 **learning mode**。M0、M1 和约定范围内的 M2 第一版已完成；M3 尚未启动。
+已知但不阻塞的技术债继续记录，见 [M2 验收与边界](M2/ACCEPTANCE.md)。
 
 - 作者主导：per-key token bucket、全局并发及 backpressure、retry / fallback 条件判断
 - 共同完成：FastAPI 集成、取消时释放容量和测试
 - AI 主导：工作计划、文档、测试 fixtures 和重复样板
 
-per-key token bucket 的基础实现通过，M2.2 全局并发上限的第一版实现、验证及
-teach-back 完成。当前核心 task 是 M2.3 retry / fallback；作者先判断失败情景、
-确认条件和次数上限，再完成第一版；AI 随后做 focused review。
-见 [重试合同草案](M2/RETRY_CONTRACT.md)。
+M2 的 per-key token bucket、全局并发和 retry / fallback 第一版实现、验证及
+teach-back 完成；M2.4 集成验收通过。下一阶段 M3 先共同定义指标含义与埋点位置，
+AI 可主导观测工具样板接入，作者保留设计决策和最终解释权。

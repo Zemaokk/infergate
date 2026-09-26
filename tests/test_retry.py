@@ -162,3 +162,67 @@ async def test_cancellation_during_second_attempt_does_not_retry_again():
     assert calls == ["a", "b"]
     assert concurrency.available == 1
     assert concurrency.releases == 1
+
+
+@pytest.mark.asyncio
+async def test_simultaneous_requests_keep_separate_attempt_history():
+    concurrency = CountingConcurrencyLimiter(2)
+    both_started = asyncio.Event()
+    calls = {"one": [], "two": []}
+
+    async def handler(request):
+        request_id = json.loads(request.content)["request_id"]
+        attempts = calls[request_id]
+        attempts.append(request.url.host)
+        if len(attempts) == 1:
+            if all(calls.values()):
+                both_started.set()
+            await asyncio.wait_for(both_started.wait(), 1)
+            raise httpx.ConnectError("first attempt failed", request=request)
+        return httpx.Response(200, json={"request_id": request_id})
+
+    async with gateway_client(
+        handler, router_for("a", "b"), concurrency_limiter=concurrency
+    ) as client:
+        responses = await asyncio.gather(*[
+            client.post(
+                "/v1/chat/completions", json={**basic_payload, "request_id": key},
+                headers={"X-InferGate-Key": key},
+            ) for key in calls
+        ])
+    assert [response.status_code for response in responses] == [200, 200]
+    assert calls == {"one": ["a", "b"], "two": ["b", "a"]}
+    assert concurrency.available == 2
+    assert concurrency.releases == 2
+
+
+@pytest.mark.asyncio
+async def test_stream_body_failure_never_falls_back_to_peer():
+    calls = []
+    closed = False
+    concurrency = CountingConcurrencyLimiter()
+
+    class BrokenStream(httpx.AsyncByteStream):
+        async def __aiter__(self):
+            yield b"data: partial\n\n"
+            raise httpx.ReadError("stream broke")
+
+        async def aclose(self):
+            nonlocal closed
+            closed = True
+
+    def handler(request):
+        calls.append(request.url.host)
+        return httpx.Response(200, stream=BrokenStream())
+
+    async with gateway_client(
+        handler, router_for("a", "b"), concurrency_limiter=concurrency
+    ) as client:
+        with pytest.raises(httpx.ReadError, match="stream broke"):
+            await client.post(
+                "/v1/chat/completions", json={**basic_payload, "stream": True}
+            )
+    assert calls == ["a"]
+    assert closed
+    assert concurrency.available == 1
+    assert concurrency.releases == 1

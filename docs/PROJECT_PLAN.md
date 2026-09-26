@@ -122,7 +122,7 @@ receive
 
 完成标准：流式响应不会被网关完整缓冲；单个后端失效时，健康后端仍能服务请求。
 
-### M2：负载保护与公平性
+### M2：负载保护与公平性（第一版已完成）
 
 范围：
 
@@ -132,6 +132,9 @@ receive
 - retry / fallback policy
 
 完成标准：过载行为是有限且可预测的；不会因为无限等待或无限重试拖垮网关。
+
+第一版已验证 per-key 速率、并发上限、快速拒绝及最多两次尝试；不承诺整体内存
+或端到端时长有界。具体证据与剩余边界见 [M2 验收记录](M2/ACCEPTANCE.md)。
 
 ### M3：可观测性
 
@@ -207,4 +210,4 @@ receive
 
 ## 10. 当前下一步
 
-M0 和 M1 已完成验收。M2.1 per-key token bucket 基础实现与自动化验证通过，M2.2 全局并发上限第一版完成，M2.3 retry / fallback 已进入合同与作者预测阶段；见 [M2 工作计划](M2/WORKPLAN.md)。Responses API 仍留在 M4；共享 gateway core 不应依赖 Chat Completions 专属字段。
+M0、M1 和约定范围内的 M2 第一版已完成验收。下一阶段为 M3 可观测性，先定义指标含义、状态与埋点位置，尚未启动。Responses API 仍留在 M4；共享 gateway core 不应依赖 Chat Completions 专属字段。
