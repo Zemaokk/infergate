@@ -15,7 +15,8 @@ The M1 streaming and backend-health acceptance record is in
 ## Current status
 
 M0 and M1 are complete. M2.1 per-key rate limiting is implemented and tested;
-M2.2 global concurrency control is implemented and tested, with author teach-back pending. See the
+M2.2 global concurrency control is implemented, tested, and explained by the author.
+M2.3 retry/fallback is at the contract and author-prediction stage. See the
 [M2 work plan](docs/M2/WORKPLAN.md).
 
 InferGate currently provides:

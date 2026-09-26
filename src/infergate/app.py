@@ -127,7 +127,6 @@ def create_app(
         handed_off = False
         opened_stream: BackendStreamResponse | None = None
         try:
-
             payload = request.model_dump(exclude_unset=True)
             model = request.model
 

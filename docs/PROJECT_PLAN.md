@@ -207,4 +207,4 @@ receive
 
 ## 10. 当前下一步
 
-M0 和 M1 已完成验收。M2.1 per-key token bucket 基础实现与自动化验证通过，M2.2 全局并发上限实现与自动化验证通过，待作者完成清理包装的 teach-back；见 [M2 工作计划](M2/WORKPLAN.md)。Responses API 仍留在 M4；共享 gateway core 不应依赖 Chat Completions 专属字段。
+M0 和 M1 已完成验收。M2.1 per-key token bucket 基础实现与自动化验证通过，M2.2 全局并发上限第一版完成，M2.3 retry / fallback 已进入合同与作者预测阶段；见 [M2 工作计划](M2/WORKPLAN.md)。Responses API 仍留在 M4；共享 gateway core 不应依赖 Chat Completions 专属字段。
