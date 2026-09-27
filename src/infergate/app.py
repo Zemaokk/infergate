@@ -102,6 +102,11 @@ def create_app(
 ) -> FastAPI:
     app = FastAPI(lifespan=lifespan)
     metrics = GatewayMetrics(concurrency_limiter)
+    if router.health_manager is not None:
+        metrics.track_backend_health(
+            (backend.id for group in router.routes.values() for backend in group),
+            router.health_manager,
+        )
     app.state.metrics = metrics
     app.add_middleware(
         RequestObservationMiddleware, record_request_metrics=metrics.record_request

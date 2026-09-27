@@ -99,6 +99,7 @@ async def test_metrics_endpoint_is_parseable_excluded_and_app_specific():
             first_scrape = await client.get("/metrics")
             second_scrape = await client.get("/metrics")
         assert first_scrape.status_code == 200
+        assert "infergate_backend_healthy" not in first_scrape.text
         assert first_scrape.headers["content-type"] == CONTENT_TYPE_LATEST
         assert first_scrape.text == second_scrape.text
         samples = [s for f in text_string_to_metric_families(first_scrape.text) for s in f.samples]

@@ -145,6 +145,12 @@ and stays occupied across fallback. For buffered non-streaming responses, the
 slot is released before sending to the client, so it does not count all HTTP
 responses still being sent. It is a current snapshot, not a historical peak.
 
-Backend-attempt and health metrics are not exported yet.
+`infergate_backend_healthy{backend}` reads the existing HealthManager state for
+configured backend IDs: 1 means marked healthy for routing; 0 means marked
+unhealthy or not yet probed. It reflects the last stored state, not a fresh
+probe or a guarantee that the next request will succeed. Scraping never probes
+backends. Apps without a HealthManager omit this metric.
+
+Backend-attempt metrics are not exported yet.
 Prometheus server, Grafana, structured completion logs and tracing are later M3
 steps; `/metrics` only exposes the current in-process aggregates.

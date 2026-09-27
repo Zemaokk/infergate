@@ -1,6 +1,10 @@
+from collections.abc import Iterable
+from functools import partial
+
 from prometheus_client import CollectorRegistry, Counter, Gauge, Histogram
 
 from infergate.concurrency_limiter import ConcurrencyLimiter
+from infergate.health import HealthManager
 from infergate.observability import RequestObservation
 
 
@@ -39,6 +43,21 @@ class GatewayMetrics:
             buckets=(0.01, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10, 30, 60, 120, 300),
             registry=self.registry,
         )
+
+    def track_backend_health(
+        self, backend_ids: Iterable[str], health_manager: HealthManager
+    ) -> None:
+        backend_health = Gauge(
+            "infergate_backend_healthy",
+            "Current routing health state (1 healthy, 0 unhealthy or not yet probed).",
+            ("backend",),
+            registry=self.registry,
+        )
+        for backend_id in sorted(set(backend_ids)):
+            # 固定每个 backend 的 ID，抓取时只读现有状态，不发起探测。
+            backend_health.labels(backend=backend_id).set_function(
+                partial(health_manager.is_healthy, backend_id)
+            )
 
     def record_request(self, observation: RequestObservation) -> None:
         # Caller submits only when finish() returns True. Do not count pending work.

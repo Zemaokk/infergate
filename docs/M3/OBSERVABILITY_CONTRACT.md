@@ -295,3 +295,18 @@ GatewayMetrics 显式接收当前 app 的 ConcurrencyLimiter，使用
 新增 4 个用例验证名额变化、容量拒绝不增值、app 隔离，以及实际 app ASGI
 流保持时通过 GET /metrics 读到 1、正常/读取失败/取消后恢复 0；既有请求集成
 场景补充 Gauge 检查。完整测试集 202 passed，2 条已有依赖弃用警告。
+
+## 16. 后端健康 Gauge
+
+create_app 仅在 router 有 HealthManager 时调用 track_backend_health，将路由
+配置中的 backend ID 去重后注册 infergate_backend_healthy{backend}。
+每条 Gauge 用 partial 固定 backend ID，抓取时读取 HealthManager.is_healthy，
+不复制状态、不发起 HTTP 探测。没有 HealthManager 时不导出该指标。
+
+1 表示当前存储状态允许健康筛选通过；0 包括已标记不健康和初始化未探测。
+该值沿用现有单进程路由状态，不表示即时存活证明，也不保证下一次调用成功。
+backend labels 仅来自 app 构造时的配置；动态路由配置热更新不在本轮范围内。
+
+新增 2 个用例：验证去重/状态变化/app 隔离，以及经现有 HealthChecker 探测后
+HTTP scrape 输出与真实 app 选路一致。补无 HealthManager 的 app 不导出断言。
+完整测试集 204 passed，2 条已有依赖弃用警告。backend-attempt 等仍待完成。

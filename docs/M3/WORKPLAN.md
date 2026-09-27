@@ -2,7 +2,7 @@
 
 **状态：** M3.1 请求状态、尝试计数、候选结果、发送信号与最终 outcome 已验证；
 作者已完成生命周期和首字节计时情景 teach-back。
-M3.2 请求计数、总耗时、请求级首字节 Histogram 与并发占用 Gauge 已接入；
+M3.2 请求计数、总耗时、请求级首字节 Histogram、并发占用与健康 Gauge 已接入；
 其余指标、日志与 trace 待完成。
 
 **模式：** Learning mode；作者主导 40%，AI 主导 60% 为阶段节奏目标。  
@@ -88,3 +88,9 @@ AI 接入 infergate_active_requests Gauge，抓取时直接读取并发控制器
 limit - available，不复制计数状态。新增 4 个用例并扩展集成断言，完整测试集
 202 passed，2 条已有依赖警告。已验证真实 app 的 ASGI 流保持期间抓取为 1，
 正常结束、读取失败和取消后恢复 0；不是外部网络或生产负载验证。
+
+AI 接入 infergate_backend_healthy{backend}，抓取时读取路由共用 HealthManager，
+按配置 backend ID 去重；无 HealthManager 时不导出，初始化未探测状态沿用 0。
+新增 2 个测试并补无健康检查时不导出的断言；完整测试集 204 passed，2 条已有
+依赖警告。验证健康探测更新与选路一致，scrape 不额外触发探测。尝试级指标、
+日志、trace 与 Grafana 仍待接入。
