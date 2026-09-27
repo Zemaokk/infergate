@@ -1,7 +1,7 @@
 # M3.1 可观测性合同草案
 
 **状态：** 2026-09-26 已完成一轮情景讨论，确认范围见第 5 节；其余接口与
-指标设计仍为草案；当前已接入 middleware、尝试计数与候选结果，验证进度见第 8–9 节。
+指标设计仍为草案；当前已接入请求生命周期最终结果，验证进度见第 8–11 节。
 
 ## 1. 输入、状态、输出、失败行为
 
@@ -196,3 +196,28 @@ more_body 为 False（或省略）时设置 response_complete。当前响应不�
 发送失败与取消保留原始异常；现有普通/流式集成用例核对实际 status 与 body 完成。
 完整测试集 167 passed，2 条已有依赖弃用警告。最终 outcome 与 finish、客户端
 断开信号、清理错误记录仍未接入，下一步共同完成这些生命周期边界。
+
+## 11. 最终请求结果与清理边界 — 2026-09-27
+
+AI 接入 observed_receive，在 body 未完成时观察到 http.disconnect 则记录
+cancelled；发送端 OSError 和外部任务取消也记录 cancelled。普通内部异常记录
+internal_error，LimitedStreamingResponse 在清理前捕获下游流 TransportError，
+记录 stream_error。首个实际执行失败保存在 failure_outcome，优先于候选结果。
+
+清理失败另设 cleanup_failed=True；已有主要失败时不覆盖它。若只发生清理
+失败，则结果为 internal_error。原有异常继续向外传播；本轮保护的是观测结果，
+没有改变既有 finally 中清理异常可能成为向外抛出异常的行为。
+
+middleware 在 self.app 退出后的 finally 调用 finish：优先使用实际执行失败，
+否则要求 body 完成后才能采用 pending_outcome；无候选或响应未完成且没有已知
+失败时保守记 internal_error。最终 reason 仅在最终 outcome 与候选一致时沿用
+pending_reason，避免取消结果携带过时的拒绝原因。
+
+新增 13 个用例覆盖 ASGI 2.3/2.4 的正常流、读取失败、清理失败及组合，
+disconnect/外部取消与清理错误组合，以及 body 已完成但清理仍阻塞时不提前
+finish。更新既有发送与集成测试，核对最终结果、原因和耗时。完整测试集
+180 passed，2 条已有依赖弃用警告。差异检查通过。
+
+边界：测试为内存 ASGI 与受控流，不等同于真实网络所有断开模式；首字节未埋点，
+cleanup_failed 尚未导出为日志或 trace 事件。cleanup deadline、任意重复取消和
+多个并发异常组合未在本轮扩展。作者待 teach-back，M3.1 尚未完成。

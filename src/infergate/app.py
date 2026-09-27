@@ -1,6 +1,7 @@
 from typing import Annotated, Literal
 
 import anyio
+import httpx
 from fastapi import FastAPI, Header, Request, Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import StreamingResponse
@@ -52,13 +53,29 @@ class LimitedStreamingResponse(StreamingResponse):
         self.limiter = limiter
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        observation = scope.get("state", {}).get("observation")
         try:
             await super().__call__(scope, receive, send)
+        except BaseException as exc:
+            # 在进入清理前保留主要失败；发送端错误已由 middleware 分类。
+            if observation is not None:
+                if isinstance(exc, anyio.get_cancelled_exc_class()):
+                    observation.record_failure("cancelled")
+                elif isinstance(exc, httpx.TransportError):
+                    observation.record_failure("stream_error")
+                else:
+                    observation.record_failure("internal_error")
+            raise
         finally:
             try:
                 # Cleanup also runs when headers fail before body iteration starts.
                 with anyio.CancelScope(shield=True):
                     await self.downstream.aclose()
+            except BaseException:
+                if observation is not None:
+                    observation.cleanup_failed = True
+                    observation.record_failure("internal_error")
+                raise
             finally:
                 self.limiter.release()
 
@@ -237,6 +254,13 @@ def create_app(
 
             return r
 
+        except BaseException as exc:
+            observation.record_failure(
+                "cancelled"
+                if isinstance(exc, anyio.get_cancelled_exc_class())
+                else "internal_error"
+            )
+            raise
         # 如果没有移交资源所有权，释放 concurrency 名额
         finally:
             if not handed_off:
@@ -245,6 +269,10 @@ def create_app(
                     if opened_stream is not None:
                         with anyio.CancelScope(shield=True):
                             await opened_stream.aclose()
+                except BaseException:
+                    observation.cleanup_failed = True
+                    observation.record_failure("internal_error")
+                    raise
                 finally:
                     concurrency_limiter.release()
 

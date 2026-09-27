@@ -106,10 +106,10 @@ async def test_request_observation_counts_actual_backend_calls(
     assert observation.status_code == expected_status
     assert observation.response_complete is True
     assert (observation.pending_outcome, observation.pending_reason) == expected_result
-    # Endpoint results are provisional until the lifecycle wrapper finalizes them.
-    assert observation.outcome is None
-    assert observation.is_finish is False
-    assert observation.total_time is None
+    assert observation.outcome == expected_result[0]
+    assert observation.reason == expected_result[1]
+    assert observation.is_finish is True
+    assert observation.total_time >= 0
 
 
 @pytest.mark.asyncio

@@ -30,7 +30,6 @@ async def test_observation_is_available_through_request_state_and_messages_pass_
 
     async def app(app_scope, app_receive, app_send):
         assert app_scope is scope
-        assert app_receive is receive
         request = Request(app_scope)
         assert request.state.existing is marker
         assert request.state.observation.started_at == 10.0
@@ -40,7 +39,7 @@ async def test_observation_is_available_through_request_state_and_messages_pass_
 
     await RequestObservationMiddleware(app)(scope, receive, send)
     assert sent == [outgoing]
-    assert scope["state"]["observation"].is_finish is False
+    assert scope["state"]["observation"].is_finish is True
 
 
 @pytest.mark.asyncio
@@ -175,3 +174,5 @@ async def test_failed_send_does_not_record_success_and_preserves_exception(
     observation = scope["state"]["observation"]
     assert observation.status_code == (None if fail_at == "http.response.start" else 200)
     assert observation.response_complete is False
+    assert observation.is_finish is True
+    assert observation.outcome == "cancelled"

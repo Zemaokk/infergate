@@ -1,5 +1,6 @@
 import time
 
+import anyio
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 
@@ -19,6 +20,10 @@ class RequestObservation:
         # 最后一块 body 是否已成功交给下一层 ASGI send。
         # 不代表客户端已收齐，也不代表下游清理完成或观测记录已定稿。
         self.response_complete = False
+        # 实际执行失败优先于 endpoint 的候选结果；清理错误单独保留。
+        self.failure_outcome: str | None = None
+        self.cleanup_failed = False
+        self.reason: str | None = None
 
     def start_attempt(self):
         if self.is_finish:
@@ -35,6 +40,7 @@ class RequestObservation:
         if self.is_finish:
             return False
         self.outcome = outcome
+        self.reason = self.pending_reason if outcome == self.pending_outcome else None
         self.is_finish = True
         self.total_time = finish_time - self.started_at
         return True
@@ -44,6 +50,11 @@ class RequestObservation:
             return
         self.pending_outcome = outcome
         self.pending_reason = reason
+
+    def record_failure(self, outcome: str) -> None:
+        # 保留先发生的主要失败，避免后续清理异常覆盖取消或读取失败。
+        if not self.is_finish and self.failure_outcome is None:
+            self.failure_outcome = outcome
 
 
 class RequestObservationMiddleware:
@@ -65,7 +76,18 @@ class RequestObservationMiddleware:
 
         async def observed_send(message: Message) -> None:
             # 先发送再记录；若发送抛异常或被取消，不误记为成功。
-            await send(message)
+            try:
+                await send(message)
+            except anyio.get_cancelled_exc_class():
+                observation.record_failure("cancelled")
+                raise
+            except OSError:
+                # ASGI 用发送端 OSError 表示连接已关闭。
+                observation.record_failure("cancelled")
+                raise
+            except Exception:
+                observation.record_failure("internal_error")
+                raise
             if message["type"] == "http.response.start":
                 observation.status_code = message["status"]
             elif message["type"] == "http.response.body" and not message.get(
@@ -74,4 +96,30 @@ class RequestObservationMiddleware:
                 # body 发完后仍可能执行清理，不能在这里把 is_finish 置 True。
                 observation.response_complete = True
 
-        await self.app(scope, receive, observed_send)
+        async def observed_receive() -> Message:
+            message = await receive()
+            if (
+                message["type"] == "http.disconnect"
+                and not observation.response_complete
+            ):
+                observation.record_failure("cancelled")
+            return message
+
+        try:
+            await self.app(scope, observed_receive, observed_send)
+        except anyio.get_cancelled_exc_class():
+            observation.record_failure("cancelled")
+            raise
+        except BaseException:
+            observation.record_failure("internal_error")
+            raise
+        finally:
+            # self.app 已退出：响应发送及其 finally 清理已经结束（可能失败）。
+            # 正常返回也可能是框架处理了断开，不能直接当作 completed。
+            outcome = observation.failure_outcome
+            if outcome is None:
+                if observation.response_complete:
+                    outcome = observation.pending_outcome or "internal_error"
+                else:
+                    outcome = "internal_error"
+            observation.finish(outcome, time.monotonic())
