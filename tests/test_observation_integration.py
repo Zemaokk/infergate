@@ -88,6 +88,9 @@ async def test_request_observation_counts_actual_backend_calls(
     assert len(observations) == 1
     assert observations[0].attempt == len(expected_calls)
     assert concurrency.available == (0 if scenario == "concurrency_limit" else 1)
+    assert app.state.metrics.registry.get_sample_value("infergate_active_requests") == (
+        1 if scenario == "concurrency_limit" else 0
+    )
     expected_result = {
         "success": ("completed", None),
         "fallback": ("completed", None),

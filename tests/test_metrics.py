@@ -15,8 +15,8 @@ from infergate.token_bucket import TokenBucketLimiter
 
 
 def test_histogram_aggregates_known_durations_and_registry_is_independent():
-    metrics = GatewayMetrics()
-    separate = GatewayMetrics()
+    metrics = GatewayMetrics(ConcurrencyLimiter(1))
+    separate = GatewayMetrics(ConcurrencyLimiter(1))
     for duration in (0.5, 2.0):
         observation = RequestObservation(10.0)
         observation.status_code = 200
@@ -41,9 +41,10 @@ def test_histogram_aggregates_known_durations_and_registry_is_independent():
 
 
 def test_unfinished_observation_is_not_counted():
-    metrics = GatewayMetrics()
+    metrics = GatewayMetrics(ConcurrencyLimiter(1))
     metrics.record_request(RequestObservation(10.0))
-    assert not [sample for family in metrics.registry.collect() for sample in family.samples]
+    samples = [sample for family in metrics.registry.collect() for sample in family.samples]
+    assert [(s.name, s.value) for s in samples] == [("infergate_active_requests", 0)]
 
 
 @pytest.mark.parametrize(
@@ -53,7 +54,7 @@ def test_unfinished_observation_is_not_counted():
 def test_first_byte_export_omits_missing_samples_but_preserves_zero_and_failure(
     first_byte, outcome
 ):
-    metrics = GatewayMetrics()
+    metrics = GatewayMetrics(ConcurrencyLimiter(1))
     observation = RequestObservation(10.0)
     if first_byte is not None:
         observation.record_first_byte(10.0 + first_byte)
@@ -116,13 +117,14 @@ async def test_metrics_endpoint_is_parseable_excluded_and_app_specific():
             transport=httpx.ASGITransport(app=second), base_url="http://gateway"
         ) as client:
             untouched = await client.get("/metrics")
-        assert not [s for f in text_string_to_metric_families(untouched.text) for s in f.samples]
+        samples = [s for f in text_string_to_metric_families(untouched.text) for s in f.samples]
+        assert [(s.name, s.value) for s in samples] == [("infergate_active_requests", 0)]
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("outcome, status", [("stream_error", 200), ("cancelled", None)])
 async def test_failure_records_once_with_actual_status(outcome, status):
-    metrics = GatewayMetrics()
+    metrics = GatewayMetrics(ConcurrencyLimiter(1))
     scope = {"type": "http", "method": "POST", "path": "/v1/chat/completions"}
     error = (
         RuntimeError("stream failed")

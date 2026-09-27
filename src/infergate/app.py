@@ -101,7 +101,7 @@ def create_app(
     lifespan: Lifespan | None = None,
 ) -> FastAPI:
     app = FastAPI(lifespan=lifespan)
-    metrics = GatewayMetrics()
+    metrics = GatewayMetrics(concurrency_limiter)
     app.state.metrics = metrics
     app.add_middleware(
         RequestObservationMiddleware, record_request_metrics=metrics.record_request

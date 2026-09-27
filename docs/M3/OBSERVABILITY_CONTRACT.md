@@ -280,3 +280,18 @@ HTTP scrape 可解析且不计业务量、敏感值不进入 labels、200 流失
 backend_first_byte_seconds，也不能称为 TTFT。普通响应、拒绝及首块前失败没有
 首字节样本；新增 4 例单元测试并扩展请求集成断言，完整测试集 198 passed，
 2 条已有依赖弃用警告。其余尝试/并发/健康指标和完整观测栈仍待接入。
+
+## 15. 当前并发占用 Gauge
+
+GatewayMetrics 显式接收当前 app 的 ConcurrencyLimiter，使用
+[Gauge.set_function](https://prometheus.github.io/client_python/instrumenting/gauge/)
+在抓取时读取 limit - available，导出 infergate_active_requests。不增加每请求
+的 inc/dec 逻辑，不计等待队列，不把计数与请求 finish 绑定。
+
+该值是当前占用名额的瞬时值：普通请求按原语义在响应发送前释放；流式请求
+保持到关闭下游并释放名额。没有请求时也导出 0；请求 Counter/Histogram
+仍只在有对应样本后出现时间序列。仍限单进程，不支持多进程共享配额或汇总。
+
+新增 4 个用例验证名额变化、容量拒绝不增值、app 隔离，以及实际 app ASGI
+流保持时通过 GET /metrics 读到 1、正常/读取失败/取消后恢复 0；既有请求集成
+场景补充 Gauge 检查。完整测试集 202 passed，2 条已有依赖弃用警告。

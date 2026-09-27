@@ -1,13 +1,23 @@
-from prometheus_client import CollectorRegistry, Counter, Histogram
+from prometheus_client import CollectorRegistry, Counter, Gauge, Histogram
 
+from infergate.concurrency_limiter import ConcurrencyLimiter
 from infergate.observability import RequestObservation
 
 
 class GatewayMetrics:
     """Each app owns its registry; no global metrics or caller-specific labels."""
 
-    def __init__(self) -> None:
+    def __init__(self, concurrency_limiter: ConcurrencyLimiter) -> None:
         self.registry = CollectorRegistry()
+        self.active_requests = Gauge(
+            "infergate_active_requests",
+            "Currently occupied global concurrency slots in this gateway process.",
+            registry=self.registry,
+        )
+        # 每次抓取读取真实名额占用，不另维护 inc/dec 计数。
+        self.active_requests.set_function(
+            lambda: concurrency_limiter.limit - concurrency_limiter.available
+        )
         self.requests = Counter(
             "infergate_requests_total",
             "Business requests finalized after response execution and cleanup.",

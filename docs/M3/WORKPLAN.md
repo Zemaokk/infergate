@@ -2,7 +2,8 @@
 
 **状态：** M3.1 请求状态、尝试计数、候选结果、发送信号与最终 outcome 已验证；
 作者已完成生命周期和首字节计时情景 teach-back。
-M3.2 请求计数、总耗时与请求级首字节 Histogram 已接入；其余指标、日志与 trace 待完成。
+M3.2 请求计数、总耗时、请求级首字节 Histogram 与并发占用 Gauge 已接入；
+其余指标、日志与 trace 待完成。
 
 **模式：** Learning mode；作者主导 40%，AI 主导 60% 为阶段节奏目标。  
 **基线：** 2026-09-26 当前工作区 `uv run --offline pytest -q`：122 passed，
@@ -82,3 +83,8 @@ AI 随后完成 M3.2 第一小步：独立 GatewayMetrics registry、请求 Coun
 标签，请求定稿后提交；None 不产生样本，0.0 保留。新增 4 个测试并扩展请求
 集成检查，完整测试集 198 passed，2 条已有依赖警告。下一步继续 backend-attempt、
 并发与健康指标的定义和接入；尝试级与请求级耗时不能混用。
+
+AI 接入 infergate_active_requests Gauge，抓取时直接读取并发控制器的
+limit - available，不复制计数状态。新增 4 个用例并扩展集成断言，完整测试集
+202 passed，2 条已有依赖警告。已验证真实 app 的 ASGI 流保持期间抓取为 1，
+正常结束、读取失败和取消后恢复 0；不是外部网络或生产负载验证。

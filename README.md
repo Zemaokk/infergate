@@ -139,6 +139,12 @@ It is not TTFT or client receive latency. Samples are exported at request
 finalization, grouped by final outcome. Missing first bytes produce no sample;
 an observed zero duration is retained. Non-streaming responses do not sample it.
 
-Backend-attempt, concurrency and health metrics are not exported yet.
+`infergate_active_requests` is a Gauge of occupied global concurrency slots,
+read directly from the limiter at scrape time. It includes streaming cleanup
+and stays occupied across fallback. For buffered non-streaming responses, the
+slot is released before sending to the client, so it does not count all HTTP
+responses still being sent. It is a current snapshot, not a historical peak.
+
+Backend-attempt and health metrics are not exported yet.
 Prometheus server, Grafana, structured completion logs and tracing are later M3
 steps; `/metrics` only exposes the current in-process aggregates.
