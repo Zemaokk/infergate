@@ -11,6 +11,8 @@ class RequestObservation:
         self.outcome = None
         self.total_time = None
         self.is_finish = False
+        self.pending_outcome: str | None = None
+        self.pending_reason: str | None = None
 
     def start_attempt(self):
         if self.is_finish:
@@ -29,6 +31,12 @@ class RequestObservation:
         self.is_finish = True
         self.total_time = finish_time - self.started_at
         return True
+
+    def make_result(self, outcome: str, reason: str | None = None):
+        if self.is_finish:
+            return
+        self.pending_outcome = outcome
+        self.pending_reason = reason
 
 
 class RequestObservationMiddleware:

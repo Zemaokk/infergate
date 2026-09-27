@@ -85,6 +85,9 @@ def create_app(
             location = [str(part) for part in first_error["loc"] if part != "body"]
             param = ".".join(location) or None
 
+        observation = getattr(_request.state, "observation", None)
+        if observation is not None:
+            observation.make_result("rejected", "invalid_request_body")
         return create_error_response(
             status_code=400,
             message="Invalid request body.",
@@ -104,6 +107,7 @@ def create_app(
         # check key
         # key 合法性检验
         if x_infergate_key is None or not x_infergate_key.strip():
+            observation.make_result("rejected", "invalid_infergate_key")
             return create_error_response(
                 status_code=400,
                 message="Invalid infergate key.",
@@ -113,6 +117,7 @@ def create_app(
             )
         # token-bucket 限制检验
         if not key_limiter.allow(key=x_infergate_key):
+            observation.make_result("rejected", "rate_limit_exceeded")
             return create_error_response(
                 status_code=429,
                 message="Too many requests.",
@@ -122,6 +127,7 @@ def create_app(
 
         # check total concurrency limit
         if not concurrency_limiter.try_acquire():
+            observation.make_result("rejected", "concurrency_limit_exceeded")
             return create_error_response(
                 status_code=503,
                 message="Exceed global concurrency limit.",
@@ -149,6 +155,7 @@ def create_app(
                     )
                 except NoBackendAvailableError:
                     if last_error is None:
+                        observation.make_result("rejected", "no_backend_available")
                         return create_error_response(
                             status_code=503,
                             message="No backend is available for the requested model.",
@@ -156,6 +163,9 @@ def create_app(
                             code="no_backend_available",
                         )
                     else:
+                        observation.make_result(
+                            "transport_error", "backend_transport_failure"
+                        )
                         return create_error_response(
                             status_code=502,
                             headers={"X-InferGate-Backend": last_backend.id},
@@ -167,7 +177,7 @@ def create_app(
                 attempted_backend_ids.add(backend.id)
                 last_backend = backend
 
-                # 调用 backend_client 发送请求，连接失败报 502
+                # 调用 backend_client 发送请求，连接失败报 502，这里只处理连接失败/超时
                 observation.start_attempt()
                 try:
                     if request.stream:
@@ -186,6 +196,9 @@ def create_app(
                 except BackendTransportError as e:
                     last_error = e
                     if not e.retryable or attempt + 1 >= max_attempts:
+                        observation.make_result(
+                            "transport_error", "backend_transport_failure"
+                        )
                         return create_error_response(
                             status_code=502,
                             headers={"X-InferGate-Backend": backend.id},
@@ -195,6 +208,12 @@ def create_app(
                         )
                     continue  # retry
                 break  # success
+
+            # 构造请求之前，处理后端的其他错误，如果没有错误先标记为 completed
+            if backend_response.status_code >= 400:
+                observation.make_result("backend_http_error")
+            else:
+                observation.make_result("completed")
 
             # 构造请求头
             headers = {"X-InferGate-Backend": backend.id}

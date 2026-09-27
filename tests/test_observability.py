@@ -3,6 +3,28 @@ import pytest
 from infergate.observability import RequestObservation
 
 
+def test_candidate_result_can_change_without_finishing_request():
+    observation = RequestObservation(10.0)
+    observation.make_result("rejected", "no_backend_available")
+    observation.make_result("completed")
+    assert observation.pending_outcome == "completed"
+    assert observation.pending_reason is None
+    assert observation.is_finish is False
+    assert observation.outcome is None
+    assert observation.total_time is None
+
+
+def test_candidate_updates_cannot_change_finished_record():
+    observation = RequestObservation(10.0)
+    observation.make_result("completed")
+    observation.finish("cancelled", 12.0)
+    observation.make_result("internal_error", "cleanup_failure")
+    assert observation.pending_outcome == "completed"
+    assert observation.pending_reason is None
+    assert observation.outcome == "cancelled"
+    assert observation.total_time == 2.0
+
+
 def test_fallback_counts_two_attempts_but_finishes_one_request():
     observation = RequestObservation(started_at=10.0)
     observation.start_attempt()

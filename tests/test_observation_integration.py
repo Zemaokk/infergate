@@ -22,6 +22,9 @@ from infergate.token_bucket import TokenBucketLimiter
         ("missing_key", 400, []),
         ("rate_limit", 429, []),
         ("concurrency_limit", 503, []),
+        ("backend_400", 400, ["a"]),
+        ("backend_503", 503, ["a"]),
+        ("read_failure", 502, ["a"]),
     ],
 )
 async def test_request_observation_counts_actual_backend_calls(
@@ -36,8 +39,14 @@ async def test_request_observation_counts_actual_backend_calls(
             scenario == "fallback" and request.url.host == "a"
         ):
             raise httpx.ConnectError("offline", request=request)
+        if scenario == "read_failure":
+            raise httpx.ReadTimeout("read failed", request=request)
         body = b"data: hello\n\n" if stream else b'{"result":"hello"}'
-        return httpx.Response(200, content=body)
+        status = (
+            int(scenario.removeprefix("backend_"))
+            if scenario.startswith("backend_") else 200
+        )
+        return httpx.Response(status, content=body)
 
     ids = [] if scenario == "no_backend" else ["a", "b"]
     if scenario == "no_backup":
@@ -79,3 +88,50 @@ async def test_request_observation_counts_actual_backend_calls(
     assert len(observations) == 1
     assert observations[0].attempt == len(expected_calls)
     assert concurrency.available == (0 if scenario == "concurrency_limit" else 1)
+    expected_result = {
+        "success": ("completed", None),
+        "fallback": ("completed", None),
+        "both_fail": ("transport_error", "backend_transport_failure"),
+        "no_backup": ("transport_error", "backend_transport_failure"),
+        "read_failure": ("transport_error", "backend_transport_failure"),
+        "no_backend": ("rejected", "no_backend_available"),
+        "invalid_body": ("rejected", "invalid_request_body"),
+        "missing_key": ("rejected", "invalid_infergate_key"),
+        "rate_limit": ("rejected", "rate_limit_exceeded"),
+        "concurrency_limit": ("rejected", "concurrency_limit_exceeded"),
+        "backend_400": ("backend_http_error", None),
+        "backend_503": ("backend_http_error", None),
+    }[scenario]
+    observation = observations[0]
+    assert (observation.pending_outcome, observation.pending_reason) == expected_result
+    # Endpoint results are provisional until the lifecycle wrapper finalizes them.
+    assert observation.outcome is None
+    assert observation.is_finish is False
+    assert observation.total_time is None
+
+
+@pytest.mark.asyncio
+async def test_validation_handler_works_for_route_without_observation():
+    def unexpected_backend_call(request):
+        raise AssertionError("Validation failure must not contact a backend")
+
+    async with httpx.AsyncClient(
+        transport=httpx.MockTransport(unexpected_backend_call)
+    ) as backend:
+        app = create_app(
+            RoundRobinRouter({}),
+            BackendClient(backend),
+            TokenBucketLimiter(2, 1),
+            ConcurrencyLimiter(1),
+        )
+
+        @app.get("/unobserved")
+        async def unobserved(value: int):
+            return {"value": value}
+
+        async with httpx.AsyncClient(
+            transport=httpx.ASGITransport(app=app), base_url="http://gateway"
+        ) as client:
+            response = await client.get("/unobserved", params={"value": "invalid"})
+    assert response.status_code == 400
+    assert response.json()["error"]["type"] == "invalid_request_error"
