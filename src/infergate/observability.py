@@ -1,7 +1,11 @@
+import logging
 import time
+from collections.abc import Callable
 
 import anyio
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
+
+logger = logging.getLogger(__name__)
 
 
 class RequestObservation:
@@ -58,8 +62,13 @@ class RequestObservation:
 
 
 class RequestObservationMiddleware:
-    def __init__(self, app: ASGIApp):
+    def __init__(
+        self,
+        app: ASGIApp,
+        record_request_metrics: Callable[[RequestObservation], None] | None = None,
+    ):
         self.app = app
+        self.record_request_metrics = record_request_metrics
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if not (
@@ -122,4 +131,12 @@ class RequestObservationMiddleware:
                     outcome = observation.pending_outcome or "internal_error"
                 else:
                     outcome = "internal_error"
-            observation.finish(outcome, time.monotonic())
+            if (
+                observation.finish(outcome, time.monotonic())
+                and self.record_request_metrics is not None
+            ):
+                try:
+                    self.record_request_metrics(observation)
+                except Exception:  # noqa: BLE001
+                    # 此处有意隔离指标回调的普通异常，不替换业务结果或原始异常。
+                    logger.warning("Failed to record request metrics")

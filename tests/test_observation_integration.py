@@ -110,11 +110,29 @@ async def test_request_observation_counts_actual_backend_calls(
     assert observation.reason == expected_result[1]
     assert observation.is_finish is True
     assert observation.total_time >= 0
+    metric_labels = {
+        "route": "/v1/chat/completions",
+        "status": str(expected_status),
+        "outcome": expected_result[0],
+        "reason": expected_result[1] or "none",
+    }
+    assert app.state.metrics.registry.get_sample_value(
+        "infergate_requests_total", metric_labels
+    ) == 1
+    assert app.state.metrics.registry.get_sample_value(
+        "infergate_request_duration_seconds_count",
+        {"route": "/v1/chat/completions", "outcome": expected_result[0]},
+    ) == 1
     if stream and scenario in {"success", "fallback", "backend_400", "backend_503"}:
         assert observation.first_byte_sec is not None
         assert 0 <= observation.first_byte_sec <= observation.total_time
     else:
         assert observation.first_byte_sec is None
+    first_byte_count = app.state.metrics.registry.get_sample_value(
+        "infergate_request_first_byte_seconds_count",
+        {"route": "/v1/chat/completions", "outcome": expected_result[0]},
+    )
+    assert first_byte_count == (1 if observation.first_byte_sec is not None else None)
 
 
 @pytest.mark.asyncio

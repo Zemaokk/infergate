@@ -111,3 +111,34 @@ streams and a temporary 3600-second health-probe interval to exercise fallback
 before health updates. Production runtime defaults remain unchanged.
 Key-state cleanup, multi-process quotas, total request deadlines, and performance
 validation remain outside this acceptance; see the limitations linked above.
+
+## M3 request metrics (initial slice)
+
+With the gateway running, scrape `GET /metrics` (no key required):
+
+```bash
+curl http://127.0.0.1:8000/metrics
+```
+
+- `infergate_requests_total{route,status,outcome,reason}` counts finalized business
+  requests, including validation/admission rejections and interrupted streams.
+- `infergate_request_duration_seconds{route,outcome}` is a histogram of gateway
+  request duration through response execution and cleanup, in seconds. Buckets
+  range from 0.01 to 300 seconds plus infinity; they are initial design choices,
+  not measured latency targets.
+
+Each app owns an independent, single-process registry. Metrics scrapes are not
+business requests. Labels exclude caller keys, arbitrary model names and body
+content. A stream may have status `200` and outcome `stream_error`; do not infer
+success from status alone. Status `none` means this observer did not successfully
+send headers before finalization. Series appear after their first observation.
+
+`infergate_request_first_byte_seconds{route,outcome}` records time from request
+entry to the first nonempty backend stream chunk, including any fallback time.
+It is not TTFT or client receive latency. Samples are exported at request
+finalization, grouped by final outcome. Missing first bytes produce no sample;
+an observed zero duration is retained. Non-streaming responses do not sample it.
+
+Backend-attempt, concurrency and health metrics are not exported yet.
+Prometheus server, Grafana, structured completion logs and tracing are later M3
+steps; `/metrics` only exposes the current in-process aggregates.

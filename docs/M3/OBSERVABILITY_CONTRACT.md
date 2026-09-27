@@ -240,3 +240,43 @@ AI 新增 6 个用例，覆盖空块、空格/换行有效字节、只采样一�
 传入 observation，普通/拒绝无样本、流式成功/fallback/后端 HTTP 错误有样本。
 完整测试集 186 passed，2 条已有依赖弃用警告。包装器待作者 teach-back；
 本轮未实现尝试级首字节指标或 Prometheus 导出。
+
+## 13. Prometheus 请求指标最小闭环
+
+作者完成首字节计时情景预测后，AI 接入 prometheus-client 0.26.0，依赖和锁文件
+由 uv 更新。GatewayMetrics 每个 app 实例创建独立 CollectorRegistry，避免默认
+全局 registry 导致重复注册或测试间污染。使用官方客户端的
+[Counter](https://prometheus.github.io/client_python/instrumenting/counter/) 与
+[Histogram](https://prometheus.github.io/client_python/instrumenting/histogram/)。
+
+- infergate_requests_total：labels 为固定 route、实际观察 status（或 none）、
+  最终 outcome、最终 reason（或 none）。不使用 key、prompt、任意 model 字符串。
+- infergate_request_duration_seconds：labels 为 route、outcome；从请求入口到
+  清理后定稿的秒数。包含失败与拒绝；按 outcome 筛选后再解释延迟分布。
+- bucket 边界为 0.01、0.05、0.1、0.25、0.5、1、2.5、5、10、30、60、120、300
+  秒和 +Inf，属于初始设计选择，不是性能结论。p50/p95/p99 留待查询聚合。
+- GET /metrics 以官方 exposition 格式返回本 app registry，无需 key；该请求
+  不进入业务观测。没有样本的 label 组合尚不产生时间序列。
+- middleware 仅在 finish 返回 True 时同步调用 record_request_metrics。普通上报异常被记录
+  为固定 warning，不覆盖业务结果/原异常，不进行网络 exporter 调用或重试。
+  指标提交不保证跨 Counter/Histogram 的事务原子性；单进程内存统计不持久化。
+
+新增 8 个测试覆盖已知耗时的 bucket/count/sum、未结束不计数、registry 隔离、
+HTTP scrape 可解析且不计业务量、敏感值不进入 labels、200 流失败和无 headers
+取消各计一次、上报异常不改变正常结果/原始异常/取消。既有 24 个请求集成场景
+补充指标断言。完整测试集 194 passed，2 条已有依赖弃用警告。
+
+范围：本轮只导出请求计数与请求耗时；尚未导出首字节、backend attempts、并发和
+健康指标。未启动 Prometheus server 或 Grafana，未接入 tracing 或结构化完成日志。
+
+## 14. 请求级首字节 Histogram 导出
+
+新增 infergate_request_first_byte_seconds，labels 为 route/outcome，桶边界与
+请求耗时一致。请求定稿时仅在 first_byte_sec is not None 时 observe；0.0 是
+有效样本。读到首字节后失败的请求仍提交样本，但按最终失败 outcome 单独分组。
+长流在终止前不会提交该样本，这是使用最终 outcome 分组的明确选择。
+
+此指标起点是请求入口，包含 fallback，不能替代第 2 节仍待实现的尝试级
+backend_first_byte_seconds，也不能称为 TTFT。普通响应、拒绝及首块前失败没有
+首字节样本；新增 4 例单元测试并扩展请求集成断言，完整测试集 198 passed，
+2 条已有依赖弃用警告。其余尝试/并发/健康指标和完整观测栈仍待接入。

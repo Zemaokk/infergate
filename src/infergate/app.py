@@ -7,6 +7,7 @@ import httpx
 from fastapi import FastAPI, Header, Request, Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import StreamingResponse
+from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from pydantic import BaseModel, Field, StrictBool, StrictStr
 from starlette.types import Lifespan, Receive, Scope, Send
 
@@ -17,6 +18,7 @@ from infergate.backend_client import (
     BackendTransportError,
 )
 from infergate.concurrency_limiter import ConcurrencyLimiter
+from infergate.metrics import GatewayMetrics
 from infergate.observability import RequestObservation, RequestObservationMiddleware
 from infergate.router import NoBackendAvailableError, RoundRobinRouter
 from infergate.token_bucket import TokenBucketLimiter
@@ -99,7 +101,18 @@ def create_app(
     lifespan: Lifespan | None = None,
 ) -> FastAPI:
     app = FastAPI(lifespan=lifespan)
-    app.add_middleware(RequestObservationMiddleware)
+    metrics = GatewayMetrics()
+    app.state.metrics = metrics
+    app.add_middleware(
+        RequestObservationMiddleware, record_request_metrics=metrics.record_request
+    )
+
+    @app.get("/metrics", include_in_schema=False)
+    def export_metrics() -> Response:
+        return Response(
+            content=generate_latest(metrics.registry),
+            headers={"Content-Type": CONTENT_TYPE_LATEST},
+        )
 
     @app.exception_handler(RequestValidationError)
     async def request_valid_e_handler(
