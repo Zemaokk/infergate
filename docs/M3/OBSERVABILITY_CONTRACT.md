@@ -221,3 +221,22 @@ finish。更新既有发送与集成测试，核对最终结果、原因和耗�
 边界：测试为内存 ASGI 与受控流，不等同于真实网络所有断开模式；首字节未埋点，
 cleanup_failed 尚未导出为日志或 trace 事件。cleanup deadline、任意重复取消和
 多个并发异常组合未在本轮扩展。作者待 teach-back，M3.1 尚未完成。
+
+## 12. 请求级首字节埋点 — 2026-09-27
+
+作者已正确完成生命周期情景预测。首次首字节实现放在 observed_send 中，
+review 发现测量边界不符，且 elif 导致非空末块跳过完成标记；作者移除后请求
+AI 协助实现包装器。
+
+LimitedStreamingResponse 接收当前请求的 observation，以 observed_chunks
+包装下游 aiter_bytes。读到非空 chunk 后、yield 前调用 record_first_byte；
+所有块原样 yield，不完整缓冲、不 strip 空白。首字节是请求入口到首次下游
+非空块读取的耗时，包含 fallback；不是尝试级耗时、客户端收到首字节时间或 TTFT。
+普通缓冲响应与本地拒绝响应不采样。后端流式 HTTP 错误的非空 body 也会采样，
+因此后续聚合应按 outcome 区分，不能直接解释为成功生成延迟。
+
+AI 新增 6 个用例，覆盖空块、空格/换行有效字节、只采样一次、惰性读取、
+首块前失败不采样，以及读到首块后发送失败仍保留样本。集成用例确认 endpoint
+传入 observation，普通/拒绝无样本、流式成功/fallback/后端 HTTP 错误有样本。
+完整测试集 186 passed，2 条已有依赖弃用警告。包装器待作者 teach-back；
+本轮未实现尝试级首字节指标或 Prometheus 导出。

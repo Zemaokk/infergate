@@ -1,7 +1,8 @@
 # M3 工作计划：可观测性
 
 **状态：** M3.1 请求状态、尝试计数、候选结果、发送信号与最终 outcome 已验证；
-生命周期接入待作者 teach-back，首字节计时和指标导出尚未接入。
+作者已完成生命周期情景 teach-back；请求级首字节计时已接入，待解释迭代器包装。
+指标导出尚未接入。
 
 **模式：** Learning mode；作者主导 40%，AI 主导 60% 为阶段节奏目标。  
 **基线：** 2026-09-26 当前工作区 `uv run --offline pytest -q`：122 passed，
@@ -63,5 +64,9 @@ AI 已补 middleware 的 send 包装，成功发送后记录 status_code 与 res
 新增 6 个发送边界用例并扩展集成断言；完整测试集 167 passed，2 条已有依赖警告。
 AI 已补断开、取消、异常与清理失败观测，在完整响应调用退出时 finish。
 新增 13 个生命周期用例并更新集成断言，完整测试集 180 passed，2 条已有依赖警告。
-下一步由作者解释 body 发完但清理失败时两个完成标记和最终 outcome 的取值，
-再接入首字节计时。Prometheus 尚未接入，M3.1 未完成。
+作者正确解释 body 发完但清理失败时，response_complete/cleanup_failed/is_finish
+均为 True，最终 internal_error、候选 completed。
+首字节埋点经 focused review 后，作者移除了 send 中的错误埋点；按作者请求，AI
+补下游异步迭代器包装、6 个测试并扩展集成断言。完整测试集 186 passed，
+2 条已有依赖警告。下一步解释 yield 前采样与流式惰性读取，随后整理指标接入。
+Prometheus 尚未接入，M3.1 未完成。

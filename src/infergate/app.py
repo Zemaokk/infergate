@@ -1,3 +1,5 @@
+import time
+from collections.abc import AsyncIterator
 from typing import Annotated, Literal
 
 import anyio
@@ -43,9 +45,18 @@ class LimitedStreamingResponse(StreamingResponse):
         response: BackendStreamResponse,
         limiter: ConcurrencyLimiter,
         headers: dict[str, str],
+        observation: RequestObservation | None = None,
     ) -> None:
+        async def observed_chunks() -> AsyncIterator[bytes]:
+            async for chunk in response.aiter_bytes():
+                # 在下游读取返回后、交给客户端发送前记录；空白字节也算非空。
+                if chunk and observation is not None:
+                    observation.record_first_byte(time.monotonic())
+                # 原样逐块转发：不删除空块、不缓存完整响应。
+                yield chunk
+
         super().__init__(
-            content=response.aiter_bytes(),
+            content=observed_chunks(),
             status_code=response.status_code,
             headers=headers,
         )
@@ -242,6 +253,7 @@ def create_app(
                     response=backend_response,
                     limiter=concurrency_limiter,
                     headers=headers,
+                    observation=observation,
                 )
                 # 移交资源所有权
                 handed_off = True

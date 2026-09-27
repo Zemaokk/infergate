@@ -110,6 +110,11 @@ async def test_request_observation_counts_actual_backend_calls(
     assert observation.reason == expected_result[1]
     assert observation.is_finish is True
     assert observation.total_time >= 0
+    if stream and scenario in {"success", "fallback", "backend_400", "backend_503"}:
+        assert observation.first_byte_sec is not None
+        assert 0 <= observation.first_byte_sec <= observation.total_time
+    else:
+        assert observation.first_byte_sec is None
 
 
 @pytest.mark.asyncio
