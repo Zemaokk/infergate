@@ -1,7 +1,7 @@
 # M3.1 可观测性合同草案
 
 **状态：** 2026-09-26 已完成一轮情景讨论，确认范围见第 5 节；其余接口与
-指标设计仍为草案，尚未接入观测代码。
+指标设计仍为草案；当前已接入 middleware 与尝试计数，验证进度见第 8 节。
 
 ## 1. 输入、状态、输出、失败行为
 
@@ -143,3 +143,22 @@ finish 覆盖结果。作者提交第一版后进行 focused review，再共同�
 
 待作者 teach-back：为什么只有 finish 返回 True 才能提交一次最终统计？起点
 10、首字节时刻也是 10、第二块时刻为 11，首字节耗时应保留什么值？
+
+## 8. Middleware 与尝试计数接入 — 2026-09-27
+
+作者已回答 finish 返回 False 表示结束过、不应重复计数，并正确预测首字节
+零耗时；AI 补充 `0.0 is not None` 为 True，所以保护分支会保留该值。
+
+AI 完成 middleware 样板及透传/隔离测试；作者在 create_app 注册 middleware，
+通过 `http_request.state.observation` 读取请求级对象，在选路成功后、普通与
+流式后端调用之前执行 start_attempt。该位置 review 通过，无需改动实现。
+
+AI 新增 `tests/test_observation_integration.py`，9 种场景分别覆盖普通和流式
+请求，共 18 个用例：成功、fallback、两次连接失败、失败后无备用、首次无候选、
+请求体验证失败、缺少 key、限流拒绝、并发拒绝。测试通过真实 FastAPI/ASGI
+调用路径取出 observation，与 MockTransport 记录的实际后端调用数核对；
+同时检查名额归还。完整测试集 152 passed，2 条已有依赖弃用警告。
+
+当前只创建观测对象及统计尝试次数。尚未调用 finish、采集首字节、提交聚合
+指标或记录 outcome；不能据此声称取消/流失败已完成观测。下一步需将 endpoint
+的候选结果传递到外层生命周期，避免普通返回或流式 headers 发出时提前定稿。

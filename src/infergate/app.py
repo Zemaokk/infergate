@@ -14,6 +14,7 @@ from infergate.backend_client import (
     BackendTransportError,
 )
 from infergate.concurrency_limiter import ConcurrencyLimiter
+from infergate.observability import RequestObservation, RequestObservationMiddleware
 from infergate.router import NoBackendAvailableError, RoundRobinRouter
 from infergate.token_bucket import TokenBucketLimiter
 
@@ -70,6 +71,7 @@ def create_app(
     lifespan: Lifespan | None = None,
 ) -> FastAPI:
     app = FastAPI(lifespan=lifespan)
+    app.add_middleware(RequestObservationMiddleware)
 
     @app.exception_handler(RequestValidationError)
     async def request_valid_e_handler(
@@ -92,9 +94,12 @@ def create_app(
 
     @app.post("/v1/chat/completions")
     async def create_chat_completion(
+        http_request: Request,
         request: ChatCompletionRequest,
         x_infergate_key: Annotated[str | None, Header()] = None,
     ) -> Response:
+
+        observation: RequestObservation = http_request.state.observation
 
         # check key
         # key 合法性检验
@@ -163,6 +168,7 @@ def create_app(
                 last_backend = backend
 
                 # 调用 backend_client 发送请求，连接失败报 502
+                observation.start_attempt()
                 try:
                     if request.stream:
                         backend_response = await backend_client.open_stream(

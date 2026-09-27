@@ -6,7 +6,7 @@ from starlette.types import ASGIApp, Receive, Scope, Send
 class RequestObservation:
     def __init__(self, started_at: float):
         self.started_at = started_at
-        self.attempt = 0
+        self.attempt = 0  # 记录尝试链接backend次数
         self.first_byte_sec = None
         self.outcome = None
         self.total_time = None
