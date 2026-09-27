@@ -1,6 +1,6 @@
 # M3 工作计划：可观测性
 
-**状态：** M3.1 独立状态对象、middleware 注册、后端尝试计数与候选结果已验证；
+**状态：** M3.1 独立状态对象、middleware 注册、后端尝试计数、候选结果与发送信号已验证；
 尚未接入最终 outcome、首字节计时和指标导出。
 
 **模式：** Learning mode；作者主导 40%，AI 主导 60% 为阶段节奏目标。  
@@ -59,5 +59,7 @@ endpoint 读取及实际后端调用前的尝试计数。
 随后作者完成 pending_outcome/pending_reason 和各响应分支标记，AI 扩展测试，
 完整测试集 161 passed，2 条已有依赖警告。已验证后端 HTTP 503 与网关拒绝
 503 分类不同，候选结果不会提前 finish；详见合同第 9 节。
-下一步在 middleware 观察实际响应状态、完成和断开信号，再接入最终 finish。
+AI 已补 middleware 的 send 包装，成功发送后记录 status_code 与 response_complete，
+新增 6 个发送边界用例并扩展集成断言；完整测试集 167 passed，2 条已有依赖警告。
+下一步观察断开与异常，保留清理前的主要失败原因，再接入最终 finish。
 当前未接入最终结果、首字节计时或 Prometheus，M3.1 未完成。

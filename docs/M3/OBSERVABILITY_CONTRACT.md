@@ -179,3 +179,20 @@ AI 扩展现有 18 个集成用例的候选结果断言，新增后端 400/503�
 成功最终候选为 completed。实际响应状态采集、流失败/取消识别、清理错误保留与
 最终记录仍未实现。下一步的完整生命周期不能只依据 self.app 正常返回判断成功，
 也不能将所有异常都归为 stream_error。
+
+## 10. ASGI 发送信号验证 — 2026-09-27
+
+AI 补齐 observed_send 框架包装：原样 await 下层 send 成功后，才从
+http.response.start 记录 status_code；最后一个 http.response.body 的
+more_body 为 False（或省略）时设置 response_complete。当前响应不使用 trailers；
+若以后引入 trailers，需扩展完成边界。该标记只代表 body 的 ASGI 发送完成，
+不代表客户端已收齐，也不代表后续清理已完成。
+
+非目标请求保持原样透传。发送异常或取消继续向外传播，不误记成功，不在 send
+包装内调用 finish。这里不采集首字节耗时，因为向客户端发送首块与从后端读到
+首块是不同的测量位置。
+
+新增 6 个用例覆盖显式/省略 more_body、状态在 send 成功后更新、headers/body
+发送失败与取消保留原始异常；现有普通/流式集成用例核对实际 status 与 body 完成。
+完整测试集 167 passed，2 条已有依赖弃用警告。最终 outcome 与 finish、客户端
+断开信号、清理错误记录仍未接入，下一步共同完成这些生命周期边界。

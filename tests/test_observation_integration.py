@@ -103,6 +103,8 @@ async def test_request_observation_counts_actual_backend_calls(
         "backend_503": ("backend_http_error", None),
     }[scenario]
     observation = observations[0]
+    assert observation.status_code == expected_status
+    assert observation.response_complete is True
     assert (observation.pending_outcome, observation.pending_reason) == expected_result
     # Endpoint results are provisional until the lifecycle wrapper finalizes them.
     assert observation.outcome is None
