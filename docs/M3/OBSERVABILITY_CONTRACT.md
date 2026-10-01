@@ -310,3 +310,35 @@ backend labels 仅来自 app 构造时的配置；动态路由配置热更新不
 新增 2 个用例：验证去重/状态变化/app 隔离，以及经现有 HealthChecker 探测后
 HTTP scrape 输出与真实 app 选路一致。补无 HealthManager 的 app 不导出断言。
 完整测试集 204 passed，2 条已有依赖弃用警告。backend-attempt 等仍待完成。
+
+## 17. M3.2 后端尝试级指标：待作者预测的合同
+
+**状态：** 2026-10-01 启动讨论，下面是边界草案；尚未接入尝试级指标。
+这属于 [人机协作约定](../COLLABORATION_CONTRACT.md)中的 B 类指标定义与
+埋点任务：作者先说明关键路径，AI 再补框架生命周期与 Prometheus 样板。
+
+- **一次尝试的输入：** 选路成功后确定的配置 backend ID、该次实际下游调用。
+  选路无候选、限流或并发拒绝均不创建尝试。不能用客户端请求数替代尝试数。
+- **独立状态：** 每次尝试保存自己的单调时钟起点、终点、backend ID、结束
+  原因和可选下游 HTTP 状态。已有 `RequestObservation.attempt` 只保存总次数，
+  不足以恢复 A、B 各自的耗时与结果；尝试状态必须相互独立。
+- **普通响应终点：** `backend_client.forward()` 完整读取下游响应或抛出
+  `BackendTransportError` 时。连接失败的 A 此时结束；fallback 的 B 从其实际
+  调用开始重新计时。
+- **流式响应终点：** 下游 `open_stream()` 返回 headers 只表示打开成功，
+  **不能**结束这次尝试。正常流结束、读取失败、取消或断开时，要等下游关闭
+  完成（或关闭失败）后再定稿；若打开阶段就失败，则按打开异常结束。
+- **状态与失败：** 尝试自己的 `completed`、`backend_http_error`、
+  `transport_error`、`stream_error`、`cancelled`、`internal_error` 是有限分类。
+  A 连接失败但 B 成功时，A 仍记失败、B 记成功，客户端请求只记一次成功。
+  清理再失败不能覆盖先发生的读取失败或取消；清理失败另作有限事件。
+- **指标草案：** `infergate_backend_attempts_total{backend,outcome}` 每次完成
+  一个尝试计一次；`infergate_backend_attempt_duration_seconds{backend,outcome}`
+  每次结束观察一个耗时。backend label 只取配置 ID，不用 URL、异常文本、
+  调用方 key、model 或请求 ID。HTTP status 可在日志/trace 中另记；先不加入
+  尝试级 label，避免把错误状态与尝试 outcome 混同。
+
+首个作者预测情景：一个普通请求在 `t=0` 调用 A；A 于 `t=0.2` 连接失败；
+`t=0.3` 调用 B，B 于 `t=1.1` 返回完整 HTTP 200。请先回答：请求级和
+尝试级各增加几个样本？A、B 的尝试耗时与 outcome 分别是什么？从哪个动作
+之后才允许记录 B 的样本？之后再讨论流式 headers 与清理边界。

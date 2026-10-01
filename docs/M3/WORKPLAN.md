@@ -94,3 +94,8 @@ AI 接入 infergate_backend_healthy{backend}，抓取时读取路由共用 Healt
 新增 2 个测试并补无健康检查时不导出的断言；完整测试集 204 passed，2 条已有
 依赖警告。验证健康探测更新与选路一致，scrape 不额外触发探测。尝试级指标、
 日志、trace 与 Grafana 仍待接入。
+
+2026-10-01 继续 M3.2：重新运行完整测试集 204 passed，2 条已有依赖警告；
+新增[尝试级指标合同草案](OBSERVABILITY_CONTRACT.md#17-m32-后端尝试级指标待作者预测的合同)。
+当前先由作者预测普通 fallback 的两次独立耗时与结果，再讨论流式终点；
+尚未接入 attempts Counter 或 Histogram。工作区既有 `.DS_Store` 修改未触碰。
