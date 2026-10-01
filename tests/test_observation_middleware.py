@@ -33,13 +33,13 @@ async def test_observation_is_available_through_request_state_and_messages_pass_
         request = Request(app_scope)
         assert request.state.existing is marker
         assert request.state.observation.started_at == 10.0
-        assert request.state.observation.is_finish is False
+        assert request.state.observation.is_finished is False
         assert await app_receive() is incoming
         await app_send(outgoing)
 
     await RequestObservationMiddleware(app)(scope, receive, send)
     assert sent == [outgoing]
-    assert scope["state"]["observation"].is_finish is True
+    assert scope["state"]["observation"].is_finished is True
 
 
 @pytest.mark.asyncio
@@ -140,7 +140,7 @@ async def test_response_signals_update_after_send_and_do_not_finish_before_clean
         await send(messages[2])
         assert observation.response_complete is True
         # The response's cleanup can still be running at this point.
-        assert observation.is_finish is False
+        assert observation.is_finished is False
         assert observation.total_time is None
 
     await RequestObservationMiddleware(app)(scope, receive, send)
@@ -174,5 +174,5 @@ async def test_failed_send_does_not_record_success_and_preserves_exception(
     observation = scope["state"]["observation"]
     assert observation.status_code == (None if fail_at == "http.response.start" else 200)
     assert observation.response_complete is False
-    assert observation.is_finish is True
+    assert observation.is_finished is True
     assert observation.outcome == "cancelled"

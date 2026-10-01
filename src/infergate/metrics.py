@@ -61,7 +61,7 @@ class GatewayMetrics:
 
     def record_request(self, observation: RequestObservation) -> None:
         # Caller submits only when finish() returns True. Do not count pending work.
-        if not observation.is_finish or observation.total_time is None:
+        if not observation.is_finished:
             return
         route = "/v1/chat/completions"
         self.requests.labels(

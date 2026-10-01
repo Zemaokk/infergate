@@ -14,10 +14,7 @@ class RequestObservation:
         self.attempt = 0  # 记录尝试连接backend次数
         self.first_byte_sec = None
         self.outcome = None
-        self.total_time = None
-        # 观测记录是否已定稿：finish() 保存最终结果与耗时后置 True。
-        # 失败或取消也需要定稿，因此不要求 response_complete 为 True。
-        self.is_finish = False
+        self.total_time: float | None = None
         self.pending_outcome: str | None = None
         self.pending_reason: str | None = None
         self.status_code: int | None = None
@@ -29,35 +26,48 @@ class RequestObservation:
         self.cleanup_failed = False
         self.reason: str | None = None
 
+    @property
+    def is_finished(self) -> bool:
+        # 总耗时写入即表示已定稿；零耗时也有效，不另维护一个布尔状态。
+        # 失败或取消也会定稿，因此与 body 是否发送完成无关。
+        return self.total_time is not None
+
     def start_attempt(self):
-        if self.is_finish:
+        if self.is_finished:
             return
         self.attempt += 1
 
     def record_first_byte(self, first_byte_out: float):
-        if self.is_finish or self.first_byte_sec is not None:
+        if self.is_finished or self.first_byte_sec is not None:
             return
         self.first_byte_sec = first_byte_out - self.started_at
 
-    def finish(self, outcome: str, finish_time: float) -> bool:
+    def finish(self, now: float) -> bool:
         # 只定稿一次；本方法不负责发送响应、关闭下游或释放并发名额。
-        if self.is_finish:
+        if self.is_finished:
             return False
+        # 执行失败优先；无失败时，body 发完才采用候选结果。
+        # 缺失候选或 body 未完成时，保守记录 internal_error。
+        outcome = self.failure_outcome
+        if outcome is None:
+            if self.response_complete:
+                outcome = self.pending_outcome or "internal_error"
+            else:
+                outcome = "internal_error"
         self.outcome = outcome
         self.reason = self.pending_reason if outcome == self.pending_outcome else None
-        self.is_finish = True
-        self.total_time = finish_time - self.started_at
+        self.total_time = now - self.started_at
         return True
 
     def make_result(self, outcome: str, reason: str | None = None):
-        if self.is_finish:
+        if self.is_finished:
             return
         self.pending_outcome = outcome
         self.pending_reason = reason
 
     def record_failure(self, outcome: str) -> None:
         # 保留先发生的主要失败，避免后续清理异常覆盖取消或读取失败。
-        if not self.is_finish and self.failure_outcome is None:
+        if not self.is_finished and self.failure_outcome is None:
             self.failure_outcome = outcome
 
 
@@ -102,7 +112,7 @@ class RequestObservationMiddleware:
             elif message["type"] == "http.response.body" and not message.get(
                 "more_body", False
             ):
-                # body 发完后仍可能执行清理，不能在这里把 is_finish 置 True。
+                # body 发完后仍可能执行清理，不能在这里调用 finish()。
                 observation.response_complete = True
 
         async def observed_receive() -> Message:
@@ -124,15 +134,9 @@ class RequestObservationMiddleware:
             raise
         finally:
             # self.app 已退出：响应发送及其 finally 清理已经结束（可能失败）。
-            # 正常返回也可能是框架处理了断开，不能直接当作 completed。
-            outcome = observation.failure_outcome
-            if outcome is None:
-                if observation.response_complete:
-                    outcome = observation.pending_outcome or "internal_error"
-                else:
-                    outcome = "internal_error"
+            # 对象根据已有状态定稿，middleware 只决定何时结束和提交。
             if (
-                observation.finish(outcome, time.monotonic())
+                observation.finish(time.monotonic())
                 and self.record_request_metrics is not None
             ):
                 try:

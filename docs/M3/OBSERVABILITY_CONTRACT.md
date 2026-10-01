@@ -1,7 +1,7 @@
 # M3.1 可观测性合同草案
 
 **状态：** 2026-09-26 已完成一轮情景讨论，确认范围见第 5 节；其余接口与
-指标设计仍为草案；当前已接入请求生命周期最终结果，验证进度见第 8–11 节。
+指标设计仍为草案；当前已接入请求生命周期最终结果，最新状态重构见第 18 节。
 
 ## 1. 输入、状态、输出、失败行为
 
@@ -311,9 +311,10 @@ backend labels 仅来自 app 构造时的配置；动态路由配置热更新不
 HTTP scrape 输出与真实 app 选路一致。补无 HealthManager 的 app 不导出断言。
 完整测试集 204 passed，2 条已有依赖弃用警告。backend-attempt 等仍待完成。
 
-## 17. M3.2 后端尝试级指标：待作者预测的合同
+## 17. M3.2 后端尝试级指标：合同与作者预测
 
-**状态：** 2026-10-01 启动讨论，下面是边界草案；尚未接入尝试级指标。
+**状态：** 2026-10-01 普通 fallback 与流式终点情景已讨论；下一步为作者
+独立尝试状态第一版，尚未接入尝试级指标。
 这属于 [人机协作约定](../COLLABORATION_CONTRACT.md)中的 B 类指标定义与
 埋点任务：作者先说明关键路径，AI 再补框架生命周期与 Prometheus 样板。
 
@@ -342,3 +343,43 @@ HTTP scrape 输出与真实 app 选路一致。补无 HealthManager 的 app 不�
 `t=0.3` 调用 B，B 于 `t=1.1` 返回完整 HTTP 200。请先回答：请求级和
 尝试级各增加几个样本？A、B 的尝试耗时与 outcome 分别是什么？从哪个动作
 之后才允许记录 B 的样本？之后再讨论流式 headers 与清理边界。
+
+### 本轮预测记录
+
+作者正确回答请求级 1 个样本、尝试级 2 个样本，A 耗时 0.2 秒失败，B 耗时
+0.8 秒成功。作者最初提出收到 headers 时记录 B，AI 解释实际调用开始才是
+计时起点，普通响应完整读取后才提交样本；结果名称分别为 transport_error
+与 completed。随后作者正确回答流式 B 应在 t=2.1 完成下游清理后结束计时，
+而不是 t=0.4 拿到 headers 或 t=2.0 发完 body 时。
+
+### 下一步最小实现（B 类，作者先写）
+
+**暂缓：** 作者要求先整理 RequestObservation；恢复此任务时再核对接口与状态设计。
+
+在 src/infergate/observability.py 增加独立 BackendAttemptObservation。
+先只做开始/结束记录：构造参数为 backend_id、started_at；保存 backend_id、
+started_at、outcome（初始 None）、total_time（初始 None）、is_finish（初始 False）。
+finish(outcome, now) 首次保存结果与 now-started_at 并返回 True；重复调用
+返回 False，不覆盖记录。先不修改 RequestObservation.start_attempt 或请求路径。
+
+首轮核对示例：A 起点 0，0.2 以 transport_error 结束；B 起点 0.3，1.1 以
+completed 结束。两者保持独立的 backend ID 与耗时，不能把请求级起点复用为
+B 的起点。随后若再次结束 A，原结果和 0.2 秒耗时应保持不变。作者完成后进行
+focused review 与共同测试，再补下游 HTTP 状态、流式失败与资源交接。
+
+## 18. RequestObservation 定稿职责整理 — 2026-10-01
+
+作者明确暂缓尝试级实现，要求先完成两项重构：
+
+- 移除存储的 is_finish 布尔值，改为只读 is_finished 属性，从 total_time is not
+  None 推导。0.0 耗时仍表示已定稿；body 完成状态 response_complete 保留。
+- RequestObservation.finish(now) 自行选择最终 outcome：主要执行失败优先；
+  否则 body 已完成才采用候选结果；缺少候选或 body 未完成则为 internal_error。
+  reason 沿用现有规则。middleware 仅负责完整生命周期结束时调用并提交指标，
+  不再读取多个状态字段组装 outcome。旧的 finish(outcome, time) 为历史接口。
+
+调用处、指标读取和测试已同步。重复结束仍返回 False，首次结束后其他观测方法
+不更新状态。6 个结果选择场景验证成功、拒绝、失败优先、原因清空、未完成 body
+及缺失候选；另验证完成属性只读，并在零耗时情景检查重复定稿被拒绝。
+原有流式读取/发送失败、取消、清理失败、延迟清理和指标单次提交测试继续通过。
+完整测试集 211 passed，2 条已有依赖弃用警告。

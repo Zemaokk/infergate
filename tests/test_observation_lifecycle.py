@@ -78,7 +78,7 @@ async def test_stream_finalization_preserves_primary_error_after_cleanup(
     assert observation.status_code == 200
     assert observation.response_complete is (mode == "normal")
     assert observation.cleanup_failed is close_fails
-    assert observation.is_finish is True
+    assert observation.is_finished is True
     assert observation.total_time >= 0
     assert stream.closed
     assert limiter.available == 1
@@ -106,14 +106,14 @@ async def test_finish_waits_for_cleanup_after_last_body():
         await asyncio.wait_for(entered_cleanup.wait(), timeout=1)
         observation = scope["state"]["observation"]
         assert observation.response_complete is True
-        assert observation.is_finish is False
+        assert observation.is_finished is False
         assert observation.total_time is None
         assert limiter.available == 0
     finally:
         release_cleanup.set()
         await task
     assert observation.outcome == "completed"
-    assert observation.is_finish is True
+    assert observation.is_finished is True
     assert stream.closed
     assert limiter.available == 1
 
@@ -150,6 +150,6 @@ async def test_disconnect_or_task_cancel_remains_primary_if_cleanup_fails(
     assert observation.reason is None
     assert observation.cleanup_failed is close_fails
     assert observation.response_complete is False
-    assert observation.is_finish is True
+    assert observation.is_finished is True
     assert stream.closed
     assert limiter.available == 1

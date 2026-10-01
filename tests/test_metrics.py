@@ -21,9 +21,10 @@ def test_histogram_aggregates_known_durations_and_registry_is_independent():
         observation = RequestObservation(10.0)
         observation.status_code = 200
         observation.make_result("completed")
-        if observation.finish("completed", 10.0 + duration):
+        observation.response_complete = True
+        if observation.finish(10.0 + duration):
             metrics.record_request(observation)
-        if observation.finish("completed", 99.0):
+        if observation.finish(99.0):
             metrics.record_request(observation)
     labels = {"route": "/v1/chat/completions", "outcome": "completed"}
     assert metrics.registry.get_sample_value(
@@ -58,7 +59,12 @@ def test_first_byte_export_omits_missing_samples_but_preserves_zero_and_failure(
     observation = RequestObservation(10.0)
     if first_byte is not None:
         observation.record_first_byte(10.0 + first_byte)
-    observation.finish(outcome, 12.0)
+    if outcome == "completed":
+        observation.make_result(outcome)
+        observation.response_complete = True
+    else:
+        observation.record_failure(outcome)
+    observation.finish(12.0)
     metrics.record_request(observation)
     labels = {"route": "/v1/chat/completions", "outcome": outcome}
     count = metrics.registry.get_sample_value(
@@ -187,7 +193,7 @@ async def test_metrics_callback_failure_does_not_change_business_result(failure,
             await middleware(scope, receive, send)
         assert caught.value is error
     assert len(calls) == 1
-    assert calls[0].is_finish is True
+    assert calls[0].is_finished is True
     expected_outcome = "completed"
     if failure is asyncio.CancelledError:
         expected_outcome = "cancelled"
