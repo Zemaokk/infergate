@@ -1,4 +1,5 @@
 import asyncio
+import time
 
 import httpx
 import pytest
@@ -41,7 +42,9 @@ def setup_response(stream, spec="2.4"):
     response = LimitedStreamingResponse(stream, limiter, {})
 
     async def app(scope, receive, send):
-        scope["state"]["observation"].make_result("completed")
+        observation = scope["state"]["observation"]
+        observation.make_result("completed")
+        response.backend_attempt_observation = observation.start_attempt("a", time.monotonic())
         await response(scope, receive, send)
 
     async def send(message):
@@ -80,6 +83,10 @@ async def test_stream_finalization_preserves_primary_error_after_cleanup(
     assert observation.cleanup_failed is close_fails
     assert observation.is_finished is True
     assert observation.total_time >= 0
+    attempt = observation.backend_attempts[0]
+    assert attempt.is_finished
+    assert attempt.outcome == expected
+    assert 0 <= attempt.total_time <= observation.total_time
     assert stream.closed
     assert limiter.available == 1
 
@@ -108,6 +115,7 @@ async def test_finish_waits_for_cleanup_after_last_body():
         assert observation.response_complete is True
         assert observation.is_finished is False
         assert observation.total_time is None
+        assert not observation.backend_attempts[0].is_finished
         assert limiter.available == 0
     finally:
         release_cleanup.set()
@@ -147,9 +155,44 @@ async def test_disconnect_or_task_cancel_remains_primary_if_cleanup_fails(
 
     observation = scope["state"]["observation"]
     assert observation.outcome == "cancelled"
+    assert observation.backend_attempts[0].outcome == "cancelled"
+    assert observation.backend_attempts[0].is_finished
     assert observation.reason is None
     assert observation.cleanup_failed is close_fails
     assert observation.response_complete is False
     assert observation.is_finished is True
+    assert stream.closed
+    assert limiter.available == 1
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("spec", ["2.3", "2.4"])
+@pytest.mark.parametrize("message_type", ["http.response.start", "http.response.body"])
+@pytest.mark.parametrize(
+    "error_type, expected", [(OSError, "cancelled"), (httpx.WriteError, "internal_error")]
+)
+async def test_attempt_preserves_middleware_classification_of_send_failure(
+    spec, message_type, error_type, expected
+):
+    stream = LifecycleStream("normal", False)
+    scope, limiter, middleware, _ = setup_response(stream, spec)
+
+    async def receive():
+        await asyncio.Event().wait()
+
+    async def send(message):
+        if message["type"] == message_type:
+            raise error_type("send failed")
+
+    # Starlette converts OSError to ClientDisconnect for ASGI 2.4.
+    from starlette.requests import ClientDisconnect
+
+    propagated = ClientDisconnect if error_type is OSError and spec == "2.4" else error_type
+    with pytest.raises(propagated):
+        await middleware(scope, receive, send)
+    observation = scope["state"]["observation"]
+    assert observation.outcome == expected
+    assert observation.backend_attempts[0].outcome == expected
+    assert observation.backend_attempts[0].is_finished
     assert stream.closed
     assert limiter.available == 1

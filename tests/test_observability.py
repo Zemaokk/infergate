@@ -28,13 +28,13 @@ def test_candidate_updates_cannot_change_finished_record():
 
 def test_fallback_counts_two_attempts_but_finishes_one_request():
     observation = RequestObservation(started_at=10.0)
-    observation.start_attempt()
-    observation.start_attempt()
+    observation.start_attempt("a", observation.started_at)
+    observation.start_attempt("a", observation.started_at)
     observation.make_result("completed")
     observation.response_complete = True
 
     assert observation.finish(12.0) is True
-    assert observation.attempt == 2
+    assert observation.attempts == 2
     assert observation.outcome == "completed"
     assert observation.total_time == 2.0
     assert observation.is_finished is True
@@ -43,25 +43,25 @@ def test_fallback_counts_two_attempts_but_finishes_one_request():
 
 def test_cleanup_error_cannot_overwrite_cancellation_or_finish_twice():
     observation = RequestObservation(10.0)
-    observation.start_attempt()
+    observation.start_attempt("a", observation.started_at)
     observation.record_failure("cancelled")
     assert observation.finish(12.0) is True
 
     observation.record_failure("internal_error")
     assert observation.finish(13.0) is False
-    observation.start_attempt()
+    observation.start_attempt("a", observation.started_at)
     observation.record_first_byte(14.0)
 
     assert observation.outcome == "cancelled"
     assert observation.total_time == 2.0
-    assert observation.attempt == 1
+    assert observation.attempts == 1
     assert observation.first_byte_sec is None
 
 
 @pytest.mark.parametrize("first_byte_at", [10.0, 10.5])
 def test_first_byte_is_recorded_once_including_zero_duration(first_byte_at):
     observation = RequestObservation(10.0)
-    observation.start_attempt()
+    observation.start_attempt("a", observation.started_at)
     observation.record_first_byte(first_byte_at)
     observation.record_first_byte(11.0)
     assert observation.first_byte_sec == first_byte_at - 10.0
@@ -80,7 +80,7 @@ def test_rejected_request_has_no_attempt_or_first_byte():
     assert observation.finish(10.0) is True
     assert observation.is_finished is True
     assert observation.finish(11.0) is False
-    assert observation.attempt == 0
+    assert observation.attempts == 0
     assert observation.first_byte_sec is None
     assert observation.total_time == 0.0
 
@@ -88,21 +88,21 @@ def test_rejected_request_has_no_attempt_or_first_byte():
 def test_requests_keep_independent_observation_state():
     cancelled = RequestObservation(10.0)
     ongoing = RequestObservation(20.0)
-    cancelled.start_attempt()
+    cancelled.start_attempt("a", cancelled.started_at)
     cancelled.record_failure("cancelled")
     cancelled.finish(12.0)
 
-    assert ongoing.attempt == 0
+    assert ongoing.attempts == 0
     assert ongoing.outcome is None
     assert ongoing.total_time is None
     assert ongoing.first_byte_sec is None
     assert ongoing.is_finished is False
-    ongoing.start_attempt()
+    ongoing.start_attempt("a", ongoing.started_at)
     ongoing.record_first_byte(20.5)
     ongoing.make_result("completed")
     ongoing.response_complete = True
     assert ongoing.finish(21.0) is True
-    assert ongoing.attempt == 1
+    assert ongoing.attempts == 1
     assert ongoing.first_byte_sec == 0.5
     assert ongoing.total_time == 1.0
     assert cancelled.outcome == "cancelled"

@@ -86,7 +86,7 @@ async def test_request_observation_counts_actual_backend_calls(
     assert response.status_code == expected_status
     assert calls == expected_calls
     assert len(observations) == 1
-    assert observations[0].attempt == len(expected_calls)
+    assert observations[0].attempts == len(expected_calls)
     assert concurrency.available == (0 if scenario == "concurrency_limit" else 1)
     assert app.state.metrics.registry.get_sample_value("infergate_active_requests") == (
         1 if scenario == "concurrency_limit" else 0
@@ -113,6 +113,18 @@ async def test_request_observation_counts_actual_backend_calls(
     assert observation.reason == expected_result[1]
     assert observation.is_finished is True
     assert observation.total_time >= 0
+    assert [attempt.backend_id for attempt in observation.backend_attempts] == expected_calls
+    for attempt in observation.backend_attempts:
+        assert attempt.is_finished
+        assert 0 <= attempt.total_time <= observation.total_time
+        expected_attempt_outcome = (
+            "transport_error"
+            if scenario in {"both_fail", "no_backup", "read_failure"}
+            or (scenario == "fallback" and attempt.backend_id == "a")
+            else "backend_http_error" if scenario.startswith("backend_")
+            else "completed"
+        )
+        assert attempt.outcome == expected_attempt_outcome
     metric_labels = {
         "route": "/v1/chat/completions",
         "status": str(expected_status),

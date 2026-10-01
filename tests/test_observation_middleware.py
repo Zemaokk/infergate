@@ -87,11 +87,11 @@ async def test_overlapping_requests_have_independent_observations():
         observation = scope["state"]["observation"]
         observations.append(observation)
         if len(observations) == 1:
-            observation.start_attempt()
+            observation.start_attempt("a", observation.started_at)
             await entered.wait()
         else:
             entered.set()
-            assert observation.attempt == 0
+            assert observation.attempts == 0
         assert scope["state"]["observation"] is observation
 
     middleware = RequestObservationMiddleware(app)
@@ -104,8 +104,8 @@ async def test_overlapping_requests_have_independent_observations():
         timeout=1,
     )
     assert observations[0] is not observations[1]
-    assert observations[0].attempt == 1
-    assert observations[1].attempt == 0
+    assert observations[0].attempts == 1
+    assert observations[1].attempts == 0
 
 
 @pytest.mark.asyncio

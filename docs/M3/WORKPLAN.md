@@ -3,7 +3,7 @@
 **状态：** M3.1 请求状态、尝试计数、候选结果、发送信号与最终 outcome 已验证；
 作者已完成生命周期和首字节计时情景 teach-back。
 M3.2 请求计数、总耗时、请求级首字节 Histogram、并发占用与健康 Gauge 已接入；
-其余指标、日志与 trace 待完成。
+后端尝试状态与异常生命周期已接入；尝试级指标导出、日志与 trace 待完成。
 
 **模式：** Learning mode；作者主导 40%，AI 主导 60% 为阶段节奏目标。  
 **基线：** 2026-09-26 当前工作区 `uv run --offline pytest -q`：122 passed，
@@ -106,3 +106,9 @@ AI 随后 review、测试并补框架接入；尚未接入 attempts Counter 或 
 完成布尔值，以 is_finished 只读属性从 total_time 推导；最终结果决策移入
 finish(now)，middleware 只决定调用时机。更新调用及测试，完整测试集
 211 passed，2 条已有依赖警告；验证详情见合同第 18 节。尝试级任务继续暂缓。
+
+2026-10-01 作者恢复尝试级任务，完成 BackendAttemptObservation 及关键埋点。
+AI 按授权补齐未移交尝试的异常清理与定稿，同步 attempts 接口和测试。
+普通调用取消/内部异常、流式移交前构造失败、延迟清理、清理失败及发送端
+分类均有验证；完整测试集 225 passed，2 条已有依赖警告。详见合同第 19 节。
+下一步接入尝试级 Counter/Histogram；当前仍不导出尝试级指标。

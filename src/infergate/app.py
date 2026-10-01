@@ -19,7 +19,11 @@ from infergate.backend_client import (
 )
 from infergate.concurrency_limiter import ConcurrencyLimiter
 from infergate.metrics import GatewayMetrics
-from infergate.observability import RequestObservation, RequestObservationMiddleware
+from infergate.observability import (
+    BackendAttemptObservation,
+    RequestObservation,
+    RequestObservationMiddleware,
+)
 from infergate.router import NoBackendAvailableError, RoundRobinRouter
 from infergate.token_bucket import TokenBucketLimiter
 
@@ -39,15 +43,15 @@ class ChatCompletionRequest(BaseModel):
     stream: StrictBool = False
 
 
+# 负责 stream 响应的读取和清理关闭
 class LimitedStreamingResponse(StreamingResponse):
-    """Own the downstream response and one already-acquired concurrency slot."""
-
     def __init__(
         self,
         response: BackendStreamResponse,
         limiter: ConcurrencyLimiter,
         headers: dict[str, str],
         observation: RequestObservation | None = None,
+        backend_attempt_observation: BackendAttemptObservation | None = None,
     ) -> None:
         async def observed_chunks() -> AsyncIterator[bytes]:
             async for chunk in response.aiter_bytes():
@@ -64,33 +68,53 @@ class LimitedStreamingResponse(StreamingResponse):
         )
         self.downstream = response
         self.limiter = limiter
+        self.backend_attempt_observation = backend_attempt_observation
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         observation = scope.get("state", {}).get("observation")
+        attempt_pending_outcome = (
+            "backend_http_error" if self.downstream.status_code >= 400 else "completed"
+        )
         try:
             await super().__call__(scope, receive, send)
         except BaseException as exc:
-            # 在进入清理前保留主要失败；发送端错误已由 middleware 分类。
+            # 发送端异常可能已由 middleware 分类，优先沿用。
+            if observation is not None and observation.failure_outcome is not None:
+                attempt_pending_outcome = observation.failure_outcome
+            elif isinstance(exc, anyio.get_cancelled_exc_class()):
+                attempt_pending_outcome = "cancelled"
+            elif isinstance(exc, httpx.TransportError):
+                attempt_pending_outcome = "stream_error"
+            else:
+                attempt_pending_outcome = "internal_error"
+
             if observation is not None:
-                if isinstance(exc, anyio.get_cancelled_exc_class()):
-                    observation.record_failure("cancelled")
-                elif isinstance(exc, httpx.TransportError):
-                    observation.record_failure("stream_error")
-                else:
-                    observation.record_failure("internal_error")
+                observation.record_failure(attempt_pending_outcome)
             raise
         finally:
+            # Starlette 可能在客户端断开后正常返回，沿用 middleware 记录的失败
+            if observation is not None and observation.failure_outcome is not None:
+                attempt_pending_outcome = observation.failure_outcome
             try:
                 # Cleanup also runs when headers fail before body iteration starts.
                 with anyio.CancelScope(shield=True):
                     await self.downstream.aclose()
             except BaseException:
+                if attempt_pending_outcome in ("completed", "backend_http_error"):
+                    attempt_pending_outcome = "internal_error"
                 if observation is not None:
                     observation.cleanup_failed = True
                     observation.record_failure("internal_error")
                 raise
             finally:
-                self.limiter.release()
+                try:
+                    if self.backend_attempt_observation is not None:
+                        self.backend_attempt_observation.finish(
+                            attempt_pending_outcome,
+                            time.monotonic(),
+                        )
+                finally:
+                    self.limiter.release()
 
 
 def create_app(
@@ -184,6 +208,7 @@ def create_app(
         # Endpoint owns the slot until a streaming response takes responsibility.
         handed_off = False
         opened_stream: BackendStreamResponse | None = None
+        backend_attempt_observation: BackendAttemptObservation | None = None
         try:
             payload = request.model_dump(exclude_unset=True)
             model = request.model
@@ -224,7 +249,9 @@ def create_app(
                 last_backend = backend
 
                 # 调用 backend_client 发送请求，连接失败报 502，这里只处理连接失败/超时
-                observation.start_attempt()
+                backend_attempt_observation = observation.start_attempt(
+                    backend.id, time.monotonic()
+                )
                 try:
                     if request.stream:
                         backend_response = await backend_client.open_stream(
@@ -239,7 +266,23 @@ def create_app(
                             path="/v1/chat/completions",
                             payload=payload,
                         )
+
+                        if backend_attempt_observation is not None:
+                            outcome = (
+                                "backend_http_error"
+                                if backend_response.status_code >= 400
+                                else "completed"
+                            )
+                            backend_attempt_observation.finish(
+                                outcome, time.monotonic()
+                            )
+
                 except BackendTransportError as e:
+                    if backend_attempt_observation is not None:
+                        backend_attempt_observation.finish(
+                            "transport_error", time.monotonic()
+                        )
+
                     last_error = e
                     if not e.retryable or attempt + 1 >= max_attempts:
                         observation.make_result(
@@ -272,6 +315,7 @@ def create_app(
                     limiter=concurrency_limiter,
                     headers=headers,
                     observation=observation,
+                    backend_attempt_observation=backend_attempt_observation,
                 )
                 # 移交资源所有权
                 handed_off = True
@@ -304,6 +348,20 @@ def create_app(
                     observation.record_failure("internal_error")
                     raise
                 finally:
-                    concurrency_limiter.release()
+                    try:
+                        # 未移交的尝试由 endpoint 负责；先关闭已打开的流，再定稿。
+                        # 普通响应及连接失败已定稿，不覆盖其结果。
+                        if (
+                            backend_attempt_observation is not None
+                            and not backend_attempt_observation.is_finished
+                        ):
+                            backend_attempt_observation.finish(
+                                observation.failure_outcome
+                                or observation.pending_outcome
+                                or "internal_error",
+                                time.monotonic(),
+                            )
+                    finally:
+                        concurrency_limiter.release()
 
     return app

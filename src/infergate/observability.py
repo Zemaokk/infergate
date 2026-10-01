@@ -8,10 +8,30 @@ from starlette.types import ASGIApp, Message, Receive, Scope, Send
 logger = logging.getLogger(__name__)
 
 
+class BackendAttemptObservation:
+    def __init__(self, backend_id: str, started_at: float):
+        self.backend_id = backend_id
+        self.started_at = started_at
+        self.outcome = None
+        self.total_time = None
+
+    @property
+    def is_finished(self) -> bool:
+        return self.total_time is not None
+
+    def finish(self, outcome: str, now: float):
+        if self.is_finished:
+            return False
+
+        self.outcome = outcome
+        self.total_time = now - self.started_at
+        return True
+
+
 class RequestObservation:
     def __init__(self, started_at: float):
         self.started_at = started_at
-        self.attempt = 0  # 记录尝试连接backend次数
+        self.backend_attempts = []
         self.first_byte_sec = None
         self.outcome = None
         self.total_time: float | None = None
@@ -26,26 +46,36 @@ class RequestObservation:
         self.cleanup_failed = False
         self.reason: str | None = None
 
+    # 表示该 request 是否完成（定稿）
     @property
     def is_finished(self) -> bool:
-        # 总耗时写入即表示已定稿；零耗时也有效，不另维护一个布尔状态。
-        # 失败或取消也会定稿，因此与 body 是否发送完成无关。
         return self.total_time is not None
 
-    def start_attempt(self):
+    # 表示尝试连接后端的次数
+    @property
+    def attempts(self) -> int:
+        return len(self.backend_attempts)
+
+    def start_attempt(
+        self, backend_id: str, started_at: float
+    ) -> BackendAttemptObservation | None:
         if self.is_finished:
-            return
-        self.attempt += 1
+            return None
+
+        backend_attempt_observation = BackendAttemptObservation(backend_id, started_at)
+        self.backend_attempts.append(backend_attempt_observation)
+        return backend_attempt_observation
 
     def record_first_byte(self, first_byte_out: float):
         if self.is_finished or self.first_byte_sec is not None:
             return
+
         self.first_byte_sec = first_byte_out - self.started_at
 
     def finish(self, now: float) -> bool:
-        # 只定稿一次；本方法不负责发送响应、关闭下游或释放并发名额。
         if self.is_finished:
             return False
+
         # 执行失败优先；无失败时，body 发完才采用候选结果。
         # 缺失候选或 body 未完成时，保守记录 internal_error。
         outcome = self.failure_outcome
@@ -62,6 +92,7 @@ class RequestObservation:
     def make_result(self, outcome: str, reason: str | None = None):
         if self.is_finished:
             return
+
         self.pending_outcome = outcome
         self.pending_reason = reason
 
