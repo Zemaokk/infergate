@@ -17,7 +17,7 @@ The M1 streaming and backend-health acceptance record is in
 M0, M1, and the scoped single-process M2 implementation are complete.
 M2 passed 122 automated tests and seven local HTTP acceptance scenarios.
 See the [M2 acceptance record and limitations](docs/M2/ACCEPTANCE.md).
-M3 observability has not started.
+M3 observability is in progress; request and backend-attempt metrics are available.
 
 InferGate currently provides:
 
@@ -151,6 +151,13 @@ unhealthy or not yet probed. It reflects the last stored state, not a fresh
 probe or a guarantee that the next request will succeed. Scraping never probes
 backends. Apps without a HealthManager omit this metric.
 
-Backend-attempt metrics are not exported yet.
+`infergate_backend_attempts_total{backend,outcome}` counts finalized backend
+attempts. `infergate_backend_attempt_duration_seconds{backend,outcome}` records
+each attempt's duration from its own call start, including cleanup for opened
+streams. A failed A followed by successful B produces two attempt samples and
+one request sample. Both attempt metrics are submitted at request finalization;
+even a finished A remains unexported while B is still streaming. Rejections
+before any backend call produce no attempt samples. Labels use configured
+backend IDs, never backend URLs or exception text.
 Prometheus server, Grafana, structured completion logs and tracing are later M3
 steps; `/metrics` only exposes the current in-process aggregates.

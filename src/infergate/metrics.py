@@ -43,6 +43,19 @@ class GatewayMetrics:
             buckets=(0.01, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10, 30, 60, 120, 300),
             registry=self.registry,
         )
+        self.backend_attempts = Counter(
+            "infergate_backend_attempts_total",
+            "Finalized backend attempts, including failed fallback attempts.",
+            ("backend", "outcome"),
+            registry=self.registry,
+        )
+        self.backend_attempt_duration = Histogram(
+            "infergate_backend_attempt_duration_seconds",
+            "Backend attempt duration including cleanup for opened streams.",
+            ("backend", "outcome"),
+            buckets=(0.01, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10, 30, 60, 120, 300),
+            registry=self.registry,
+        )
 
     def track_backend_health(
         self, backend_ids: Iterable[str], health_manager: HealthManager
@@ -81,3 +94,13 @@ class GatewayMetrics:
             self.first_byte.labels(route=route, outcome=observation.outcome).observe(
                 observation.first_byte_sec
             )
+        # 请求定稿时统一提交；每次尝试使用自己的后端、结果和耗时。
+        for attempt in observation.backend_attempts:
+            if not attempt.is_finished:
+                continue
+            self.backend_attempts.labels(
+                backend=attempt.backend_id, outcome=attempt.outcome
+            ).inc()
+            self.backend_attempt_duration.labels(
+                backend=attempt.backend_id, outcome=attempt.outcome
+            ).observe(attempt.total_time)

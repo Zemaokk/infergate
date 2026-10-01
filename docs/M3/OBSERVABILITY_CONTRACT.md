@@ -407,3 +407,23 @@ failure_outcome。关闭失败仅在没有先前执行失败时改为 internal_e
 发送失败，以及 fallback 的独立结果。已有请求级指标语义保持不变。
 完整测试集 225 passed，2 条已有依赖弃用警告。尝试级 Counter/Histogram
 尚未接入；M3.2 未全部完成。
+
+## 20. 尝试次数与耗时指标导出 — 2026-10-01
+
+GatewayMetrics 注册 infergate_backend_attempts_total 和
+infergate_backend_attempt_duration_seconds，labels 均为 backend/outcome。
+耗时桶沿用请求 Histogram。record_request 在请求定稿后遍历 backend_attempts，
+只提交已定稿尝试，每个对象分别 inc/observe；零耗时保留，未结束的对象不提交。
+调用方仍通过请求 finish 返回 True 保证一次提交；record_request 本身不提供
+重复调用去重。没有实际调用的拒绝不创建尝试时间序列。
+
+计时终点与提交时间不同：尝试的 total_time 在各自结束时固定，但其 Counter
+和 Histogram 统一在请求最终结束后导出。fallback 的 A 即使已连接失败，也需
+等待 B 的流和清理结束后才可在抓取中看到；这与现有请求提交入口保持一致。
+未来如需尝试一结束就立即可见，需另设尝试提交入口和单次提交约束。
+
+验证确定性 fallback 样本 A=0.2 秒 transport_error、B=0.8 秒 completed，
+请求一次/尝试两次、重复 finish 不重计、未定稿请求不提交、零耗时和 registry
+隔离；普通/流式集成场景检查每个样本次数与其独立耗时，拒绝无尝试样本。
+完整测试集 227 passed，2 条已有依赖弃用警告。尝试级首字节指标仍未导出，
+M3.3 日志/tracing 和 M3.4 完整观测栈验收仍待实现。

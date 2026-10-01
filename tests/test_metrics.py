@@ -201,3 +201,54 @@ async def test_metrics_callback_failure_does_not_change_business_result(failure,
         expected_outcome = "internal_error"
     assert calls[0].outcome == expected_outcome
     assert "Failed to record request metrics" in caplog.text
+
+
+def test_attempt_samples_keep_fallback_results_durations_and_single_submission():
+    metrics = GatewayMetrics(ConcurrencyLimiter(1))
+    separate = GatewayMetrics(ConcurrencyLimiter(1))
+    observation = RequestObservation(0.0)
+    a = observation.start_attempt("a", 0.0)
+    b = observation.start_attempt("b", 0.3)
+    a.finish("transport_error", 0.2)
+    b.finish("completed", 1.1)
+    metrics.record_request(observation)
+    a_labels = {"backend": "a", "outcome": "transport_error"}
+    b_labels = {"backend": "b", "outcome": "completed"}
+    assert metrics.registry.get_sample_value("infergate_backend_attempts_total", a_labels) is None
+    observation.make_result("completed")
+    observation.response_complete = True
+    if observation.finish(1.2):
+        metrics.record_request(observation)
+    if observation.finish(2.0):
+        metrics.record_request(observation)
+    for labels, duration in [(a_labels, 0.2), (b_labels, 0.8)]:
+        assert metrics.registry.get_sample_value("infergate_backend_attempts_total", labels) == 1
+        assert metrics.registry.get_sample_value(
+            "infergate_backend_attempt_duration_seconds_count", labels
+        ) == 1
+        assert metrics.registry.get_sample_value(
+            "infergate_backend_attempt_duration_seconds_sum", labels
+        ) == pytest.approx(duration)
+        assert separate.registry.get_sample_value("infergate_backend_attempts_total", labels) is None
+    assert metrics.registry.get_sample_value(
+        "infergate_requests_total",
+        {"route": "/v1/chat/completions", "status": "none", "outcome": "completed", "reason": "none"},
+    ) == 1
+
+
+def test_attempt_export_keeps_zero_duration_and_skips_unfinished_attempt():
+    metrics = GatewayMetrics(ConcurrencyLimiter(1))
+    observation = RequestObservation(0.0)
+    completed = observation.start_attempt("a", 0.0)
+    observation.start_attempt("b", 0.0)
+    completed.finish("transport_error", 0.0)
+    observation.record_failure("internal_error")
+    observation.finish(1.0)
+    metrics.record_request(observation)
+    labels = {"backend": "a", "outcome": "transport_error"}
+    assert metrics.registry.get_sample_value("infergate_backend_attempts_total", labels) == 1
+    assert metrics.registry.get_sample_value(
+        "infergate_backend_attempt_duration_seconds_sum", labels
+    ) == 0.0
+    samples = [s for f in metrics.registry.collect() for s in f.samples]
+    assert not any(s.labels.get("backend") == "b" for s in samples)

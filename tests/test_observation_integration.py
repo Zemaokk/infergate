@@ -125,6 +125,22 @@ async def test_request_observation_counts_actual_backend_calls(
             else "completed"
         )
         assert attempt.outcome == expected_attempt_outcome
+        attempt_labels = {"backend": attempt.backend_id, "outcome": attempt.outcome}
+        assert app.state.metrics.registry.get_sample_value(
+            "infergate_backend_attempts_total", attempt_labels
+        ) == 1
+        assert app.state.metrics.registry.get_sample_value(
+            "infergate_backend_attempt_duration_seconds_count", attempt_labels
+        ) == 1
+        assert app.state.metrics.registry.get_sample_value(
+            "infergate_backend_attempt_duration_seconds_sum", attempt_labels
+        ) == pytest.approx(attempt.total_time)
+    if not expected_calls:
+        assert not any(
+            sample.name == "infergate_backend_attempts_total"
+            for family in app.state.metrics.registry.collect()
+            for sample in family.samples
+        )
     metric_labels = {
         "route": "/v1/chat/completions",
         "status": str(expected_status),
