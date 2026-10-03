@@ -14,6 +14,7 @@ class BackendAttemptObservation:
         self.started_at = started_at
         self.outcome = None
         self.total_time = None
+        self.first_byte_sec = None
 
     @property
     def is_finished(self) -> bool:
@@ -26,6 +27,11 @@ class BackendAttemptObservation:
         self.outcome = outcome
         self.total_time = now - self.started_at
         return True
+
+    def record_first_byte(self, now: float) -> None:
+        if self.is_finished or self.first_byte_sec is not None:
+            return
+        self.first_byte_sec = now - self.started_at
 
 
 class RequestObservation:

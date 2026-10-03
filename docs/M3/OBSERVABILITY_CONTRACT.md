@@ -427,3 +427,22 @@ infergate_backend_attempt_duration_seconds，labels 均为 backend/outcome。
 隔离；普通/流式集成场景检查每个样本次数与其独立耗时，拒绝无尝试样本。
 完整测试集 227 passed，2 条已有依赖弃用警告。尝试级首字节指标仍未导出，
 M3.3 日志/tracing 和 M3.4 完整观测栈验收仍待实现。
+
+## 21. 尝试级首字节计时与导出 — 2026-10-03
+
+按作者请求，AI 完成 BackendAttemptObservation.record_first_byte(self, now)：
+仅第一次且未定稿时保存 now-started_at，保留 0.0；finish 后不更新。
+LimitedStreamingResponse 在读到非空 chunk 后、yield 前只读取一次单调时钟，
+分别传给请求和当前尝试的 record_first_byte。空白字节有效，不 strip，不预取。
+尝试计时从自己的调用起点开始，排除此前 fallback；请求级仍包含此前时间。
+
+新增 infergate_backend_first_byte_seconds{backend,outcome} Histogram，桶与
+既有耗时指标一致。请求定稿时，仅对已定稿且 first_byte_sec is not None 的
+尝试提交样本，按该次尝试的最终 outcome 分组。首块后失败仍保留样本；
+空流、首块前失败以及普通请求不采样。与第 20 节一致，长流请求结束前不提交。
+测量是首个非空 body chunk 的读取边界，不是网络字节到达时刻或 TTFT。
+
+验证不同请求/尝试起点、空块及空白块、无预取、零耗时、首次采样和定稿后
+不更新、无请求观测对象时尝试仍可采样、发送失败后保留首字节、成功/失败/
+取消最终分组，以及普通/流式 fallback 的真实 app 指标。完整测试集
+239 passed，2 条已有依赖弃用警告。M3.3/M3.4 仍待实现。

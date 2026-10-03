@@ -56,6 +56,13 @@ class GatewayMetrics:
             buckets=(0.01, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10, 30, 60, 120, 300),
             registry=self.registry,
         )
+        self.backend_first_byte = Histogram(
+            "infergate_backend_first_byte_seconds",
+            "Time from backend attempt start to first nonempty stream chunk; not TTFT.",
+            ("backend", "outcome"),
+            buckets=(0.01, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10, 30, 60, 120, 300),
+            registry=self.registry,
+        )
 
     def track_backend_health(
         self, backend_ids: Iterable[str], health_manager: HealthManager
@@ -104,3 +111,7 @@ class GatewayMetrics:
             self.backend_attempt_duration.labels(
                 backend=attempt.backend_id, outcome=attempt.outcome
             ).observe(attempt.total_time)
+            if attempt.first_byte_sec is not None:
+                self.backend_first_byte.labels(
+                    backend=attempt.backend_id, outcome=attempt.outcome
+                ).observe(attempt.first_byte_sec)

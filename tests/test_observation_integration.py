@@ -125,6 +125,12 @@ async def test_request_observation_counts_actual_backend_calls(
             else "completed"
         )
         assert attempt.outcome == expected_attempt_outcome
+        if stream and expected_attempt_outcome in {"completed", "backend_http_error"}:
+            assert attempt.first_byte_sec is not None
+            assert 0 <= attempt.first_byte_sec <= attempt.total_time
+            assert attempt.first_byte_sec <= observation.first_byte_sec
+        else:
+            assert attempt.first_byte_sec is None
         attempt_labels = {"backend": attempt.backend_id, "outcome": attempt.outcome}
         assert app.state.metrics.registry.get_sample_value(
             "infergate_backend_attempts_total", attempt_labels
@@ -135,6 +141,12 @@ async def test_request_observation_counts_actual_backend_calls(
         assert app.state.metrics.registry.get_sample_value(
             "infergate_backend_attempt_duration_seconds_sum", attempt_labels
         ) == pytest.approx(attempt.total_time)
+        assert app.state.metrics.registry.get_sample_value(
+            "infergate_backend_first_byte_seconds_count", attempt_labels
+        ) == (1 if attempt.first_byte_sec is not None else None)
+        assert app.state.metrics.registry.get_sample_value(
+            "infergate_backend_first_byte_seconds_sum", attempt_labels
+        ) == (pytest.approx(attempt.first_byte_sec) if attempt.first_byte_sec is not None else None)
     if not expected_calls:
         assert not any(
             sample.name == "infergate_backend_attempts_total"

@@ -159,5 +159,13 @@ one request sample. Both attempt metrics are submitted at request finalization;
 even a finished A remains unexported while B is still streaming. Rejections
 before any backend call produce no attempt samples. Labels use configured
 backend IDs, never backend URLs or exception text.
+
+`infergate_backend_first_byte_seconds{backend,outcome}` measures each streaming
+attempt from its own call start to the first nonempty backend body chunk. It
+excludes earlier fallback attempts and is not TTFT or client receive latency.
+Samples are submitted at request finalization, grouped by the attempt's final
+outcome. Empty streams, failures before the first chunk and non-streaming calls
+produce no samples; zero duration and first bytes observed before later failure
+are retained. Whitespace chunks count as nonempty.
 Prometheus server, Grafana, structured completion logs and tracing are later M3
 steps; `/metrics` only exposes the current in-process aggregates.

@@ -56,8 +56,12 @@ class LimitedStreamingResponse(StreamingResponse):
         async def observed_chunks() -> AsyncIterator[bytes]:
             async for chunk in response.aiter_bytes():
                 # 在下游读取返回后、交给客户端发送前记录；空白字节也算非空。
-                if chunk and observation is not None:
-                    observation.record_first_byte(time.monotonic())
+                if chunk:
+                    now = time.monotonic()
+                    if observation is not None:
+                        observation.record_first_byte(now)
+                    if backend_attempt_observation is not None:
+                        backend_attempt_observation.record_first_byte(now)
                 # 原样逐块转发：不删除空块、不缓存完整响应。
                 yield chunk
 

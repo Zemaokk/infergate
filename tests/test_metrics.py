@@ -252,3 +252,24 @@ def test_attempt_export_keeps_zero_duration_and_skips_unfinished_attempt():
     ) == 0.0
     samples = [s for f in metrics.registry.collect() for s in f.samples]
     assert not any(s.labels.get("backend") == "b" for s in samples)
+
+
+@pytest.mark.parametrize("first_byte", [None, 0.0, 0.5])
+@pytest.mark.parametrize("outcome", ["completed", "stream_error", "cancelled"])
+def test_backend_first_byte_export_uses_attempt_sample_and_final_outcome(first_byte, outcome):
+    metrics = GatewayMetrics(ConcurrencyLimiter(1))
+    observation = RequestObservation(0.0)
+    attempt = observation.start_attempt("b", 1.0)
+    if first_byte is not None:
+        attempt.record_first_byte(1.0 + first_byte)
+    attempt.finish(outcome, 2.0)
+    observation.record_failure("internal_error")
+    observation.finish(3.0)
+    metrics.record_request(observation)
+    labels = {"backend": "b", "outcome": outcome}
+    assert metrics.registry.get_sample_value(
+        "infergate_backend_first_byte_seconds_count", labels
+    ) == (None if first_byte is None else 1)
+    assert metrics.registry.get_sample_value(
+        "infergate_backend_first_byte_seconds_sum", labels
+    ) == first_byte
