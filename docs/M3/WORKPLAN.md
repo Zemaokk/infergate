@@ -127,3 +127,8 @@ fallback 分别记录 A/B 的结果与耗时，长流结束前暂不提交尝试
 2026-10-03 M3.3 请求完成 JSON 日志已在 middleware 首次定稿后提交，含请求
 ID 和各次尝试详情；日志/指标故障相互隔离。完整测试集 252 passed，详见
 合同第 22 节。runtime INFO 输出配置、trace 关联与 M3.4 验收仍待完成。
+
+2026-10-03 通过 Uvicorn --log-config 启用 INFO 完成日志，配置位于
+configs/logging.json，README 启动命令已同步。独立子进程验证重复加载不重计
+日志且服务器日志保持可用；完整测试集 253 passed，详见合同第 23 节。
+下一步定义 trace/span 关联与生命周期；M3.3 尚未全部完成。

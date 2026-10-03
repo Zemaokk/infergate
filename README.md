@@ -57,7 +57,7 @@ uv run uvicorn infergate.mock_backend:app --host 127.0.0.1 --port 8002
 Start InferGate in a third terminal:
 
 ```bash
-uv run uvicorn infergate.runtime:app --host 127.0.0.1 --port 8000
+uv run uvicorn infergate.runtime:app --host 127.0.0.1 --port 8000 --log-config configs/logging.json
 ```
 
 Send the same request repeatedly:
@@ -167,5 +167,13 @@ Samples are submitted at request finalization, grouped by the attempt's final
 outcome. Empty streams, failures before the first chunk and non-streaming calls
 produce no samples; zero duration and first bytes observed before later failure
 are retained. Whitespace chunks count as nonempty.
-Prometheus server, Grafana, structured completion logs and tracing are later M3
-steps; `/metrics` only exposes the current in-process aggregates.
+The gateway startup command loads `configs/logging.json`. Each business request
+emits one JSON completion record to stderr after cleanup, with its request ID,
+final result and ordered backend-attempt details. Uvicorn server/access logs keep
+their normal format. Completion logs exclude keys, bodies and exception text.
+Logging and metric submission failures do not change business results.
+The application factory does not install handlers; other launchers must configure
+the `infergate.observability` logger at INFO to enable these records.
+
+Prometheus server, Grafana and tracing are later M3 steps; `/metrics` only exposes
+the current in-process aggregates.

@@ -462,3 +462,16 @@ handler；部署环境需启用模块 INFO 级别才能看到完成日志。trac
 13 个新用例验证日志/指标独立故障组合、正常/异常/取消原结果、单条完成日志
 和无指标回调时日志仍输出。完整测试集 252 passed，2 条已有依赖弃用警告。
 下一步为运行入口日志配置，再接入 tracing；M3.3 尚未完成。
+
+## 23. 运行入口日志输出配置 — 2026-10-03
+
+新增 configs/logging.json，沿用当前安装的 Uvicorn 默认 server/access 配置，
+为 infergate.observability 设置 INFO、仅消息 formatter、stderr handler 和
+propagate=false。README 网关启动命令增加 --log-config configs/logging.json。
+完成记录保持单行 JSON，服务器/访问日志保持原格式；指标故障告警为普通文本。
+不在 create_app/create_runtime_app 中安装 handler，其他启动方式需显式配置。
+
+独立子进程通过 Uvicorn Config 两次加载配置，实际调用 middleware 验证只输出
+一条可解析的 JSON 完成记录；即使已有 root handler 也不重复，并验证服务器
+日志仍正常输出。完整测试集 253 passed，2 条已有依赖弃用警告。
+尚未做完整日志收集栈或 trace 关联；M3.3 tracing 和 M3.4 验收仍待完成。

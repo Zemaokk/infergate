@@ -202,7 +202,9 @@ class RequestObservationMiddleware:
             # 对象根据已有状态定稿，middleware 只决定何时结束和提交。
             if observation.finish(time.monotonic()):
                 try:
-                    logger.info(json.dumps(build_request_log(observation), ensure_ascii=False))
+                    logger.info(
+                        json.dumps(build_request_log(observation), ensure_ascii=False)
+                    )
                 except Exception:  # noqa: BLE001
                     # 日志输出故障不改变业务结果，也不阻止指标提交。
                     # 不再次调用可能已经故障的日志 handler。
