@@ -5,6 +5,8 @@ from collections.abc import Callable
 from uuid import uuid4
 
 import anyio
+from opentelemetry.context import Context
+from opentelemetry.trace import SpanKind, StatusCode, Tracer
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 logger = logging.getLogger(__name__)
@@ -54,6 +56,8 @@ class RequestObservation:
         self.cleanup_failed = False
         self.reason: str | None = None
         self.request_id = uuid4().hex
+        self.trace_id: str | None = None
+        self.span_id: str | None = None
 
     # 表示该 request 是否完成（定稿）
     @property
@@ -116,6 +120,8 @@ def build_request_log(observation: RequestObservation) -> dict[str, object]:
     return {
         "event": "request_finished",
         "request_id": observation.request_id,
+        "trace_id": observation.trace_id,
+        "span_id": observation.span_id,
         "status_code": observation.status_code,
         "outcome": observation.outcome,
         "reason": observation.reason,
@@ -141,9 +147,11 @@ class RequestObservationMiddleware:
         self,
         app: ASGIApp,
         record_request_metrics: Callable[[RequestObservation], None] | None = None,
+        tracer: Tracer | None = None,
     ):
         self.app = app
         self.record_request_metrics = record_request_metrics
+        self.tracer = tracer
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if not (
@@ -157,6 +165,28 @@ class RequestObservationMiddleware:
         state = scope.setdefault("state", {})
         observation = RequestObservation(started_at=time.monotonic())
         state["observation"] = observation
+        request_span = None
+        if self.tracer is not None:
+            try:
+                # 当前只追踪网关内请求；上游 trace context 传播稍后接入。
+                request_span = self.tracer.start_span(
+                    "POST /v1/chat/completions",
+                    context=Context(),
+                    kind=SpanKind.SERVER,
+                    attributes={
+                        "http.request.method": "POST",
+                        "http.route": "/v1/chat/completions",
+                        "infergate.request_id": observation.request_id,
+                    },
+                )
+                state["request_span"] = request_span
+                span_context = request_span.get_span_context()
+                if span_context.is_valid:
+                    observation.trace_id = f"{span_context.trace_id:032x}"
+                    observation.span_id = f"{span_context.span_id:016x}"
+            except Exception:  # noqa: BLE001
+                # tracing 故障不阻止业务请求。
+                pass
 
         async def observed_send(message: Message) -> None:
             # 先发送再记录；若发送抛异常或被取消，不误记为成功。
@@ -201,6 +231,42 @@ class RequestObservationMiddleware:
             # self.app 已退出：响应发送及其 finally 清理已经结束（可能失败）。
             # 对象根据已有状态定稿，middleware 只决定何时结束和提交。
             if observation.finish(time.monotonic()):
+                if request_span is not None:
+                    try:
+                        try:
+                            request_span.set_attribute(
+                                "infergate.outcome", observation.outcome
+                            )
+                            request_span.set_attribute(
+                                "infergate.attempt_count", observation.attempts
+                            )
+                            request_span.set_attribute(
+                                "infergate.cleanup_failed", observation.cleanup_failed
+                            )
+                            request_span.set_attribute(
+                                "infergate.duration_sec", observation.total_time
+                            )
+                            if observation.status_code is not None:
+                                request_span.set_attribute(
+                                    "http.response.status_code", observation.status_code
+                                )
+                            if observation.reason is not None:
+                                request_span.set_attribute(
+                                    "infergate.reason", observation.reason
+                                )
+                            if observation.first_byte_sec is not None:
+                                request_span.set_attribute(
+                                    "infergate.first_byte_sec", observation.first_byte_sec
+                                )
+                            if observation.outcome == "completed":
+                                request_span.set_status(StatusCode.OK)
+                            elif observation.outcome != "rejected":
+                                request_span.set_status(StatusCode.ERROR)
+                        finally:
+                            request_span.end()
+                    except Exception:  # noqa: BLE001
+                        # 不记录异常文本；结束或 exporter 故障与日志/指标隔离。
+                        pass
                 try:
                     logger.info(
                         json.dumps(build_request_log(observation), ensure_ascii=False)

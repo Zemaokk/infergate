@@ -475,3 +475,26 @@ propagate=false。README 网关启动命令增加 --log-config configs/logging.j
 一条可解析的 JSON 完成记录；即使已有 root handler 也不重复，并验证服务器
 日志仍正常输出。完整测试集 253 passed，2 条已有依赖弃用警告。
 尚未做完整日志收集栈或 trace 关联；M3.3 tracing 和 M3.4 验收仍待完成。
+
+## 24. 请求 span 与完成日志关联 — 2026-10-03
+
+作者确认请求成功/A 失败/B 成功不矛盾，并确认尝试 span 应为请求 span 的
+兄弟子项。当前先接入请求 span：依赖 OpenTelemetry API/SDK 1.45.0，
+create_app 使用独立 TracerProvider，也允许注入测试 provider，不安装全局
+provider。默认仅生成 span，无 exporter/processor，无网络上报或工作线程。
+未来接入 exporter 时必须同时补充 provider shutdown 生命周期。
+
+middleware 仅为业务 POST 创建 SERVER span，名称为固定路由；请求自己的
+trace_id/span_id 为有效 context 的十六进制值，进入完成日志但不作为指标 label。
+当前从空 context 开始，不接收上游 traceparent，不设置 ambient current span；
+尝试子项和向后端传播 context 待下一步实现。未提供 tracer 时日志 ID 为 null。
+
+请求定稿后从既有 outcome/次数/清理标志/耗时/首字节/发送状态填入有限属性，
+再结束 span，之后独立提交日志和指标。不自动记录原始异常，避免异常文本泄露。
+completed 标记 OK；rejected 保留 UNSET，并由 infergate.outcome/reason
+表达拒绝；其他 outcome 标记 ERROR。该映射为本阶段网关定义，不等同于仅按
+HTTP 状态判断成功。错误创建、写属性和结束 span 的普通异常均与业务隔离。
+
+8 个新增测试验证成功/拒绝/流错误/取消结果、日志 ID 对应、清理前不结束，
+以及 tracing 各阶段故障不替换原异常或阻止指标。完整测试集 261 passed，
+2 条已有依赖弃用警告。未接入外部追踪服务，M3.3 尚未完成。

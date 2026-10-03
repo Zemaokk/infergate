@@ -7,6 +7,8 @@ import httpx
 from fastapi import FastAPI, Header, Request, Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import StreamingResponse
+from opentelemetry.sdk.resources import Resource
+from opentelemetry.sdk.trace import TracerProvider
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from pydantic import BaseModel, Field, StrictBool, StrictStr
 from starlette.types import Lifespan, Receive, Scope, Send
@@ -127,6 +129,7 @@ def create_app(
     key_limiter: TokenBucketLimiter,
     concurrency_limiter: ConcurrencyLimiter,
     lifespan: Lifespan | None = None,
+    tracer_provider: TracerProvider | None = None,
 ) -> FastAPI:
     app = FastAPI(lifespan=lifespan)
     metrics = GatewayMetrics(concurrency_limiter)
@@ -136,8 +139,16 @@ def create_app(
             router.health_manager,
         )
     app.state.metrics = metrics
+    if tracer_provider is None:
+        tracer_provider = TracerProvider(
+            resource=Resource.create({"service.name": "infergate"}),
+            shutdown_on_exit=False,
+        )
+    app.state.tracer_provider = tracer_provider
     app.add_middleware(
-        RequestObservationMiddleware, record_request_metrics=metrics.record_request
+        RequestObservationMiddleware,
+        record_request_metrics=metrics.record_request,
+        tracer=tracer_provider.get_tracer("infergate"),
     )
 
     @app.get("/metrics", include_in_schema=False)

@@ -175,5 +175,8 @@ Logging and metric submission failures do not change business results.
 The application factory does not install handlers; other launchers must configure
 the `infergate.observability` logger at INFO to enable these records.
 
-Prometheus server, Grafana and tracing are later M3 steps; `/metrics` only exposes
-the current in-process aggregates.
+Each app now creates an OpenTelemetry request span, ending after response cleanup.
+Completion logs include its `trace_id` and `span_id`; no IDs are metric labels.
+No external span exporter is configured yet, and backend-attempt spans and trace
+context propagation remain pending. Prometheus server, Grafana and full tracing
+export are later M3 steps; `/metrics` exposes current in-process aggregates.
