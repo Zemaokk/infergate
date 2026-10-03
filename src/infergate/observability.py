@@ -1,6 +1,8 @@
+import json
 import logging
 import time
 from collections.abc import Callable
+from uuid import uuid4
 
 import anyio
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
@@ -51,6 +53,7 @@ class RequestObservation:
         self.failure_outcome: str | None = None
         self.cleanup_failed = False
         self.reason: str | None = None
+        self.request_id = uuid4().hex
 
     # 表示该 request 是否完成（定稿）
     @property
@@ -106,6 +109,31 @@ class RequestObservation:
         # 保留先发生的主要失败，避免后续清理异常覆盖取消或读取失败。
         if not self.is_finished and self.failure_outcome is None:
             self.failure_outcome = outcome
+
+
+def build_request_log(observation: RequestObservation) -> dict[str, object]:
+    """Build a completion record from finalized state; do not emit or mutate it."""
+    return {
+        "event": "request_finished",
+        "request_id": observation.request_id,
+        "status_code": observation.status_code,
+        "outcome": observation.outcome,
+        "reason": observation.reason,
+        "duration_sec": observation.total_time,
+        "first_byte_sec": observation.first_byte_sec,
+        "attempt_count": observation.attempts,
+        "cleanup_failed": observation.cleanup_failed,
+        "backend_attempts": [
+            {
+                "attempt_index": index,
+                "backend_id": attempt.backend_id,
+                "outcome": attempt.outcome,
+                "duration_sec": attempt.total_time,
+                "first_byte_sec": attempt.first_byte_sec,
+            }
+            for index, attempt in enumerate(observation.backend_attempts, start=1)
+        ],
+    }
 
 
 class RequestObservationMiddleware:
@@ -172,12 +200,19 @@ class RequestObservationMiddleware:
         finally:
             # self.app 已退出：响应发送及其 finally 清理已经结束（可能失败）。
             # 对象根据已有状态定稿，middleware 只决定何时结束和提交。
-            if (
-                observation.finish(time.monotonic())
-                and self.record_request_metrics is not None
-            ):
+            if observation.finish(time.monotonic()):
                 try:
-                    self.record_request_metrics(observation)
+                    logger.info(json.dumps(build_request_log(observation), ensure_ascii=False))
                 except Exception:  # noqa: BLE001
-                    # 此处有意隔离指标回调的普通异常，不替换业务结果或原始异常。
-                    logger.warning("Failed to record request metrics")
+                    # 日志输出故障不改变业务结果，也不阻止指标提交。
+                    # 不再次调用可能已经故障的日志 handler。
+                    pass
+                if self.record_request_metrics is not None:
+                    try:
+                        self.record_request_metrics(observation)
+                    except Exception:  # noqa: BLE001
+                        # 指标故障也不能替换业务异常；告警 handler 可能同样故障。
+                        try:
+                            logger.warning("Failed to record request metrics")
+                        except Exception:  # noqa: BLE001
+                            pass

@@ -446,3 +446,19 @@ LimitedStreamingResponse 在读到非空 chunk 后、yield 前只读取一次单
 不更新、无请求观测对象时尝试仍可采样、发送失败后保留首字节、成功/失败/
 取消最终分组，以及普通/流式 fallback 的真实 app 指标。完整测试集
 239 passed，2 条已有依赖弃用警告。M3.3/M3.4 仍待实现。
+
+## 22. 请求完成日志构造与提交 — 2026-10-03
+
+作者在 RequestObservation 中增加 uuid4().hex 请求 ID。AI 按授权完成
+build_request_log：固定请求字段及按 1 起序号排列的尝试详情，不记录请求头、
+正文、后端 URL 或异常文本；None 和 0.0 保留。该函数仅构造数据，不输出。
+
+middleware 在 finish 首次返回 True 后，向模块 logger 以 INFO 提交 JSON
+完成记录，再独立提交指标。有无指标回调均可输出日志。日志构造或 handler
+普通异常不影响业务及指标；指标异常及其告警 handler 故障也不替换原异常。
+不捕获日志系统的 BaseException。此阶段尚未配置 runtime 的 INFO 输出
+handler；部署环境需启用模块 INFO 级别才能看到完成日志。trace 关联待接入。
+
+13 个新用例验证日志/指标独立故障组合、正常/异常/取消原结果、单条完成日志
+和无指标回调时日志仍输出。完整测试集 252 passed，2 条已有依赖弃用警告。
+下一步为运行入口日志配置，再接入 tracing；M3.3 尚未完成。
