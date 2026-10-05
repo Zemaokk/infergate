@@ -139,3 +139,8 @@ configs/logging.json，README 启动命令已同步。独立子进程验证重�
 请求 SERVER span 已接入、等待清理后按既有 outcome 结束；完整测试集
 261 passed。尝试子 span、context 传播、外部 exporter 与关闭生命周期待完成，
 详见合同第 24 节。
+
+2026-10-03 尝试 CLIENT span 已按现有 start_attempt/finish 生命周期接入，
+A/B 显式以请求为父项，完成日志包含各尝试 span ID。普通/流式及 fallback
+父子关系、延迟关闭和错误结果验证通过；完整测试集 264 passed，详见合同
+第 25 节。下一步讨论上游/下游 context 传播，然后接入 exporter 与关闭生命周期。

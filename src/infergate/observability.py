@@ -6,7 +6,7 @@ from uuid import uuid4
 
 import anyio
 from opentelemetry.context import Context
-from opentelemetry.trace import SpanKind, StatusCode, Tracer
+from opentelemetry.trace import Span, SpanKind, StatusCode, Tracer, set_span_in_context
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 logger = logging.getLogger(__name__)
@@ -19,6 +19,8 @@ class BackendAttemptObservation:
         self.outcome = None
         self.total_time = None
         self.first_byte_sec = None
+        self.span: Span | None = None
+        self.span_id: str | None = None
 
     @property
     def is_finished(self) -> bool:
@@ -30,6 +32,23 @@ class BackendAttemptObservation:
 
         self.outcome = outcome
         self.total_time = now - self.started_at
+        if self.span is not None:
+            try:
+                try:
+                    self.span.set_attribute("infergate.outcome", self.outcome)
+                    self.span.set_attribute("infergate.duration_sec", self.total_time)
+                    if self.first_byte_sec is not None:
+                        self.span.set_attribute(
+                            "infergate.first_byte_sec", self.first_byte_sec
+                        )
+                    self.span.set_status(
+                        StatusCode.OK if outcome == "completed" else StatusCode.ERROR
+                    )
+                finally:
+                    self.span.end()
+            except Exception:  # noqa: BLE001
+                # 结束 span 的故障不影响尝试定稿、资源释放或其他观测。
+                pass
         return True
 
     def record_first_byte(self, now: float) -> None:
@@ -58,6 +77,8 @@ class RequestObservation:
         self.request_id = uuid4().hex
         self.trace_id: str | None = None
         self.span_id: str | None = None
+        self.tracer: Tracer | None = None
+        self.request_span: Span | None = None
 
     # 表示该 request 是否完成（定稿）
     @property
@@ -77,6 +98,26 @@ class RequestObservation:
 
         backend_attempt_observation = BackendAttemptObservation(backend_id, started_at)
         self.backend_attempts.append(backend_attempt_observation)
+        if self.tracer is not None and self.request_span is not None:
+            try:
+                # 显式使用请求作为父项，不把上一轮失败尝试设为当前 span。
+                span = self.tracer.start_span(
+                    "backend_attempt",
+                    context=set_span_in_context(self.request_span, Context()),
+                    kind=SpanKind.CLIENT,
+                    attributes={
+                        "infergate.backend_id": backend_id,
+                        "infergate.attempt_index": self.attempts,
+                        "infergate.request_id": self.request_id,
+                    },
+                )
+                backend_attempt_observation.span = span
+                span_context = span.get_span_context()
+                if span_context.is_valid:
+                    backend_attempt_observation.span_id = f"{span_context.span_id:016x}"
+            except Exception:  # noqa: BLE001
+                # span 创建故障不阻止实际后端调用。
+                pass
         return backend_attempt_observation
 
     def record_first_byte(self, first_byte_out: float):
@@ -133,6 +174,7 @@ def build_request_log(observation: RequestObservation) -> dict[str, object]:
             {
                 "attempt_index": index,
                 "backend_id": attempt.backend_id,
+                "span_id": attempt.span_id,
                 "outcome": attempt.outcome,
                 "duration_sec": attempt.total_time,
                 "first_byte_sec": attempt.first_byte_sec,
@@ -179,7 +221,8 @@ class RequestObservationMiddleware:
                         "infergate.request_id": observation.request_id,
                     },
                 )
-                state["request_span"] = request_span
+                observation.tracer = self.tracer
+                observation.request_span = request_span
                 span_context = request_span.get_span_context()
                 if span_context.is_valid:
                     observation.trace_id = f"{span_context.trace_id:032x}"

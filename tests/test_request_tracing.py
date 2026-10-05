@@ -151,3 +151,48 @@ async def test_tracing_failure_does_not_change_business_or_prevent_metrics(failu
     assert calls[-1] == "internal_error"
     if failure_stage != "start":
         assert calls[0] == "end"
+
+
+@pytest.mark.parametrize("failure_stage", ["start", "attributes", "end"])
+def test_attempt_trace_failure_does_not_prevent_finalization_or_duplicate_end(failure_stage):
+    from infergate.observability import RequestObservation
+    provider, exporter = tracing_fixture()
+    request_span = provider.get_tracer("test").start_span("request")
+    calls = []
+
+    class BrokenSpan:
+        def get_span_context(self):
+            return request_span.get_span_context()
+
+        def set_attribute(self, *args):
+            if failure_stage == "attributes":
+                raise ValueError("attribute failed")
+
+        def set_status(self, *args):
+            pass
+
+        def end(self):
+            calls.append("end")
+            if failure_stage == "end":
+                raise ValueError("export failed")
+
+    class BrokenTracer:
+        def start_span(self, *args, **kwargs):
+            if failure_stage == "start":
+                raise ValueError("start failed")
+            return BrokenSpan()
+
+    observation = RequestObservation(0.0)
+    observation.request_span = request_span
+    observation.tracer = BrokenTracer()
+    try:
+        attempt = observation.start_attempt("a", 0.0)
+        assert observation.attempts == 1
+        assert attempt.finish("transport_error", 0.2)
+        assert not attempt.finish("completed", 2.0)
+        assert attempt.outcome == "transport_error"
+        assert attempt.total_time == 0.2
+        assert calls == ([] if failure_stage == "start" else ["end"])
+    finally:
+        request_span.end()
+        provider.shutdown()

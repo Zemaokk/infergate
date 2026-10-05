@@ -498,3 +498,22 @@ HTTP 状态判断成功。错误创建、写属性和结束 span 的普通异常
 8 个新增测试验证成功/拒绝/流错误/取消结果、日志 ID 对应、清理前不结束，
 以及 tracing 各阶段故障不替换原异常或阻止指标。完整测试集 261 passed，
 2 条已有依赖弃用警告。未接入外部追踪服务，M3.3 尚未完成。
+
+## 25. 后端尝试子 span — 2026-10-03
+
+start_attempt 创建尝试对象后，通过请求 tracer 和显式请求 span context 创建
+CLIENT backend_attempt span，属性仅含配置 backend ID、尝试序号和请求 ID。
+不设置上一尝试为 current span，因此 fallback 的 A/B 为同一请求的兄弟项。
+每次尝试的 span ID 写入完成日志 backend_attempts；不增加指标 label。
+
+BackendAttemptObservation.finish 首次定稿时填入自己的最终 outcome、耗时及
+可选首字节，并结束对应 span。completed 为 OK，其余尝试 outcome 为 ERROR。
+各既有结束位置复用，普通响应完整读取后结束，流式读取/发送/关闭完成后结束，
+清理失败仍保留主要失败。请求的 span 继续按整个请求最终结果独立定稿。
+span 生命周期直接跟随尝试 finish，不等待请求指标的统一提交；默认无 exporter。
+
+创建、写属性或结束 span 的普通异常不影响业务或尝试记录，重复 finish 不重复
+结束 span。测试扩展真实 app 的 24 个普通/流式集成情景检查父项、trace ID、
+结果与请求结束顺序，生命周期测试检查延迟关闭、读取失败、取消和清理错误，
+新增 3 个故障隔离情景。完整测试集 264 passed，2 条已有依赖弃用警告。
+context 的跨服务传播及外部 exporter/关闭生命周期仍待接入，M3.3 未全部完成。

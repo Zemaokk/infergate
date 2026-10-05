@@ -1,5 +1,8 @@
 import httpx
 import pytest
+from opentelemetry.sdk.trace.export import SimpleSpanProcessor
+from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
+from opentelemetry.trace import SpanKind, StatusCode
 
 from infergate.app import create_app
 from infergate.backend_client import BackendClient
@@ -61,6 +64,8 @@ async def test_request_observation_counts_actual_backend_calls(
 
     async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as backend:
         app = create_app(router, BackendClient(backend), limiter, concurrency)
+        exporter = InMemorySpanExporter()
+        app.state.tracer_provider.add_span_processor(SimpleSpanProcessor(exporter))
 
         # Inspect the real request scope after FastAPI and its middleware run.
         # No production observation callback is needed for this staged integration.
@@ -153,6 +158,20 @@ async def test_request_observation_counts_actual_backend_calls(
             for family in app.state.metrics.registry.collect()
             for sample in family.samples
         )
+    spans = exporter.get_finished_spans()
+    request_span = next(span for span in spans if span.kind is SpanKind.SERVER)
+    attempt_spans = [span for span in spans if span.kind is SpanKind.CLIENT]
+    assert len(spans) == 1 + len(expected_calls)
+    assert len(attempt_spans) == len(expected_calls)
+    for span, attempt in zip(attempt_spans, observation.backend_attempts, strict=True):
+        assert span.parent.span_id == request_span.context.span_id
+        assert span.context.trace_id == request_span.context.trace_id
+        assert attempt.span_id == f"{span.context.span_id:016x}"
+        assert span.attributes["infergate.outcome"] == attempt.outcome
+        assert span.status.status_code is (
+            StatusCode.OK if attempt.outcome == "completed" else StatusCode.ERROR
+        )
+        assert span.end_time <= request_span.end_time
     metric_labels = {
         "route": "/v1/chat/completions",
         "status": str(expected_status),

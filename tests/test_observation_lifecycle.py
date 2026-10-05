@@ -3,6 +3,10 @@ import time
 
 import httpx
 import pytest
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import SimpleSpanProcessor
+from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
+from opentelemetry.trace import SpanKind
 
 from infergate.app import LimitedStreamingResponse
 from infergate.concurrency_limiter import ConcurrencyLimiter
@@ -39,18 +43,22 @@ def setup_response(stream, spec="2.4"):
     }
     limiter = ConcurrencyLimiter(1)
     assert limiter.try_acquire()
-    response = LimitedStreamingResponse(stream, limiter, {})
+    provider = TracerProvider(shutdown_on_exit=False)
+    exporter = InMemorySpanExporter()
+    provider.add_span_processor(SimpleSpanProcessor(exporter))
+    scope["trace_exporter"] = exporter
 
     async def app(scope, receive, send):
         observation = scope["state"]["observation"]
         observation.make_result("completed")
-        response.backend_attempt_observation = observation.start_attempt("a", time.monotonic())
+        attempt = observation.start_attempt("a", time.monotonic())
+        response = LimitedStreamingResponse(stream, limiter, {}, observation, attempt)
         await response(scope, receive, send)
 
     async def send(message):
         pass
 
-    return scope, limiter, RequestObservationMiddleware(app), send
+    return scope, limiter, RequestObservationMiddleware(app, tracer=provider.get_tracer("test")), send
 
 
 @pytest.mark.asyncio
@@ -86,6 +94,10 @@ async def test_stream_finalization_preserves_primary_error_after_cleanup(
     attempt = observation.backend_attempts[0]
     assert attempt.is_finished
     assert attempt.outcome == expected
+    spans = scope["trace_exporter"].get_finished_spans()
+    assert len(spans) == 2
+    child = next(span for span in spans if span.kind is SpanKind.CLIENT)
+    assert child.attributes["infergate.outcome"] == expected
     assert 0 <= attempt.total_time <= observation.total_time
     assert stream.closed
     assert limiter.available == 1
@@ -116,6 +128,7 @@ async def test_finish_waits_for_cleanup_after_last_body():
         assert observation.is_finished is False
         assert observation.total_time is None
         assert not observation.backend_attempts[0].is_finished
+        assert scope["trace_exporter"].get_finished_spans() == ()
         assert limiter.available == 0
     finally:
         release_cleanup.set()
@@ -156,6 +169,9 @@ async def test_disconnect_or_task_cancel_remains_primary_if_cleanup_fails(
     observation = scope["state"]["observation"]
     assert observation.outcome == "cancelled"
     assert observation.backend_attempts[0].outcome == "cancelled"
+    spans = scope["trace_exporter"].get_finished_spans()
+    assert len(spans) == 2
+    assert all(span.attributes["infergate.outcome"] == "cancelled" for span in spans)
     assert observation.backend_attempts[0].is_finished
     assert observation.reason is None
     assert observation.cleanup_failed is close_fails

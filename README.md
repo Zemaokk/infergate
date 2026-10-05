@@ -177,6 +177,9 @@ the `infergate.observability` logger at INFO to enable these records.
 
 Each app now creates an OpenTelemetry request span, ending after response cleanup.
 Completion logs include its `trace_id` and `span_id`; no IDs are metric labels.
-No external span exporter is configured yet, and backend-attempt spans and trace
-context propagation remain pending. Prometheus server, Grafana and full tracing
-export are later M3 steps; `/metrics` exposes current in-process aggregates.
+Each actual backend attempt has a CLIENT span under that request, with its own
+outcome, duration and optional first-byte timing. Fallback attempts are siblings;
+opened stream spans remain active through cleanup. Attempt log entries include
+their span IDs. No external exporter or upstream/downstream trace context
+propagation is configured yet. Prometheus server, Grafana and full tracing export
+are later M3 steps; `/metrics` exposes current in-process aggregates.
