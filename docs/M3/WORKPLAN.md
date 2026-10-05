@@ -144,3 +144,8 @@ configs/logging.json，README 启动命令已同步。独立子进程验证重�
 A/B 显式以请求为父项，完成日志包含各尝试 span ID。普通/流式及 fallback
 父子关系、延迟关闭和错误结果验证通过；完整测试集 264 passed，详见合同
 第 25 节。下一步讨论上游/下游 context 传播，然后接入 exporter 与关闭生命周期。
+
+2026-10-05 上游 W3C traceparent/tracestate 已在 middleware 提取，有效时
+延续远端 trace，缺失/无效时创建新 trace。完整测试集 269 passed，详见合同
+第 26 节。下一步向 A/B 下游分别注入当前尝试 context；外部 exporter 与
+provider shutdown 生命周期仍待完成。

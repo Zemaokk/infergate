@@ -180,6 +180,8 @@ Completion logs include its `trace_id` and `span_id`; no IDs are metric labels.
 Each actual backend attempt has a CLIENT span under that request, with its own
 outcome, duration and optional first-byte timing. Fallback attempts are siblings;
 opened stream spans remain active through cleanup. Attempt log entries include
-their span IDs. No external exporter or upstream/downstream trace context
-propagation is configured yet. Prometheus server, Grafana and full tracing export
+their span IDs. Valid incoming W3C `traceparent` headers continue the upstream
+trace; missing or invalid headers start a new trace. Only `traceparent` and
+`tracestate` are extracted, never baggage or business headers. No external exporter
+or downstream trace context injection is configured yet. Prometheus server, Grafana and full tracing export
 are later M3 steps; `/metrics` exposes current in-process aggregates.

@@ -196,3 +196,56 @@ def test_attempt_trace_failure_does_not_prevent_finalization_or_duplicate_end(fa
     finally:
         request_span.end()
         provider.shutdown()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "traceparent",
+    [None, "invalid", "00-00000000000000000000000000000000-123456789abcdef0-01",
+     "00-123456789abcdef0123456789abcdef0-0000000000000000-01",
+     "00-123456789abcdef0123456789abcdef0-123456789abcdef0-01"],
+)
+async def test_incoming_traceparent_continues_valid_remote_parent_or_starts_new_trace(traceparent):
+    provider, exporter = tracing_fixture()
+    valid = traceparent == "00-123456789abcdef0123456789abcdef0-123456789abcdef0-01"
+    observations = []
+
+    async def app(scope, receive, send):
+        observation = scope["state"]["observation"]
+        observations.append(observation)
+        a = observation.start_attempt("a", observation.started_at)
+        a.finish("transport_error", observation.started_at + 0.2)
+        b = observation.start_attempt("b", observation.started_at + 0.3)
+        b.finish("completed", observation.started_at + 0.8)
+        observation.make_result("completed")
+        await send({"type": "http.response.body", "body": b""})
+
+    async def unused(*args):
+        pass
+
+    headers = [(b"baggage", b"secret=private-value"), (b"X-InferGate-Key", b"private-key")]
+    if traceparent is not None:
+        # Header names are case insensitive, including ASGI test callers.
+        headers.extend([(b"TraceParent", traceparent.encode()), (b"tracestate", b"vendor=value")])
+    try:
+        await RequestObservationMiddleware(app, tracer=provider.get_tracer("test"))(
+            {"type": "http", "method": "POST", "path": "/v1/chat/completions", "headers": headers},
+            unused, unused,
+        )
+        spans = exporter.get_finished_spans()
+        request = next(span for span in spans if span.kind is SpanKind.SERVER)
+        if valid:
+            assert request.context.trace_id == int("123456789abcdef0123456789abcdef0", 16)
+            assert request.parent.span_id == int("123456789abcdef0", 16)
+            assert request.parent.is_remote
+            assert request.context.trace_state.get("vendor") == "value"
+        else:
+            assert request.parent is None
+        children = [span for span in spans if span.kind is SpanKind.CLIENT]
+        assert len(children) == 2
+        assert all(span.context.trace_id == request.context.trace_id for span in children)
+        assert all(span.parent.span_id == request.context.span_id for span in children)
+        assert observations[0].trace_id == f"{request.context.trace_id:032x}"
+        assert all("private" not in str(span.attributes) for span in spans)
+    finally:
+        provider.shutdown()

@@ -7,6 +7,7 @@ from uuid import uuid4
 import anyio
 from opentelemetry.context import Context
 from opentelemetry.trace import Span, SpanKind, StatusCode, Tracer, set_span_in_context
+from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 logger = logging.getLogger(__name__)
@@ -210,10 +211,18 @@ class RequestObservationMiddleware:
         request_span = None
         if self.tracer is not None:
             try:
-                # 当前只追踪网关内请求；上游 trace context 传播稍后接入。
+                # 仅提取追踪上下文，不接收 baggage 或业务请求头。
+                carrier = {
+                    name.decode("latin-1").lower(): value.decode("latin-1")
+                    for name, value in scope.get("headers", [])
+                    if name.lower() in (b"traceparent", b"tracestate")
+                }
+                parent_context = TraceContextTextMapPropagator().extract(
+                    carrier, context=Context()
+                )
                 request_span = self.tracer.start_span(
                     "POST /v1/chat/completions",
-                    context=Context(),
+                    context=parent_context,
                     kind=SpanKind.SERVER,
                     attributes={
                         "http.request.method": "POST",

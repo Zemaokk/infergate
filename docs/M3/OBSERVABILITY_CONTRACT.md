@@ -517,3 +517,17 @@ span 生命周期直接跟随尝试 finish，不等待请求指标的统一提�
 结果与请求结束顺序，生命周期测试检查延迟关闭、读取失败、取消和清理错误，
 新增 3 个故障隔离情景。完整测试集 264 passed，2 条已有依赖弃用警告。
 context 的跨服务传播及外部 exporter/关闭生命周期仍待接入，M3.3 未全部完成。
+
+## 26. 上游 trace context 提取 — 2026-10-05
+
+作者正确确认 B 后端应接在 B 尝试 span 下。当前先完成入口提取：middleware
+使用 TraceContextTextMapPropagator，仅从 ASGI headers 提取 traceparent 和
+tracestate（名称不区分大小写），以显式空 Context 为默认来源。有效时网关
+请求 span 延续上游 trace ID，父项为远端 span；缺失或无效时创建新 trace。
+不依赖 ambient current span，不提取 baggage，不写入原始请求头/正文。
+request_id 仍由网关独立生成。采样决策沿用 SDK 默认 ParentBased 行为。
+
+5 个新增测试覆盖缺失、非法格式、零 trace ID、零父 span ID 和有效头，检查
+有效父项的 remote 标志、tracestate、A/B 兄弟关系和日志 ID；span 属性不包含
+业务 key 或 baggage。完整测试集 269 passed，2 条已有依赖弃用警告。
+向后端注入当前尝试的 context 尚未实现，外部 exporter/关闭生命周期仍待接入。
