@@ -17,7 +17,7 @@ The M1 streaming and backend-health acceptance record is in
 M0, M1, and the scoped single-process M2 implementation are complete.
 M2 passed 122 automated tests and seven local HTTP acceptance scenarios.
 See the [M2 acceptance record and limitations](docs/M2/ACCEPTANCE.md).
-M3 observability is in progress; request and backend-attempt metrics are available.
+M3 observability is complete within its agreed scope; see the acceptance record.
 
 InferGate currently provides:
 
@@ -217,4 +217,4 @@ Local Jaeger reception and Grafana rendering have been verified.
 The local Prometheus/Jaeger/Grafana Compose configuration, provisioned dashboard
 and controlled acceptance script are described in [observability/README.md](observability/README.md).
 Docker Desktop integration passed on 2026-10-05 with 9 requests and 10 attempts;
-see [acceptance evidence](docs/M3/ACCEPTANCE.md). M3 author teach-back remains pending.
+see [acceptance evidence](docs/M3/ACCEPTANCE.md). M3 author teach-back is complete.

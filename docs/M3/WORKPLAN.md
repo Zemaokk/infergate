@@ -5,7 +5,8 @@
 M3.2 请求计数、总耗时、请求级首字节 Histogram、并发占用与健康 Gauge 已接入；
 后端尝试状态、异常生命周期及尝试级 Counter/Histogram 已接入；
 尝试级首字节 Histogram 已接入。M3.3 完成日志、请求/尝试 span、上下游
-context 传播及可选 OTLP/HTTP 导出已实现；完整观测栈联调验收仍待完成。
+context 传播及可选 OTLP/HTTP 导出已实现；M3.4 完整观测栈联调及作者复述
+已完成。约定范围内的 M3 完成，证据与边界见 [验收记录](ACCEPTANCE.md)。
 
 **模式：** Learning mode；作者主导 40%，AI 主导 60% 为阶段节奏目标。  
 **基线：** 2026-09-26 当前工作区 `uv run --offline pytest -q`：122 passed，
@@ -175,3 +176,9 @@ HTTP 验收脚本已保存。YAML/JSON 解析和脚本语法/CLI 检查通过。
 选路状态，不等于即时连通性。JSON 与截图保存到 evidence，见 ACCEPTANCE.md。
 本轮 AI 主导 C 类栈运行、验收脚本及文档，未修改核心请求机制；应用进程
 已清理，观测容器仍运行。作者复述与 milestone 复盘尚待完成。
+
+2026-10-05 完成 M3.4 复述与阶段收尾：作者解释 HTTP 200 后取消仍按
+cancelled 定稿，并预测 fallback 的一次请求、两次尝试及独立结果，父子
+关系正确。AI 纠正 span 数量：当前实际插桩仅请求及尝试，共 3 个，传播
+context 不自动创建后端 span。阶段复盘见 ACCEPTANCE.md。下一步 M4
+先推进可复现应用打包；benchmark 变量设计和核心协议边界仍由作者主导。

@@ -174,8 +174,9 @@ AI 在本项目中应当：
 
 ## 12. 当前约定
 
-我们保持 **learning mode**。M0、M1 和约定范围内的 M2 第一版已完成；M3 已启动，
-当前处于指标合同与作者预测阶段，见 [M3 工作计划](M3/WORKPLAN.md)。
+我们保持 **learning mode**。M0、M1 和约定范围内的 M2、M3 已完成，
+M3 实际联调和复述见 [验收记录](M3/ACCEPTANCE.md)。下一阶段进入 M4，
+先完成可复现应用打包，再逐项推进真实后端、Responses adapter 和 benchmark。
 已知但不阻塞的技术债继续记录，见 [M2 验收与边界](M2/ACCEPTANCE.md)。
 
 - 作者主导：per-key token bucket、全局并发及 backpressure、retry / fallback 条件判断
@@ -183,5 +184,6 @@ AI 在本项目中应当：
 - AI 主导：工作计划、文档、测试 fixtures 和重复样板
 
 M2 的 per-key token bucket、全局并发和 retry / fallback 第一版实现、验证及
-teach-back 完成；M2.4 集成验收通过。下一阶段 M3 先共同定义指标含义与埋点位置，
-AI 可主导观测工具样板接入，作者保留设计决策和最终解释权。
+teach-back 完成；M2.4 集成验收通过。M3 指标语义、观测生命周期及本地栈
+验收已完成。M4 打包和工程配套由 AI 协助，benchmark workload 与实验变量
+由作者先提出方案；作者保留设计决策和最终解释权。

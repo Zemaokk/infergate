@@ -136,7 +136,7 @@ receive
 第一版已验证 per-key 速率、并发上限、快速拒绝及最多两次尝试；不承诺整体内存
 或端到端时长有界。具体证据与剩余边界见 [M2 验收记录](M2/ACCEPTANCE.md)。
 
-### M3：可观测性
+### M3：可观测性（约定范围已完成）
 
 范围：
 
@@ -155,7 +155,11 @@ receive
 - active requests 和 queue depth
 - backend health 与路由分布
 
-完成标准：能够从指标和 trace 判断延迟发生在排队、网关还是模型后端。
+第一版实际完成：请求/尝试计数、耗时、读侧首字节、并发及健康指标，完成
+日志、请求/尝试 span、context 传播、OTLP 导出与 Grafana 本地联调。
+无等待队列，首字节不等于 TTFT，未测量 token/s；网关 trace 不能拆分
+后端内部排队和模型计算。原始扩展指标仍待后续另定范围。
+完成证据及作者复述见 [M3 验收记录](M3/ACCEPTANCE.md)。
 
 ### M4：真实后端与可复现实验
 
@@ -210,4 +214,6 @@ receive
 
 ## 10. 当前下一步
 
-M0、M1 和约定范围内的 M2 第一版已完成验收。M3 可观测性已启动，当前先共同定义指标含义、状态与埋点位置，见 [M3 工作计划](M3/WORKPLAN.md) 和 [指标合同草案](M3/OBSERVABILITY_CONTRACT.md)；尚未接入观测代码。Responses API 仍留在 M4；共享 gateway core 不应依赖 Chat Completions 专属字段。
+M0、M1 和约定范围内的 M2、M3 已完成验收。下一阶段 M4 先完成应用打包和
+可复现启动，再逐项推进真实后端、Responses adapter 与 benchmark。
+共享 gateway core 不应依赖 Chat Completions 专属字段；性能结论需真实实验支持。
