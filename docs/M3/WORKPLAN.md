@@ -159,3 +159,10 @@ fallback 均验证；未采样 context 也保持传播。完整测试集 282 pas
 provider shutdown 的生命周期等待上限 5 秒；关闭仍为 best effort，非送达保证。
 完整测试集 290 passed，详见合同第 28 节。下一步 M3.3 生命周期 teach-back，
 随后接入 M3.4 本地观测栈并记录真实指标抓取和 trace 接收证据。
+
+2026-10-05 作者正确复述 exporter 故障不改变业务、请求仅入队不等待发送、
+关闭超出 5 秒等待上限后退出；AI 补充无送达保证。进入 M3.4 配置准备：
+Prometheus/Jaeger/Grafana Compose、两个 Grafana 数据源、11 个面板和受控
+HTTP 验收脚本已保存。YAML/JSON 解析和脚本语法/CLI 检查通过。
+本机未找到 Docker、Podman 或 Colima，未拉取镜像、启动服务、验证 dashboard
+渲染或运行真实联调；M3.4 未完成。使用说明见 ../../observability/README.md。

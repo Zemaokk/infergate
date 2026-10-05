@@ -1,0 +1,10 @@
+apiVersion: 1
+providers:
+  - name: InferGate
+    folder: InferGate
+    type: file
+    disableDeletion: false
+    editable: false
+    updateIntervalSeconds: 15
+    options:
+      path: /var/lib/grafana/dashboards

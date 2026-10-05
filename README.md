@@ -213,3 +213,7 @@ provider to drain and close in a daemon thread, waiting at most 5 seconds withou
 blocking the event loop. This bounds lifecycle waiting, not forcibly terminating
 the SDK operation or guaranteeing delivery; timed-out cleanup can finish later.
 Actual Jaeger/Tempo/Collector and Grafana integration remains pending.
+
+The local Prometheus/Jaeger/Grafana Compose configuration, provisioned dashboard
+and controlled acceptance script are prepared in [observability/README.md](observability/README.md).
+They have not been run on the current host, which has no container runtime.
