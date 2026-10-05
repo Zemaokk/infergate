@@ -1,0 +1,301 @@
+{
+  "recorded_at_utc": "2026-10-05T11:13:21.274890+00:00",
+  "scope": "controlled local HTTP plus running compose observability services",
+  "status": "passed",
+  "checks": [
+    {
+      "check": "prometheus_ready",
+      "status": 200
+    },
+    {
+      "check": "grafana_ready",
+      "status": 200
+    },
+    {
+      "check": "jaeger_ready",
+      "status": 200
+    },
+    {
+      "check": "normal",
+      "trace_id": "f20e982cc5574f5d94c9a23dea7717cc",
+      "span_count": 2,
+      "outcome": "completed"
+    },
+    {
+      "check": "stream",
+      "trace_id": "78ad6afd43d54241a38740d09a14b73e",
+      "span_count": 2,
+      "outcome": "completed"
+    },
+    {
+      "check": "normal_after_scrape",
+      "trace_id": "7782cdc35cb64fc0b5c3c4478ae6ca73",
+      "span_count": 2,
+      "outcome": "completed"
+    },
+    {
+      "check": "stream_after_scrape",
+      "trace_id": "403c6950e4f946d7bfac762bc1502551",
+      "span_count": 2,
+      "outcome": "completed"
+    },
+    {
+      "check": "rejected",
+      "trace_id": "d3b43265742d421c83955d3f9973f0eb",
+      "span_count": 1,
+      "outcome": "rejected"
+    },
+    {
+      "check": "cancelled_stream",
+      "trace_id": "9c770e11c1b9489996a4d84647095d2b",
+      "span_count": 2,
+      "outcome": "cancelled"
+    },
+    {
+      "check": "align_0",
+      "trace_id": "f095149a448441f19fd1d70831381251",
+      "span_count": 2,
+      "outcome": "completed"
+    },
+    {
+      "check": "fallback",
+      "trace_id": "4cea72273ce24ac08c0f800338dfe626",
+      "span_count": 3,
+      "outcome": "completed"
+    },
+    {
+      "check": "both_offline",
+      "trace_id": "7c7ef1cd6f6e49a9a5e5998ed79b119b",
+      "span_count": 3,
+      "outcome": "transport_error"
+    },
+    {
+      "check": "prometheus_matches_logs",
+      "requests": 9.0,
+      "attempts": 10.0,
+      "active_requests": 0,
+      "routing_healthy_backends": 2
+    },
+    {
+      "check": "grafana_dashboard_provisioned",
+      "panels": 11
+    }
+  ],
+  "completion_records": [
+    {
+      "event": "request_finished",
+      "request_id": "d8ef466a97a94e7d9c1d669237143c7d",
+      "trace_id": "f20e982cc5574f5d94c9a23dea7717cc",
+      "span_id": "113530cfba76ff40",
+      "status_code": 200,
+      "outcome": "completed",
+      "reason": null,
+      "duration_sec": 0.0026230000075884163,
+      "first_byte_sec": null,
+      "attempt_count": 1,
+      "cleanup_failed": false,
+      "backend_attempts": [
+        {
+          "attempt_index": 1,
+          "backend_id": "backend-a",
+          "span_id": "1f9c685277401fc0",
+          "outcome": "completed",
+          "duration_sec": 0.001443832996301353,
+          "first_byte_sec": null
+        }
+      ]
+    },
+    {
+      "event": "request_finished",
+      "request_id": "68b8dc2edbcb4e2abc367b11d80a5f26",
+      "trace_id": "78ad6afd43d54241a38740d09a14b73e",
+      "span_id": "f1ff3723538ed098",
+      "status_code": 200,
+      "outcome": "completed",
+      "reason": null,
+      "duration_sec": 0.005816582997795194,
+      "first_byte_sec": 0.005575457995291799,
+      "attempt_count": 1,
+      "cleanup_failed": false,
+      "backend_attempts": [
+        {
+          "attempt_index": 1,
+          "backend_id": "backend-b",
+          "span_id": "c7fa72c59ce90f85",
+          "outcome": "completed",
+          "duration_sec": 0.005635624984279275,
+          "first_byte_sec": 0.005414082988863811
+        }
+      ]
+    },
+    {
+      "event": "request_finished",
+      "request_id": "55b7d17a6e9c4d30b4cc46664fec3129",
+      "trace_id": "7782cdc35cb64fc0b5c3c4478ae6ca73",
+      "span_id": "71a0fa29fab04ac1",
+      "status_code": 200,
+      "outcome": "completed",
+      "reason": null,
+      "duration_sec": 0.003667957993457094,
+      "first_byte_sec": null,
+      "attempt_count": 1,
+      "cleanup_failed": false,
+      "backend_attempts": [
+        {
+          "attempt_index": 1,
+          "backend_id": "backend-a",
+          "span_id": "b676a1f50f14c1cc",
+          "outcome": "completed",
+          "duration_sec": 0.002800541988108307,
+          "first_byte_sec": null
+        }
+      ]
+    },
+    {
+      "event": "request_finished",
+      "request_id": "2039a5294fe948ba933390e9d86f63bc",
+      "trace_id": "403c6950e4f946d7bfac762bc1502551",
+      "span_id": "352e2d434b08332c",
+      "status_code": 200,
+      "outcome": "completed",
+      "reason": null,
+      "duration_sec": 0.0027304579853080213,
+      "first_byte_sec": 0.0022699999972246587,
+      "attempt_count": 1,
+      "cleanup_failed": false,
+      "backend_attempts": [
+        {
+          "attempt_index": 1,
+          "backend_id": "backend-b",
+          "span_id": "f94e1456bfb5a6ae",
+          "outcome": "completed",
+          "duration_sec": 0.0023752920096740127,
+          "first_byte_sec": 0.0019471670093480498
+        }
+      ]
+    },
+    {
+      "event": "request_finished",
+      "request_id": "ef645089c50e4537bb016e1c06e0a220",
+      "trace_id": "d3b43265742d421c83955d3f9973f0eb",
+      "span_id": "7d3169d4e9075585",
+      "status_code": 400,
+      "outcome": "rejected",
+      "reason": "invalid_infergate_key",
+      "duration_sec": 0.00031783300801180303,
+      "first_byte_sec": null,
+      "attempt_count": 0,
+      "cleanup_failed": false,
+      "backend_attempts": []
+    },
+    {
+      "event": "request_finished",
+      "request_id": "7eeb76d7026f4b2a936128862c98ab6d",
+      "trace_id": "9c770e11c1b9489996a4d84647095d2b",
+      "span_id": "aa8c6297d5a34877",
+      "status_code": 200,
+      "outcome": "cancelled",
+      "reason": null,
+      "duration_sec": 0.01286233399878256,
+      "first_byte_sec": 0.011569916998269036,
+      "attempt_count": 1,
+      "cleanup_failed": false,
+      "backend_attempts": [
+        {
+          "attempt_index": 1,
+          "backend_id": "backend-a",
+          "span_id": "67591cb79e37de48",
+          "outcome": "cancelled",
+          "duration_sec": 0.012404833018081263,
+          "first_byte_sec": 0.011146333010401577
+        }
+      ]
+    },
+    {
+      "event": "request_finished",
+      "request_id": "30cf7a5fc04348a18869e651afa7b96b",
+      "trace_id": "f095149a448441f19fd1d70831381251",
+      "span_id": "e8fde03e152d6944",
+      "status_code": 200,
+      "outcome": "completed",
+      "reason": null,
+      "duration_sec": 0.0014897500223014504,
+      "first_byte_sec": null,
+      "attempt_count": 1,
+      "cleanup_failed": false,
+      "backend_attempts": [
+        {
+          "attempt_index": 1,
+          "backend_id": "backend-b",
+          "span_id": "b76291403abaa863",
+          "outcome": "completed",
+          "duration_sec": 0.001104666996980086,
+          "first_byte_sec": null
+        }
+      ]
+    },
+    {
+      "event": "request_finished",
+      "request_id": "b01372f3213f468a8a15bf9224f03cea",
+      "trace_id": "4cea72273ce24ac08c0f800338dfe626",
+      "span_id": "a791acdf5d9668b0",
+      "status_code": 200,
+      "outcome": "completed",
+      "reason": null,
+      "duration_sec": 0.004184791992884129,
+      "first_byte_sec": null,
+      "attempt_count": 2,
+      "cleanup_failed": false,
+      "backend_attempts": [
+        {
+          "attempt_index": 1,
+          "backend_id": "backend-a",
+          "span_id": "a231d98f49c8e36b",
+          "outcome": "transport_error",
+          "duration_sec": 0.0016690000193193555,
+          "first_byte_sec": null
+        },
+        {
+          "attempt_index": 2,
+          "backend_id": "backend-b",
+          "span_id": "b7dce253e1448785",
+          "outcome": "completed",
+          "duration_sec": 0.0016281249991152436,
+          "first_byte_sec": null
+        }
+      ]
+    },
+    {
+      "event": "request_finished",
+      "request_id": "33060b448d234064959d9bc8c4f621a0",
+      "trace_id": "7c7ef1cd6f6e49a9a5e5998ed79b119b",
+      "span_id": "d00d507cfc1805f5",
+      "status_code": 502,
+      "outcome": "transport_error",
+      "reason": "backend_transport_failure",
+      "duration_sec": 0.003824416024144739,
+      "first_byte_sec": null,
+      "attempt_count": 2,
+      "cleanup_failed": false,
+      "backend_attempts": [
+        {
+          "attempt_index": 1,
+          "backend_id": "backend-a",
+          "span_id": "09776b10965f0fc0",
+          "outcome": "transport_error",
+          "duration_sec": 0.0018164580105803907,
+          "first_byte_sec": null
+        },
+        {
+          "attempt_index": 2,
+          "backend_id": "backend-b",
+          "span_id": "dc125f300de78854",
+          "outcome": "transport_error",
+          "duration_sec": 0.0008214580011554062,
+          "first_byte_sec": null
+        }
+      ]
+    }
+  ],
+  "all_application_processes_stopped": true
+}

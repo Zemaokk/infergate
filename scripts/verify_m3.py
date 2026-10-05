@@ -87,6 +87,15 @@ async def verify(output):
                 response = await client.post(base + "/v1/chat/completions", json={**payload, "stream": True},
                     headers=headers("stream", "completed", ["completed"]))
                 assert response.status_code == 200 and "[DONE]" in response.text
+                # Keep this process alive across scrapes so rate panels have two
+                # samples and an actual increment, rather than a single snapshot.
+                await asyncio.sleep(6)
+                response = await client.post(base + "/v1/chat/completions", json=payload,
+                    headers=headers("normal_after_scrape", "completed", ["completed"]))
+                assert response.status_code == 200
+                response = await client.post(base + "/v1/chat/completions", json={**payload, "stream": True},
+                    headers=headers("stream_after_scrape", "completed", ["completed"]))
+                assert response.status_code == 200 and "[DONE]" in response.text
                 response = await client.post(base + "/v1/chat/completions", json=payload,
                     headers=headers("rejected", "rejected", [], include_key=False))
                 assert response.status_code == 400
@@ -167,7 +176,11 @@ async def verify(output):
                     assert requests == len(records)
                     assert attempts == sum(r["attempt_count"] for r in records)
                     assert await query('infergate_active_requests{job="infergate"}') == 0
-                    return {"requests": requests, "attempts": attempts}
+                    # Transport failures do not update routing health; probing
+                    # is deliberately paused during this controlled scenario.
+                    assert await query('sum(infergate_backend_healthy{job="infergate"})') == 2
+                    return {"requests": requests, "attempts": attempts,
+                            "active_requests": 0, "routing_healthy_backends": 2}
                 checks.append({"check": "prometheus_matches_logs", **await eventually(metrics_match)})
                 response = await client.get("http://127.0.0.1:3000/api/dashboards/uid/infergate-m3",
                     auth=("admin", "infergate-local"))

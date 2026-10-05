@@ -166,3 +166,12 @@ Prometheus/Jaeger/Grafana Compose、两个 Grafana 数据源、11 个面板和�
 HTTP 验收脚本已保存。YAML/JSON 解析和脚本语法/CLI 检查通过。
 本机未找到 Docker、Podman 或 Colima，未拉取镜像、启动服务、验证 dashboard
 渲染或运行真实联调；M3.4 未完成。使用说明见 ../../observability/README.md。
+
+2026-10-05 作者安装 DMG Docker Desktop 后完成 M3.4 工程验收。Engine
+29.8.2 / Compose 5.5.1 启动三个固定版本服务；受控联调 9 个请求、10 次
+尝试的 Prometheus 计数、完成日志与 Jaeger span 一致，最终并发占用 0。
+验收脚本增加跨抓取周期的普通/流式请求，Grafana 实际渲染曲线并保留
+缺失样本 No data；停止网关后抓取状态降为 0。受控健康 Gauge 保持既有
+选路状态，不等于即时连通性。JSON 与截图保存到 evidence，见 ACCEPTANCE.md。
+本轮 AI 主导 C 类栈运行、验收脚本及文档，未修改核心请求机制；应用进程
+已清理，观测容器仍运行。作者复述与 milestone 复盘尚待完成。

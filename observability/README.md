@@ -1,19 +1,20 @@
 # 本地 M3 观测栈
 
-当前状态：配置和验收脚本已准备，尚未运行容器或完成真实联调。当前主机没有
-Docker/Podman/Colima。不要将配置解析通过或 Python 测试通过视为 M3.4 验收通过。
+当前状态：2026-10-05 已通过 Docker Desktop 的真实联调与 Grafana 渲染检查。
+9 个请求、10 次尝试的指标、日志和 trace 对应，最终并发占用为 0。
+证据见 [M3 验收记录](../docs/M3/ACCEPTANCE.md)；作者复述仍待完成。
 
 ## 1. 启动观测服务
 
-需要可用的 Docker Engine 与 Compose v2。仓库根目录执行：
+需要可用的 Docker Engine 与 Compose。仓库根目录执行：
 
 ```bash
 docker compose -f observability/compose.yaml config
 docker compose -f observability/compose.yaml up -d
 ```
 
-固定镜像版本：Prometheus 3.15.0、Jaeger 2.21.0、Grafana 13.2.3。尚未拉取镜像，
-启动时需网络可用。服务入口：
+固定镜像版本：Prometheus 3.15.0、Jaeger 2.21.0、Grafana 13.2.3。
+首次拉取镜像时需网络可用。服务入口：
 
 | 服务 | 地址 | 用途 |
 | --- | --- | --- |
@@ -25,6 +26,17 @@ docker compose -f observability/compose.yaml up -d
 Grafana 本地演示账号为 `admin` / `infergate-local`。打开 InferGate 文件夹下的
 “**InferGate 本地可观测性**”仪表盘。
 数据源和仪表盘自动 provisioning，无需手动录入。
+
+如果 DMG 安装后 `docker` 尚未加入 PATH，可只为当前终端设置：
+
+```bash
+export PATH="/Applications/Docker.app/Contents/Resources/bin:$PATH"
+```
+
+本次验证使用 Docker Engine 29.8.2、随 Docker Desktop 提供的 Compose 5.5.1。
+若 `docker compose` 插件尚未注册，可用
+`/Applications/Docker.app/Contents/Resources/cli-plugins/docker-compose`
+替代上述 `docker compose`，并保留 PATH 设置以找到凭据助手。
 
 Prometheus 从容器访问 `host.docker.internal:8000/metrics`；网关运行在宿主机。
 Compose 为 Linux 提供 host-gateway 映射，Mac Docker Desktop 也支持该主机名。
@@ -49,6 +61,10 @@ fallback；不修改生产默认配置。脚本覆盖普通成功、流式完成
   outcome 匹配，不以 HTTP 200 代替流式最终结果。
 - Prometheus 中请求/尝试计数与这些日志一致，结束后的并发占用恢复为 0。
 - Grafana 自动加载指定仪表盘。
+
+脚本在首轮成功请求后等待一个抓取周期，再发送普通和流式请求，使速率图
+有跨周期样本。受控停止后端后健康 Gauge 仍为 1：它表示既有选路状态，
+不是即时连通性；脚本暂停周期探测以触发 fallback。
 
 结果写入 JSON（passed/failed 与逐项证据），始终停止自己创建的应用进程，
 不会停止观测容器或其他应用。日志、trace 接收和指标抓取都是实际服务证据；

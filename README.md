@@ -184,8 +184,8 @@ their span IDs. Valid incoming W3C `traceparent` headers continue the upstream
 trace; missing or invalid headers start a new trace. Only `traceparent` and
 `tracestate` are extracted, never baggage or business headers. Backend calls inject
 the current attempt's W3C context, including on fallback; caller keys and baggage
-are not forwarded. Prometheus server, Grafana and full-stack tracing acceptance
-are later M3 steps; `/metrics` exposes current in-process aggregates.
+are not forwarded. The local Prometheus, Jaeger and Grafana stack has passed
+controlled integration checks; `/metrics` exposes current in-process aggregates.
 
 ## Trace export
 
@@ -212,8 +212,9 @@ After stopping health probes and closing HTTP clients, runtime shutdown asks the
 provider to drain and close in a daemon thread, waiting at most 5 seconds without
 blocking the event loop. This bounds lifecycle waiting, not forcibly terminating
 the SDK operation or guaranteeing delivery; timed-out cleanup can finish later.
-Actual Jaeger/Tempo/Collector and Grafana integration remains pending.
+Local Jaeger reception and Grafana rendering have been verified.
 
 The local Prometheus/Jaeger/Grafana Compose configuration, provisioned dashboard
-and controlled acceptance script are prepared in [observability/README.md](observability/README.md).
-They have not been run on the current host, which has no container runtime.
+and controlled acceptance script are described in [observability/README.md](observability/README.md).
+Docker Desktop integration passed on 2026-10-05 with 9 requests and 10 attempts;
+see [acceptance evidence](docs/M3/ACCEPTANCE.md). M3 author teach-back remains pending.

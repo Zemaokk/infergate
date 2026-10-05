@@ -1,20 +1,32 @@
 # M3 验收状态
 
-**状态：未完成。** 2026-10-05 M3.1/M3.2 指标与 M3.3 日志/tracing 代码验证
+**状态：M3.4 工程验收通过，作者复述待完成。** 2026-10-05 M3.1/M3.2 指标与 M3.3 日志/tracing 代码验证
 基线为 290 passed，2 条已有依赖弃用警告。自动化测试不代替完整观测栈验收。
 
-M3.4 已准备：[本地观测栈](../../observability/README.md)、固定版本 Compose、
-Grafana 数据源/仪表盘与 scripts/verify_m3.py。YAML/JSON 解析、引用检查、
-脚本语法及 CLI 检查通过；当前主机没有容器运行环境，尚未启动这些服务。
+M3.4 已运行：[本地观测栈](../../observability/README.md)、固定版本 Compose、
+Grafana 数据源/仪表盘与 scripts/verify_m3.py。Docker Desktop Engine 29.8.2、
+Compose 5.5.1 启动 Prometheus 3.15.0、Jaeger 2.21.0、Grafana 13.2.3 成功。
 
-待取得的实际证据：
+实际证据：[带时间戳的 JSON](evidence/acceptance-2026-10-05.json)，
+[Grafana 曲线截图](evidence/grafana-2026-10-05.jpg)、
+[并发及健康截图](evidence/grafana-status-2026-10-05.jpg)。
 
-- Compose 配置及镜像启动成功，Prometheus 能抓取实际网关。
-- Jaeger 中请求/尝试 span 和完成日志 trace ID 对应，fallback、流式关闭和
-  取消的结果与父子关系正确。
-- Prometheus 请求/尝试计数与日志一致，名额最终恢复，健康状态按既有语义。
-- Grafana 仪表盘加载与渲染、低流量/缺失样本表现合理。
-- 受控脚本实际执行并保存带时间戳的 passed 证据，完成作者复述。
+- 受控 HTTP 联调 passed：9 个请求、10 次后端尝试；Prometheus 抓取 up=1，
+  请求/尝试计数与完成日志一致，最终 active_requests=0。
+- 普通成功、流式完成、拒绝、客户端断开、fallback、双后端离线均有对应
+  Jaeger trace；每次尝试的 span ID、父子关系及 outcome 与日志一致。
+- fallback 请求 completed，A transport_error，B completed，共 3 个 span；
+  取消请求虽已发送 HTTP 200，最终请求及尝试均为 cancelled。
+- 受控健康探测间隔为 3600 秒；后端停止后既有选路状态仍为 healthy，
+  Gauge 合计 2。此结果不代表停止后的后端仍可连接。
+- Grafana 11 个面板 provisioning 通过；浏览器实际检查速率、耗时、首字节、
+  并发、健康与抓取状态面板。首轮单次抓取时速率图显示 No data；增加跨周期
+  请求后显示真实曲线。脚本停止网关后 up 降为 0。
+- 所有脚本创建的应用进程已停止；观测容器保留运行。现有 Python 测试基线
+  沿用 290 passed，本轮未修改应用代码，未重跑完整测试集。
+
+尚待完成：作者解释 fallback 请求的日志/指标/span 对应关系，以及
+“发送 HTTP 200 后取消”的最终 outcome 与状态码为何不同。
 
 现有边界继续保留：单进程配额、首字节不等于 TTFT、没有可信 token/s、
 没有等待队列、网关 trace 不能证明后端内部计算阶段、trace 导出为 best effort，
