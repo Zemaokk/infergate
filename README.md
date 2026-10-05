@@ -184,6 +184,32 @@ their span IDs. Valid incoming W3C `traceparent` headers continue the upstream
 trace; missing or invalid headers start a new trace. Only `traceparent` and
 `tracestate` are extracted, never baggage or business headers. Backend calls inject
 the current attempt's W3C context, including on fallback; caller keys and baggage
-are not forwarded. No external exporter is configured yet. Prometheus server,
-Grafana and full tracing export
+are not forwarded. Prometheus server, Grafana and full-stack tracing acceptance
 are later M3 steps; `/metrics` exposes current in-process aggregates.
+
+## Trace export
+
+To enable OTLP/HTTP protobuf export, start the gateway with a trace receiver's
+full endpoint (including `/v1/traces`):
+
+```bash
+OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://127.0.0.1:4318/v1/traces \
+  uv run uvicorn infergate.runtime:app --host 127.0.0.1 --port 8000 --log-config configs/logging.json
+```
+
+Start an OTLP receiver separately; this command does not launch one. Without this
+variable, spans and log correlation still work but no exporter or batch worker
+is installed. Only the traces-specific endpoint enables export in this runtime;
+the generic `OTEL_EXPORTER_OTLP_ENDPOINT` alone does not enable it.
+
+The runtime installs one batch processor at startup, with a 2048-span queue,
+256-span batches and a 1-second schedule. Export HTTP requests have a 2-second
+timeout. Request completion only enqueues spans, so receiver failures do not
+change business outcomes or metrics. Export is best effort; queue overflow,
+failed sends or interrupted shutdown can lose spans.
+
+After stopping health probes and closing HTTP clients, runtime shutdown asks the
+provider to drain and close in a daemon thread, waiting at most 5 seconds without
+blocking the event loop. This bounds lifecycle waiting, not forcibly terminating
+the SDK operation or guaranteeing delivery; timed-out cleanup can finish later.
+Actual Jaeger/Tempo/Collector and Grafana integration remains pending.

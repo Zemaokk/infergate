@@ -549,3 +549,31 @@ B 不复用 A 的 carrier。SDK 未采样 span 仍能携带有效 context。
 另验证传播故障清除部分 carrier。完整测试集 282 passed，2 条已有依赖
 弃用警告。没有实际后端插桩服务或外部 exporter 的联调证据，仍待 M3.4。
 下一步接入 exporter 和 provider 的有界关闭生命周期；M3.3 尚未全部完成。
+
+## 28. 可选 OTLP/HTTP 导出与运行关闭 — 2026-10-05
+
+新增 opentelemetry-exporter-otlp-proto-http 1.45.0。runtime 工厂读取
+OTEL_EXPORTER_OTLP_TRACES_ENDPOINT，或使用显式 otlp_traces_endpoint 参数；
+空字符串禁用，完整 endpoint 包含 /v1/traces。未设置不安装 exporter/worker。
+不自动使用通用 OTEL_EXPORTER_OTLP_ENDPOINT 来启用导出。配置在 lifespan
+启动时安装，不在模块导入或工厂构造时启动线程。
+
+tracing.configure_trace_export 使用 SDK BatchSpanProcessor：队列 2048，
+批量 256，周期 1000ms。OTLP HTTP exporter 的实际请求超时设为 2 秒；
+BatchSpanProcessor 的 export_timeout_millis 不视为强制终止 export 的保证。
+请求完成仅将 span 入队，导出故障不替换业务结果；队列满/发送失败可能丢失
+trace，不能据此改写请求或尝试指标。初始化普通异常不阻止业务启动。
+
+runtime 关闭或启动异常时，在停止探测和释放 HTTP 客户端后调用 provider
+shutdown。SDK shutdown 自带队列排空；当前 SDK force_flush 会同步阻塞导出，
+不额外调用它。shutdown 在 daemon 线程执行，生命周期最多等 5 秒后返回；
+后台 SDK 操作不能被强制杀死，超时可稍后完成，process exit 可丢失剩余数据。
+这是关闭等待的上限，不是全部数据送达保证。应用生命周期之外的自定义
+create_app 使用者仍负责自行关闭注入/持有的 provider。
+
+8 个新增测试检查启用/显式禁用/环境配置、批量 export 成功/失败均不影响响应
+或指标、初始化/关闭故障、关闭等待不阻塞 event loop；实际 OTLP exporter
+使用受控 HTTP transport 编码 protobuf，验证 request/attempt 父子关系、消息
+内容不含业务 key/body、endpoint/HTTP timeout 和 transport 关闭。
+完整测试集 290 passed，2 条已有依赖弃用警告。没有真实 Collector/Jaeger/Tempo
+接收或完整 Grafana/Prometheus 联调证据；M3.4 验收仍待完成。

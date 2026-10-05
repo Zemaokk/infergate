@@ -4,7 +4,8 @@
 作者已完成生命周期和首字节计时情景 teach-back。
 M3.2 请求计数、总耗时、请求级首字节 Histogram、并发占用与健康 Gauge 已接入；
 后端尝试状态、异常生命周期及尝试级 Counter/Histogram 已接入；
-尝试级首字节 Histogram 已接入；日志与 trace、完整观测栈验收仍待完成。
+尝试级首字节 Histogram 已接入。M3.3 完成日志、请求/尝试 span、上下游
+context 传播及可选 OTLP/HTTP 导出已实现；完整观测栈联调验收仍待完成。
 
 **模式：** Learning mode；作者主导 40%，AI 主导 60% 为阶段节奏目标。  
 **基线：** 2026-09-26 当前工作区 `uv run --offline pytest -q`：122 passed，
@@ -153,3 +154,8 @@ provider shutdown 生命周期仍待完成。
 2026-10-05 下游每轮调用已注入自身尝试 span 的 W3C context，普通/流式与
 fallback 均验证；未采样 context 也保持传播。完整测试集 282 passed，详见
 合同第 27 节。下一步外部 exporter 与 provider shutdown，完整栈仍待 M3.4。
+
+2026-10-05 可选 OTLP/HTTP 导出在 runtime startup 安装，HTTP 超时 2 秒，
+provider shutdown 的生命周期等待上限 5 秒；关闭仍为 best effort，非送达保证。
+完整测试集 290 passed，详见合同第 28 节。下一步 M3.3 生命周期 teach-back，
+随后接入 M3.4 本地观测栈并记录真实指标抓取和 trace 接收证据。
