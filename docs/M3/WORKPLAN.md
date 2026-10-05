@@ -149,3 +149,7 @@ A/B 显式以请求为父项，完成日志包含各尝试 span ID。普通/流�
 延续远端 trace，缺失/无效时创建新 trace。完整测试集 269 passed，详见合同
 第 26 节。下一步向 A/B 下游分别注入当前尝试 context；外部 exporter 与
 provider shutdown 生命周期仍待完成。
+
+2026-10-05 下游每轮调用已注入自身尝试 span 的 W3C context，普通/流式与
+fallback 均验证；未采样 context 也保持传播。完整测试集 282 passed，详见
+合同第 27 节。下一步外部 exporter 与 provider shutdown，完整栈仍待 M3.4。

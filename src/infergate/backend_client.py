@@ -38,11 +38,16 @@ class BackendClient:
         self._client = client
 
     async def forward(
-        self, backend: Backend, path: str, payload: dict[str, object]
+        self,
+        backend: Backend,
+        path: str,
+        payload: dict[str, object],
+        *,
+        headers: dict[str, str] | None = None,
     ) -> BackendResponse:
         url = f"{backend.base_url.rstrip('/')}/{path.lstrip('/')}"
         try:
-            r = await self._client.post(url=url, json=payload)
+            r = await self._client.post(url=url, json=payload, headers=headers)
             backend_response = BackendResponse(
                 r.status_code, r.content, r.headers.get("content-type")
             )
@@ -54,10 +59,17 @@ class BackendClient:
         return backend_response
 
     async def open_stream(
-        self, backend: Backend, path: str, payload: dict[str, object]
+        self,
+        backend: Backend,
+        path: str,
+        payload: dict[str, object],
+        *,
+        headers: dict[str, str] | None = None,
     ) -> BackendStreamResponse:
         url = f"{backend.base_url.rstrip('/')}/{path.lstrip('/')}"
-        request = self._client.build_request(method="POST", url=url, json=payload)
+        request = self._client.build_request(
+            method="POST", url=url, json=payload, headers=headers
+        )
         try:
             response = await self._client.send(request, stream=True)
         except httpx.TransportError as e:

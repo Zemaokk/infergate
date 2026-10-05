@@ -267,12 +267,18 @@ def create_app(
                 backend_attempt_observation = observation.start_attempt(
                     backend.id, time.monotonic()
                 )
+                backend_headers = (
+                    backend_attempt_observation.build_trace_headers()
+                    if backend_attempt_observation is not None
+                    else {}
+                )
                 try:
                     if request.stream:
                         backend_response = await backend_client.open_stream(
                             backend=backend,
                             path="/v1/chat/completions",
                             payload=payload,
+                            headers=backend_headers,
                         )
                         opened_stream = backend_response
                     else:
@@ -280,6 +286,7 @@ def create_app(
                             backend=backend,
                             path="/v1/chat/completions",
                             payload=payload,
+                            headers=backend_headers,
                         )
 
                         if backend_attempt_observation is not None:

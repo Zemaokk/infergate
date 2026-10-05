@@ -57,6 +57,20 @@ class BackendAttemptObservation:
             return
         self.first_byte_sec = now - self.started_at
 
+    def build_trace_headers(self) -> dict[str, str]:
+        """Inject this attempt's context into a fresh, tracing-only carrier."""
+        if self.span is None:
+            return {}
+        headers: dict[str, str] = {}
+        try:
+            TraceContextTextMapPropagator().inject(
+                headers, context=set_span_in_context(self.span, Context())
+            )
+        except Exception:  # noqa: BLE001
+            # 传播故障不阻止调用，也不发送部分生成的 context。
+            return {}
+        return headers
+
 
 class RequestObservation:
     def __init__(self, started_at: float):

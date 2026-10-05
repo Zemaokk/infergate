@@ -182,6 +182,8 @@ outcome, duration and optional first-byte timing. Fallback attempts are siblings
 opened stream spans remain active through cleanup. Attempt log entries include
 their span IDs. Valid incoming W3C `traceparent` headers continue the upstream
 trace; missing or invalid headers start a new trace. Only `traceparent` and
-`tracestate` are extracted, never baggage or business headers. No external exporter
-or downstream trace context injection is configured yet. Prometheus server, Grafana and full tracing export
+`tracestate` are extracted, never baggage or business headers. Backend calls inject
+the current attempt's W3C context, including on fallback; caller keys and baggage
+are not forwarded. No external exporter is configured yet. Prometheus server,
+Grafana and full tracing export
 are later M3 steps; `/metrics` exposes current in-process aggregates.

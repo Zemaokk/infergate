@@ -531,3 +531,21 @@ request_id 仍由网关独立生成。采样决策沿用 SDK 默认 ParentBased 
 有效父项的 remote 标志、tracestate、A/B 兄弟关系和日志 ID；span 属性不包含
 业务 key 或 baggage。完整测试集 269 passed，2 条已有依赖弃用警告。
 向后端注入当前尝试的 context 尚未实现，外部 exporter/关闭生命周期仍待接入。
+
+## 27. 下游尝试 context 注入 — 2026-10-05
+
+BackendAttemptObservation.build_trace_headers 使用自己的 span 和显式空
+Context，通过 TraceContextTextMapPropagator 生成新的 carrier。仅注入
+traceparent/tracestate，不复制客户端头或 baggage。无 span 或传播故障返回
+空字典；故障中部分生成的 context 不发送，不阻止实际后端调用。
+
+endpoint 为每轮尝试单独构造 headers，BackendClient.forward/open_stream
+新增可选 keyword-only headers 并传给 HTTPX。原有直接调用不提供 headers
+仍可用。A/B 共用 trace ID，各自请求头中的父 span ID 为对应尝试 ID；
+B 不复用 A 的 carrier。SDK 未采样 span 仍能携带有效 context。
+
+12 个普通/流式、fallback、缺失上游/已采样/未采样上游的实际 app + MockTransport
+情景检查下游接收 context、tracestate、独立 span ID 和 key/baggage 不转发；
+另验证传播故障清除部分 carrier。完整测试集 282 passed，2 条已有依赖
+弃用警告。没有实际后端插桩服务或外部 exporter 的联调证据，仍待 M3.4。
+下一步接入 exporter 和 provider 的有界关闭生命周期；M3.3 尚未全部完成。
