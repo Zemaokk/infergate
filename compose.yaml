@@ -1,0 +1,41 @@
+name: infergate-app
+
+x-app: &app
+  image: infergate:m4-dev
+  build: .
+  init: true
+  stop_grace_period: 15s
+
+x-mock: &mock
+  <<: *app
+  command: [uvicorn, 'infergate.mock_backend:app', --host, 0.0.0.0, --port, '8000', --workers, '1']
+  healthcheck:
+    test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2).close()"]
+    interval: 5s
+    timeout: 3s
+    retries: 6
+    start_period: 5s
+
+services:
+  backend-a:
+    <<: *mock
+  backend-b:
+    <<: *mock
+  gateway:
+    <<: *app
+    environment:
+      INFERGATE_BACKEND_A_URL: http://backend-a:8000
+      INFERGATE_BACKEND_B_URL: http://backend-b:8000
+    ports:
+      - '127.0.0.1:8000:8000'
+    depends_on:
+      backend-a:
+        condition: service_healthy
+      backend-b:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/metrics', timeout=2).close()"]
+      interval: 5s
+      timeout: 3s
+      retries: 6
+      start_period: 5s

@@ -19,7 +19,9 @@ M2 passed 122 automated tests and seven local HTTP acceptance scenarios.
 See the [M2 acceptance record and limitations](docs/M2/ACCEPTANCE.md).
 M3 observability is complete within its agreed scope; see the acceptance record.
 M4 has started with application packaging; see the [M4 work plan](docs/M4/WORKPLAN.md)
-and [packaging contract](docs/M4/PACKAGING_CONTRACT.md). Container validation is pending.
+and [packaging contract](docs/M4/PACKAGING_CONTRACT.md). The three-container mock
+stack passed packaging integration checks on 2026-10-06; author teach-back is
+pending. See the [M4.1 acceptance record](docs/M4/ACCEPTANCE.md).
 
 InferGate currently provides:
 
@@ -38,6 +40,39 @@ InferGate currently provides:
   cleanup, and the gateway request path.
 
 ## Run locally
+
+### Docker Compose
+
+With Docker Engine running and host port 8000 available:
+
+```bash
+docker compose up --build -d --wait
+```
+
+This builds the application and starts two mock backends plus a single-worker
+gateway at `http://127.0.0.1:8000`. Backends are reachable inside the Compose
+network as `backend-a:8000` and `backend-b:8000`; their ports are not published.
+The request examples below work unchanged. Gateway container health checks
+verify `/metrics` availability, not inference readiness or backend health.
+The stack does not start the separate M3 observability services or enable OTLP export.
+
+```bash
+docker compose logs -f gateway
+docker compose down
+```
+
+Reproduce the packaging checks with port 8000 free:
+
+```bash
+uv run python scripts/verify_m4.py --output /tmp/infergate-m4-evidence.json
+```
+
+The script builds and starts its own Compose project, checks real HTTP routing,
+SSE chunks, backend failure/recovery and all-backend rejection, saves evidence,
+and removes its containers. It refuses to reuse an existing project or occupied
+port. These are mock integration checks, not model-performance benchmarks.
+
+### Native Python
 
 Install the project and run the test suite:
 
@@ -78,6 +113,14 @@ The local defaults are a burst capacity of 2 requests per key, replenished at
 1 request/second, and 2 concurrent downstream tasks across all keys. Rapidly
 repeating a key can return `429`; excess global concurrency returns `503`.
 Use `X-InferGate-Key` as a quota label, not an authentication credential.
+
+Native runtime backend addresses can be configured with
+`INFERGATE_BACKEND_A_URL` and `INFERGATE_BACKEND_B_URL`. When unset they default
+to `http://127.0.0.1:8001` and `http://127.0.0.1:8002`. Empty or invalid values
+raise `ValueError` at app creation before HTTP clients are created. Both health
+probes and inference calls use the configured base URL; changes require a new
+app/process. URLs must use HTTP(S), have a host, and contain no userinfo, query,
+fragment or path prefix. See the packaging contract for the supported subset.
 
 For admitted requests, `X-InferGate-Backend` alternates between `backend-a` and
 `backend-b` while both are healthy. Wait for quota to refill before this streaming example:

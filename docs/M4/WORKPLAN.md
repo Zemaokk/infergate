@@ -29,10 +29,11 @@ M4.2 的设备、后端和模型选择需由作者提供实际可用条件，不
 Python 基础镜像使用 3.13 系列标签，尚未固定 digest；不能据此承诺镜像字节级复现。
 构建/运行方法与实际验证状态见 [打包合同](PACKAGING_CONTRACT.md)。
 
-下一小步是运行配置：当前固定 loopback 地址不能连接独立后端容器。
-先完成合同 → 作者预测 → 最小第一版 → focused review → 验证 → teach-back，
-随后 AI 补双 mock + 网关 Compose 和受控验收。完整应用 Compose 尚未生成。
-现有 M3 观测 Compose 继续独立；应用打包完成后再验证容器间抓取和 OTLP 地址。
+运行配置已由作者完成第一版及 focused review 修正，持久测试通过。
+根目录 Compose 和受控容器验收通过，见 [验收记录](ACCEPTANCE.md)。
+下一步完成作者对配置快照、容器地址和健康检查边界的 teach-back；随后再进入
+M4.2 的真实后端选择。现有 M3 观测 Compose 继续独立；本轮不验证应用容器与
+观测栈的抓取、OTLP 联调。
 
 ## 3. 验收和证据边界
 
@@ -58,3 +59,15 @@ socket 不存在；尝试启动 Docker.app 返回 `kLSNoExecutableErr`（可执�
 这不验证 Linux wheel 或 Dockerfile 的实际构建。首次离线安装因临时缓存
 缺依赖失败，随后联网按锁文件安装通过。锁文件检查及 `git diff --check`
 通过，未修改 pyproject.toml、uv.lock 或已有核心实现。
+
+2026-10-06：作者完成 read_backend_url 及运行配置接入，经 focused review
+修复了 URL 校验、错误回显和客户端创建顺序。AI 沿用并检查工作区已有
+配置测试/Compose，修正 parametrize iterable 的新弃用警告，补受控容器验收
+脚本与启动文档。28 项配置用例覆盖缺省值、归一化、非法 A/B 在客户端创建
+前拒绝、普通/流式使用自定义地址，以及每 app 配置快照。完整测试集
+318 passed，2 条已有依赖弃用警告；Compose config 和差异检查通过。
+
+Docker Engine 29.8.2 现可访问。真实 Linux ARM64 镜像构建、非 root 运行和
+三服务启动通过；11 个业务请求验证轮换、SSE 分块、探测后停机/恢复与双后端
+离线拒绝，最后并发占用 0，验收容器及网络已清理。M4.1 工程检查通过，
+作者 teach-back 尚待完成；M4 整体未完成，未开始真实模型或 benchmark。

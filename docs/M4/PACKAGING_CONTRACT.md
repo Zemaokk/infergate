@@ -13,7 +13,7 @@
 Python 基础镜像标签可漂移；完成真实构建后应记录镜像 ID、平台和基础镜像 digest。
 固定依赖与镜像字节级复现是不同标准。
 
-## 2. 下一步：运行配置（B 类，共同定义，作者先写关键路径）
+## 2. 运行配置（B 类，作者第一版及 review 修正已完成）
 
 先只把两处后端地址变成可配置项，保留默认 model 与 backend ID：
 
@@ -45,11 +45,35 @@ URL 不包含 userinfo、query 或 fragment；不在日志/异常中回显原始
 共同验证：缺省行为保持原测试通过；两个自定义 URL 的探测和转发一致；
 错误 URL 在客户端创建前被拒绝；创建后修改环境不改变既有 app。
 
-## 3. 待 Docker 恢复后的验证命令
+## 3. 构建与验证命令
 
-当前已验证：macOS 临时目录中按锁文件进行独立非 editable 安装，离开
-源码目录后可导入 runtime/mock 入口，Uvicorn 可执行。Linux 镜像构建、
-非 root 运行、容器网络及 HTTP 请求仍待实际验证。
+当前已验证：macOS 独立安装、Linux ARM64 镜像构建、非 root 运行、
+容器网络和真实 HTTP 普通/流式请求。2026-10-06 三服务受控验收通过，
+证据与未验收边界见 [ACCEPTANCE.md](ACCEPTANCE.md)。
+
+推荐使用根目录 Compose：
+
+```bash
+docker compose up --build -d --wait
+docker compose logs -f gateway
+docker compose down
+```
+
+两个后端通过 `/health` healthcheck 后启动网关；网关的 `/metrics` 检查只表示
+HTTP 服务可响应，不保证后端可用。依赖启动条件依据
+[Docker Compose startup order](https://docs.docker.com/compose/how-tos/startup-order/)。
+Compose 配置不会因后端后来不健康而自动停止网关，运行中的路由状态仍由
+现有周期健康探测更新。宿主机只开放 127.0.0.1:8000。
+
+复现受控验收（8000 空闲，默认验收项目不存在）：
+
+```bash
+uv run python scripts/verify_m4.py --output /tmp/infergate-m4-evidence.json
+```
+
+脚本创建自己的项目，检查状态和 HTTP 行为并清理自己创建的容器/网络；
+保留构建的应用镜像及构建缓存。默认不操作用户手动启动的 infergate-app 项目。
+错误和成功均保存 JSON 证据；不会自动停止已占用端口的应用。
 
 仓库根目录执行：
 
@@ -69,8 +93,9 @@ curl --fail http://127.0.0.1:18001/v1/chat/completions \
   -d '{"model":"mock-model","messages":[{"role":"user","content":"hello"}]}'
 ```
 
-前台容器通过 Ctrl-C 停止并自动移除。以上是待执行命令，当前尚未容器验证。
-网关默认 loopback URL 仍指向网关容器自身；完整三服务启动需先完成第 2 节。
+前台容器通过 Ctrl-C 停止并自动移除。上述单容器命令是额外诊断入口，
+本次自动验收使用三服务 Compose。网关默认 loopback URL 指向自身容器；
+Compose 显式设置两个后端地址，因此不使用本地缺省值。
 
 实现依据：[uv Docker integration](https://docs.astral.sh/uv/guides/integration/docker/)、
 [Dockerfile reference](https://docs.docker.com/reference/dockerfile/)。
