@@ -114,3 +114,13 @@ M4.3 后续：AI 使用官方文档核对 Responses 字段，整理本项目文�
 显式 store=false 的最小子集、400 错误顺序和共享执行资源边界。下一小步由
 作者先预测跨入口配额与并发行为，再仅抽取现有 Chat 执行路径，保留全部
 测试和原始响应语义；本轮没有新增 endpoint、改核心或升级远程服务。
+
+作者完成共享执行路径第一版，并修正 review 中的 await/stream 来源问题；
+完整 336 项测试通过。当前进入 ResponsesRequest 第一版，先只验证七个字段
+的严格类型、非空及未知字段规则，不同时注册 endpoint 或改观测模块。
+
+作者完成 ResponsesRequest 第一版后，review 发现必填/null/严格 Literal 的
+问题；作者授权 AI 修复并要求优先使用框架校验。AI 采用 Pydantic 字段约束
+与严格布尔的声明组合，保留 Chat 行为，将 instructions/max_output_tokens
+修订为可省略或 null，新增 47 项测试；完整 383 passed。当前模型验证通过，
+下一步接入实际 route 观测与 Responses endpoint，尚未宣称双接口支持。

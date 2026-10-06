@@ -1,6 +1,6 @@
 # M4.3 最小非流式 Responses adapter：合同准备
 
-**状态：2026-10-06，最小字段与共享路径合同已整理，待作者预测及第一版。** B 类：共同定义合同，作者写关键路径
+**状态：2026-10-06，共享执行路径抽取通过，当前进入请求模型第一版。** B 类：共同定义合同，作者写关键路径
 第一版，AI focused review 与测试；文档和兼容环境准备为 C 类。
 
 ## 已确定的架构边界
@@ -59,8 +59,8 @@ Responses 与 Chat Completions 语义转换。复用已有路由、健康、per-
 | --- | --- |
 | model | 必填、严格字符串；strip 后不能为空，用原值路由与转发 |
 | input | 必填、严格字符串；strip 后不能为空，保留原始文本；暂不接受数组 |
-| instructions | 可省略；提供时为严格字符串，允许空字符串，不接受 null |
-| max_output_tokens | 可省略；提供时为严格整数且 >=16，不接受 bool 或 null |
+| instructions | 可省略或 null；非 null 时为严格字符串，允许空字符串 |
+| max_output_tokens | 可省略或 null；非 null 时为严格整数且 >=16，不接受 bool |
 | stream | 可省略，缺省 false；提供时须严格 bool 且为 false |
 | store | 必填，须严格 bool 且为 false |
 | background | 可省略，缺省 false；提供时须严格 bool 且为 false |
@@ -132,3 +132,41 @@ http_request.stream 方法作为布尔值。作者修正为 return await 和 req
 共享函数复用原控制器并参数化正文、model、stream 和后端路径，原有取消、
 fallback、流清理及观测测试通过。当前仅验证 Chat 抽取，Responses endpoint
 尚未实现，跨接口共享限额与 route 观测仍待下一步验证。
+
+## 当前第二小步：ResponsesRequest
+
+作者先在 app.py 的 ChatCompletionRequest 附近定义 ResponsesRequest，按上文
+七个字段的最小子集校验。先只实现请求模型，不注册 endpoint，也不改共享
+执行函数、Chat 模型或观测模块。该任务输出是经过校验、可用
+model_dump(exclude_unset=True) 转发的正文；schema 失败时尚无后端操作。
+
+检查重点：严格类型、不把 0 当成 false，不把 bool 当成整数；model/input
+校验空白但保留原文；instructions/max_output_tokens 按修订规则允许 null，
+并保留显式 null 与省略的区别；未知字段拒绝。后续 AI 补模型测试，再接入实际 route 的观测支持和
+endpoint，复用原有错误 handler。
+
+作者先预测以下正文能否通过及原因，再写第一版：
+
+```json
+{"model":"responses-model","input":"hello","store":false}
+{"model":"responses-model","input":"hello","store":0}
+{"model":"responses-model","input":"   ","store":false}
+{"model":"responses-model","input":"hello","store":false,"instructions":null}
+```
+
+上述预测最初采用可选字段也拒绝 null 的收窄规则。作者质疑其必要性后，AI
+核对官方请求类型，确认 instructions/max_output_tokens 支持 null；作者授权
+修正，并要求与 Chat 的严格程度协调、优先使用框架校验。现采用表中修订规则，
+最后一条请求合法；保持原预测过程，不将历史回答当成当前错误。
+
+AI 按授权修复：model/input 必填、严格字符串、含非空白字符；FalseOnlyBool
+使用 Pydantic 内置 TypeAdapter(StrictBool) 在 Literal[False] 前校验，避免
+整数 0 被当成 false，同时在 JSON Schema 声明 const=false。省略字段使用
+exclude_unset=True 不补默认值，显式 null 原样保留；不新增 endpoint 自定义
+检查。Chat 已有类型、未知字段透传和 null 规则未改。Responses 未知字段
+仍拒绝，这是其最小支持范围的差异，并非两种协议所有字段规则都相同。
+
+新增 47 项模型及兼容性测试，覆盖必填/空白/严格类型、false-only、token
+边界、可选 null、原文/省略保留、未知字段、Schema 与原 Chat 行为。完整
+383 passed，2 条已有依赖警告。请求模型完成，实际 Responses endpoint、
+跨入口限额和 route 观测尚待接入与验证。

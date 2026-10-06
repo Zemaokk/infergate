@@ -10,7 +10,15 @@ from fastapi.responses import StreamingResponse
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
-from pydantic import BaseModel, Field, StrictBool, StrictStr
+from pydantic import (
+    BaseModel,
+    BeforeValidator,
+    Field,
+    StrictBool,
+    StrictInt,
+    StrictStr,
+    TypeAdapter,
+)
 from starlette.types import Lifespan, Receive, Scope, Send
 
 from infergate.api_errors import create_error_response
@@ -41,8 +49,26 @@ class ChatCompletionRequest(BaseModel):
     model_config = {"extra": "allow"}
 
     model: StrictStr
-    messages: list[ChatMessage] = Field(min_length=1)
+    messages: Annotated[list[ChatMessage], Field(min_length=1)]
     stream: StrictBool = False
+
+
+# Validate the boolean type before Literal checks equality (0 == False).
+FalseOnlyBool = Annotated[
+    Literal[False], BeforeValidator(TypeAdapter(StrictBool).validate_python)
+]
+
+
+class ResponsesRequest(BaseModel):
+    model_config = {"extra": "forbid"}
+
+    model: Annotated[StrictStr, Field(pattern=r"\S")]
+    input: Annotated[StrictStr, Field(pattern=r"\S")]
+    store: FalseOnlyBool
+    stream: FalseOnlyBool = False
+    background: FalseOnlyBool = False
+    instructions: StrictStr | None = None
+    max_output_tokens: Annotated[StrictInt | None, Field(ge=16)] = None
 
 
 # 负责 stream 响应的读取和清理关闭
