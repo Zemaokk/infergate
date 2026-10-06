@@ -131,6 +131,226 @@ def create_app(
     lifespan: Lifespan | None = None,
     tracer_provider: TracerProvider | None = None,
 ) -> FastAPI:
+
+    # 请求处理
+    async def execute_gateway_request(
+        http_request: Request,
+        *,
+        model: str,
+        payload: dict[str, object],
+        backend_path: str,
+        stream: bool,
+        x_infergate_key: str | None,
+    ) -> Response:
+
+        # get observation
+        observation: RequestObservation = http_request.state.observation
+
+        # key 合法性检验
+        if x_infergate_key is None or not x_infergate_key.strip():
+            observation.make_result("rejected", "invalid_infergate_key")
+            return create_error_response(
+                status_code=400,
+                message="Invalid infergate key.",
+                error_type="invalid_request_error",
+                code="invalid_infergate_key",
+                param="X-InferGate-Key",
+            )
+
+        # token-bucket key 限流检验
+        if not key_limiter.allow(key=x_infergate_key):
+            observation.make_result("rejected", "rate_limit_exceeded")
+            return create_error_response(
+                status_code=429,
+                message="Too many requests.",
+                error_type="invalid_request_error",
+                code="rate_limit_exceeded",
+            )
+
+        # 总并发量校验
+        if not concurrency_limiter.try_acquire():
+            observation.make_result("rejected", "concurrency_limit_exceeded")
+            return create_error_response(
+                status_code=503,
+                message="Exceed global concurrency limit.",
+                error_type="gateway_error",
+                code="concurrency_limit_exceeded",
+            )
+
+        # Endpoint owns the slot until a streaming response takes responsibility.
+        handed_off = False
+        opened_stream: BackendStreamResponse | None = None
+        backend_attempt_observation: BackendAttemptObservation | None = None
+        try:
+            max_attempts = 2  # 定义后端尝试最大次数
+            attempted_backend_ids = set()
+            last_error = None
+            last_backend = None
+
+            # 尝试连接后端
+            for attempt in range(max_attempts):
+                # 选择 backend，如果无可用，报503
+                try:
+                    backend = router.select(
+                        model=model, excluded_backend_ids=attempted_backend_ids
+                    )
+                except NoBackendAvailableError:
+                    if last_error is None:
+                        observation.make_result("rejected", "no_backend_available")
+                        return create_error_response(
+                            status_code=503,
+                            message="No backend is available for the requested model.",
+                            error_type="gateway_error",
+                            code="no_backend_available",
+                        )
+                    else:
+                        observation.make_result(
+                            "transport_error", "backend_transport_failure"
+                        )
+                        return create_error_response(
+                            status_code=502,
+                            headers={"X-InferGate-Backend": last_backend.id},
+                            message="Cannot connect to backend.",
+                            error_type="gateway_error",
+                            code="backend_transport_failure",
+                        )
+
+                attempted_backend_ids.add(backend.id)
+                last_backend = backend
+
+                # 调用 backend_client 发送请求，连接失败报 502，这里只处理连接失败/超时
+                backend_attempt_observation = observation.start_attempt(
+                    backend.id, time.monotonic()
+                )
+                backend_headers = (
+                    backend_attempt_observation.build_trace_headers()
+                    if backend_attempt_observation is not None
+                    else {}
+                )
+                try:
+                    # 处理 stream 请求
+                    if stream:
+                        backend_response = await backend_client.open_stream(
+                            backend=backend,
+                            path=backend_path,
+                            payload=payload,
+                            headers=backend_headers,
+                        )
+                        opened_stream = backend_response
+
+                    # 处理普通非 stream 请求
+                    else:
+                        backend_response = await backend_client.forward(
+                            backend=backend,
+                            path=backend_path,
+                            payload=payload,
+                            headers=backend_headers,
+                        )
+
+                        # 记录相关指标
+                        if backend_attempt_observation is not None:
+                            outcome = (
+                                "backend_http_error"
+                                if backend_response.status_code >= 400
+                                else "completed"
+                            )
+                            backend_attempt_observation.finish(
+                                outcome, time.monotonic()
+                            )
+
+                # 处理后端连接错误
+                except BackendTransportError as e:
+                    if backend_attempt_observation is not None:
+                        backend_attempt_observation.finish(
+                            "transport_error", time.monotonic()
+                        )
+
+                    # 处理是否 retry 后端连接，并记录相关指标
+                    last_error = e
+                    if not e.retryable or attempt + 1 >= max_attempts:
+                        observation.make_result(
+                            "transport_error", "backend_transport_failure"
+                        )
+                        return create_error_response(
+                            status_code=502,
+                            headers={"X-InferGate-Backend": backend.id},
+                            message="Cannot connect to backend.",
+                            error_type="gateway_error",
+                            code="backend_transport_failure",
+                        )
+                    continue  # retry
+                break  # success
+
+            # 构造请求之前，处理后端的其他错误，如果没有错误先标记为 completed
+            if backend_response.status_code >= 400:
+                observation.make_result("backend_http_error")
+            else:
+                observation.make_result("completed")
+
+            # 构造请求头
+            headers = {"X-InferGate-Backend": backend.id}
+            if backend_response.content_type is not None:
+                headers["Content-Type"] = backend_response.content_type
+
+            # 构造请求
+            if stream:
+                # 构造 stream 请求
+                r = LimitedStreamingResponse(
+                    response=backend_response,
+                    limiter=concurrency_limiter,
+                    headers=headers,
+                    observation=observation,
+                    backend_attempt_observation=backend_attempt_observation,
+                )
+                # 移交资源所有权
+                handed_off = True
+            else:
+                # 构造普通请求
+                r = Response(
+                    content=backend_response.body,
+                    status_code=backend_response.status_code,
+                    headers=headers,
+                )
+
+            return r
+
+        except BaseException as exc:
+            observation.record_failure(
+                "cancelled"
+                if isinstance(exc, anyio.get_cancelled_exc_class())
+                else "internal_error"
+            )
+            raise
+
+        # 如果没有移交资源所有权，释放 concurrency 名额
+        finally:
+            if not handed_off:
+                try:
+                    # If response construction fails, ownership was never handed off.
+                    if opened_stream is not None:
+                        with anyio.CancelScope(shield=True):
+                            await opened_stream.aclose()
+                except BaseException:
+                    observation.cleanup_failed = True
+                    observation.record_failure("internal_error")
+                    raise
+                finally:
+                    try:
+                        # 未移交的尝试由 endpoint 负责；先关闭已打开的流，再定稿。
+                        # 普通响应及连接失败已定稿，不覆盖其结果。
+                        if (
+                            backend_attempt_observation is not None
+                            and not backend_attempt_observation.is_finished
+                        ):
+                            backend_attempt_observation.finish(
+                                observation.failure_outcome
+                                or observation.pending_outcome
+                                or "internal_error",
+                                time.monotonic(),
+                            )
+                    finally:
+                        concurrency_limiter.release()
+
     app = FastAPI(lifespan=lifespan)
     metrics = GatewayMetrics(concurrency_limiter)
     if router.health_manager is not None:
@@ -187,203 +407,16 @@ def create_app(
         x_infergate_key: Annotated[str | None, Header()] = None,
     ) -> Response:
 
-        observation: RequestObservation = http_request.state.observation
+        payload = request.model_dump(exclude_unset=True)
+        model = request.model
 
-        # check key
-        # key 合法性检验
-        if x_infergate_key is None or not x_infergate_key.strip():
-            observation.make_result("rejected", "invalid_infergate_key")
-            return create_error_response(
-                status_code=400,
-                message="Invalid infergate key.",
-                error_type="invalid_request_error",
-                code="invalid_infergate_key",
-                param="X-InferGate-Key",
-            )
-        # token-bucket 限制检验
-        if not key_limiter.allow(key=x_infergate_key):
-            observation.make_result("rejected", "rate_limit_exceeded")
-            return create_error_response(
-                status_code=429,
-                message="Too many requests.",
-                error_type="invalid_request_error",
-                code="rate_limit_exceeded",
-            )
-
-        # check total concurrency limit
-        if not concurrency_limiter.try_acquire():
-            observation.make_result("rejected", "concurrency_limit_exceeded")
-            return create_error_response(
-                status_code=503,
-                message="Exceed global concurrency limit.",
-                error_type="gateway_error",
-                code="concurrency_limit_exceeded",
-            )
-
-        # Endpoint owns the slot until a streaming response takes responsibility.
-        handed_off = False
-        opened_stream: BackendStreamResponse | None = None
-        backend_attempt_observation: BackendAttemptObservation | None = None
-        try:
-            payload = request.model_dump(exclude_unset=True)
-            model = request.model
-
-            max_attempts = 2
-            attempted_backend_ids = set()
-            last_error = None
-            last_backend = None
-
-            for attempt in range(max_attempts):
-                # 选择 backend，如果无可用，报503
-                try:
-                    backend = router.select(
-                        model=model, excluded_backend_ids=attempted_backend_ids
-                    )
-                except NoBackendAvailableError:
-                    if last_error is None:
-                        observation.make_result("rejected", "no_backend_available")
-                        return create_error_response(
-                            status_code=503,
-                            message="No backend is available for the requested model.",
-                            error_type="gateway_error",
-                            code="no_backend_available",
-                        )
-                    else:
-                        observation.make_result(
-                            "transport_error", "backend_transport_failure"
-                        )
-                        return create_error_response(
-                            status_code=502,
-                            headers={"X-InferGate-Backend": last_backend.id},
-                            message="Cannot connect to backend.",
-                            error_type="gateway_error",
-                            code="backend_transport_failure",
-                        )
-
-                attempted_backend_ids.add(backend.id)
-                last_backend = backend
-
-                # 调用 backend_client 发送请求，连接失败报 502，这里只处理连接失败/超时
-                backend_attempt_observation = observation.start_attempt(
-                    backend.id, time.monotonic()
-                )
-                backend_headers = (
-                    backend_attempt_observation.build_trace_headers()
-                    if backend_attempt_observation is not None
-                    else {}
-                )
-                try:
-                    if request.stream:
-                        backend_response = await backend_client.open_stream(
-                            backend=backend,
-                            path="/v1/chat/completions",
-                            payload=payload,
-                            headers=backend_headers,
-                        )
-                        opened_stream = backend_response
-                    else:
-                        backend_response = await backend_client.forward(
-                            backend=backend,
-                            path="/v1/chat/completions",
-                            payload=payload,
-                            headers=backend_headers,
-                        )
-
-                        if backend_attempt_observation is not None:
-                            outcome = (
-                                "backend_http_error"
-                                if backend_response.status_code >= 400
-                                else "completed"
-                            )
-                            backend_attempt_observation.finish(
-                                outcome, time.monotonic()
-                            )
-
-                except BackendTransportError as e:
-                    if backend_attempt_observation is not None:
-                        backend_attempt_observation.finish(
-                            "transport_error", time.monotonic()
-                        )
-
-                    last_error = e
-                    if not e.retryable or attempt + 1 >= max_attempts:
-                        observation.make_result(
-                            "transport_error", "backend_transport_failure"
-                        )
-                        return create_error_response(
-                            status_code=502,
-                            headers={"X-InferGate-Backend": backend.id},
-                            message="Cannot connect to backend.",
-                            error_type="gateway_error",
-                            code="backend_transport_failure",
-                        )
-                    continue  # retry
-                break  # success
-
-            # 构造请求之前，处理后端的其他错误，如果没有错误先标记为 completed
-            if backend_response.status_code >= 400:
-                observation.make_result("backend_http_error")
-            else:
-                observation.make_result("completed")
-
-            # 构造请求头
-            headers = {"X-InferGate-Backend": backend.id}
-            if backend_response.content_type is not None:
-                headers["Content-Type"] = backend_response.content_type
-
-            if request.stream:
-                r = LimitedStreamingResponse(
-                    response=backend_response,
-                    limiter=concurrency_limiter,
-                    headers=headers,
-                    observation=observation,
-                    backend_attempt_observation=backend_attempt_observation,
-                )
-                # 移交资源所有权
-                handed_off = True
-            else:
-                r = Response(
-                    content=backend_response.body,
-                    status_code=backend_response.status_code,
-                    headers=headers,
-                )
-
-            return r
-
-        except BaseException as exc:
-            observation.record_failure(
-                "cancelled"
-                if isinstance(exc, anyio.get_cancelled_exc_class())
-                else "internal_error"
-            )
-            raise
-        # 如果没有移交资源所有权，释放 concurrency 名额
-        finally:
-            if not handed_off:
-                try:
-                    # If response construction fails, ownership was never handed off.
-                    if opened_stream is not None:
-                        with anyio.CancelScope(shield=True):
-                            await opened_stream.aclose()
-                except BaseException:
-                    observation.cleanup_failed = True
-                    observation.record_failure("internal_error")
-                    raise
-                finally:
-                    try:
-                        # 未移交的尝试由 endpoint 负责；先关闭已打开的流，再定稿。
-                        # 普通响应及连接失败已定稿，不覆盖其结果。
-                        if (
-                            backend_attempt_observation is not None
-                            and not backend_attempt_observation.is_finished
-                        ):
-                            backend_attempt_observation.finish(
-                                observation.failure_outcome
-                                or observation.pending_outcome
-                                or "internal_error",
-                                time.monotonic(),
-                            )
-                    finally:
-                        concurrency_limiter.release()
+        return await execute_gateway_request(
+            http_request=http_request,
+            model=model,
+            payload=payload,
+            backend_path="/v1/chat/completions",
+            stream=request.stream,
+            x_infergate_key=x_infergate_key,
+        )
 
     return app

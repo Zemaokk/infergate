@@ -119,3 +119,16 @@ route。验收为现有 336 项测试全部通过，特别是取消、失败、f
    Responses 请求应返回什么，是否访问后端？
 
 当前只完成文档设计和代码边界检查，未实现或验证新的 Responses 行为。
+
+作者预测已完成：同一个 key 的额度应合计计算；Chat 流占满并发名额时，
+格式/key 合法且额度充足的 Responses 请求不访问后端，返回 503，消息为
+Exceed global concurrency limit.。AI 确认并补充既有错误码
+concurrency_limit_exceeded。该预测符合共用控制器的合同，进入作者抽取
+共享执行函数第一版；尚未实现第二接口，不能把预测记为跨接口实测。
+
+作者完成共享函数第一版，AI review 指出 endpoint 缺少 await，以及误用
+http_request.stream 方法作为布尔值。作者修正为 return await 和 request.stream
+后复核通过：完整 336 passed，2 条已有依赖弃用警告，差异检查通过。
+共享函数复用原控制器并参数化正文、model、stream 和后端路径，原有取消、
+fallback、流清理及观测测试通过。当前仅验证 Chat 抽取，Responses endpoint
+尚未实现，跨接口共享限额与 route 观测仍待下一步验证。
