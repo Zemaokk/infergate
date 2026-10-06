@@ -1,12 +1,14 @@
 # M4.2 真实推理后端：接入准备
 
 **状态：2026-10-06 单卡 RTX4090 上 vLLM 与 Qwen2.5-7B-Instruct 已直接验证；
-网关接入尚待完成。** 环境详情见 [REMOTE_ENVIRONMENT.md](REMOTE_ENVIRONMENT.md)。
+网关普通/流式与失效恢复已验证，作者独立复述待完成。**
+环境详情见 [REMOTE_ENVIRONMENT.md](REMOTE_ENVIRONMENT.md)，
+工程证据见 [M4.2 验收](REAL_BACKEND_ACCEPTANCE.md)。
 类别为 B 类：先定义可验证的接口与配置，作者写关键路径第一版，AI review、
 测试和工具配套。保持 learning mode，环境安装和验收工具属 C 类，AI 已按
 作者继续指令完成；runtime 关键配置仍由作者先写第一版。
 
-## 1. 已发现的接入差距
+## 1. 接入前发现的差距（历史记录）
 
 当前 runtime 的路由 key 固定为 mock-model；请求的 model 原样转发给后端。
 只改后端 URL 不足以接入使用其他模型名的真实服务。需确定真实服务公布的
@@ -70,7 +72,7 @@ NVIDIA PyTorch 构建的 CUDA 检测可用。根文件系统约 30 GB；安装�
 本步骤无 benchmark 结论，不把首字节命名为 TTFT，不从文本长度估算 token/s。
 真实后端支持矩阵将与 M4.3 Responses adapter 分开记录。
 
-## 4. 当前作者任务：单后端与模型名配置
+## 4. 作者任务：单后端与模型名配置（已实现并 review）
 
 已确认真实服务使用 /health 与 /v1/chat/completions，模型别名
 Qwen2.5-7B-Instruct。服务为一个真实实例，先沿用远程同机部署路径。
@@ -95,3 +97,7 @@ Qwen2.5-7B-Instruct。服务为一个真实实例，先沿用远程同机部署�
 是否验证或探测 B？如果请求仍写 mock-model，会发生什么？
 随后只修改 runtime.py 的配置读取和 routes 构造关键路径。
 AI focused review 后补持久测试，并部署真实网关做普通/流式联调及失效恢复验证。
+
+作者已完成关键配置第一版和修正。AI 补 18 项持久测试，完整测试 336 passed；
+网关仅创建 A，B 留空的普通/流式真实请求、停机/探测/恢复验收通过。
+上述预测问题保留为任务历史；当前进入失败时序的作者独立 teach-back。

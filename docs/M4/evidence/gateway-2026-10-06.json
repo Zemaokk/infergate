@@ -1,0 +1,1284 @@
+{
+  "started_at": "2026-10-06T07:22:07.403977+00:00",
+  "model": "Qwen2.5-7B-Instruct",
+  "backend_count": 1,
+  "unused_b_url": "",
+  "requests": {
+    "normal": {
+      "status": 200,
+      "body": {
+        "id": "chatcmpl-28de993e57434fdfbc2a73c6becd2d7b",
+        "object": "chat.completion",
+        "created": 1791271327,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "reasoning_content": null,
+              "content": "An HTTP gateway is a type of intermediary service that sits between clients (such as web browsers or mobile apps) and backend services. It acts as a proxy or a reverse proxy to manage and route requests from clients to the appropriate backend services. Here are some key points about HTTP gateways:\n\n1. **Routing**: The",
+              "tool_calls": []
+            },
+            "logprobs": null,
+            "finish_reason": "length",
+            "stop_reason": null
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 36,
+          "total_tokens": 100,
+          "completion_tokens": 64,
+          "prompt_tokens_details": null
+        },
+        "prompt_logprobs": null
+      },
+      "completion_request_id": "ce4716fab16a47cbaeb9e9fa5787ddf0"
+    },
+    "stream": {
+      "status": 200,
+      "events": [
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "role": "assistant",
+                "content": ""
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": "An"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " HTTP"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " gateway"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " is"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " a"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " type"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " of"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " intermediary"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " service"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " that"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " sits"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " between"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " clients"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " ("
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": "such"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " as"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " web"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " browsers"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " or"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " mobile"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " apps"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": ")"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " and"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " backend"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " services"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": "."
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " It"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " acts"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " as"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " a"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " proxy"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " or"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " a"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " reverse"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " proxy"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " to"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " manage"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " and"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " route"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " requests"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " from"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " clients"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " to"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " the"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " appropriate"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " backend"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " services"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": "."
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " Here"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " are"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " some"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " key"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " points"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " about"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " HTTP"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " gate"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": "ways"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": ":\n\n"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": "1"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": "."
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " **"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": "Routing"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": "**:"
+              },
+              "logprobs": null,
+              "finish_reason": null
+            }
+          ]
+        },
+        {
+          "id": "chatcmpl-738da9949d3148abb4d9fba74696d666",
+          "object": "chat.completion.chunk",
+          "created": 1791271328,
+          "model": "Qwen2.5-7B-Instruct",
+          "choices": [
+            {
+              "index": 0,
+              "delta": {
+                "content": " The"
+              },
+              "logprobs": null,
+              "finish_reason": "length",
+              "stop_reason": null
+            }
+          ]
+        }
+      ],
+      "done": true,
+      "text": "An HTTP gateway is a type of intermediary service that sits between clients (such as web browsers or mobile apps) and backend services. It acts as a proxy or a reverse proxy to manage and route requests from clients to the appropriate backend services. Here are some key points about HTTP gateways:\n\n1. **Routing**: The",
+      "completion_request_id": "1061e323baa143c6a19770bb920a1a32"
+    },
+    "unknown_model": {
+      "status": 503,
+      "body": {
+        "error": {
+          "message": "No backend is available for the requested model.",
+          "type": "gateway_error",
+          "param": null,
+          "code": "no_backend_available"
+        }
+      },
+      "completion_request_id": "d6456919ed13424fb3cb7b1dc85e26e1"
+    },
+    "immediate_after_stop": {
+      "status": 502,
+      "body": {
+        "error": {
+          "message": "Cannot connect to backend.",
+          "type": "gateway_error",
+          "param": null,
+          "code": "backend_transport_failure"
+        }
+      },
+      "completion_request_id": "30f2698a2fe6424dbebb898b6b0ac913"
+    },
+    "after_unhealthy_probe": {
+      "status": 503,
+      "body": {
+        "error": {
+          "message": "No backend is available for the requested model.",
+          "type": "gateway_error",
+          "param": null,
+          "code": "no_backend_available"
+        }
+      },
+      "completion_request_id": "03cb4372bb1a427da3d62c39ef88871d"
+    },
+    "after_recovery": {
+      "status": 200,
+      "body": {
+        "id": "chatcmpl-6ba640469036432b9558ad12d61951ae",
+        "object": "chat.completion",
+        "created": 1791271362,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "reasoning_content": null,
+              "content": "An HTTP gateway is a type of intermediary service that sits between clients (such as web browsers or mobile apps) and backend services. It acts as a proxy or a reverse proxy to manage and route requests from clients to the appropriate backend services. Here are some key points about HTTP gateways:\n\n1. **Routing**: The",
+              "tool_calls": []
+            },
+            "logprobs": null,
+            "finish_reason": "length",
+            "stop_reason": null
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 36,
+          "total_tokens": 100,
+          "completion_tokens": 64,
+          "prompt_tokens_details": null
+        },
+        "prompt_logprobs": null
+      },
+      "completion_request_id": "4d6dcfbae4ea440f89922d92c764ed92"
+    }
+  },
+  "metrics_before": "# HELP infergate_active_requests Currently occupied global concurrency slots in this gateway process.\n# TYPE infergate_active_requests gauge\ninfergate_active_requests 0.0\n# HELP infergate_requests_total Business requests finalized after response execution and cleanup.\n# TYPE infergate_requests_total counter\ninfergate_requests_total{outcome=\"completed\",reason=\"none\",route=\"/v1/chat/completions\",status=\"200\"} 3.0\ninfergate_requests_total{outcome=\"rejected\",reason=\"no_backend_available\",route=\"/v1/chat/completions\",status=\"503\"} 2.0\ninfergate_requests_total{outcome=\"transport_error\",reason=\"backend_transport_failure\",route=\"/v1/chat/completions\",status=\"502\"} 1.0\n# HELP infergate_requests_created Business requests finalized after response execution and cleanup.\n# TYPE infergate_requests_created gauge\ninfergate_requests_created{outcome=\"completed\",reason=\"none\",route=\"/v1/chat/completions\",status=\"200\"} 1.7912712669433222e+09\ninfergate_requests_created{outcome=\"rejected\",reason=\"no_backend_available\",route=\"/v1/chat/completions\",status=\"503\"} 1.7912712680497053e+09\ninfergate_requests_created{outcome=\"transport_error\",reason=\"backend_transport_failure\",route=\"/v1/chat/completions\",status=\"502\"} 1.7912712703693397e+09\n# HELP infergate_request_duration_seconds Gateway-observed request duration including response cleanup.\n# TYPE infergate_request_duration_seconds histogram\ninfergate_request_duration_seconds_bucket{le=\"0.01\",outcome=\"completed\",route=\"/v1/chat/completions\"} 0.0\ninfergate_request_duration_seconds_bucket{le=\"0.05\",outcome=\"completed\",route=\"/v1/chat/completions\"} 0.0\ninfergate_request_duration_seconds_bucket{le=\"0.1\",outcome=\"completed\",route=\"/v1/chat/completions\"} 0.0\ninfergate_request_duration_seconds_bucket{le=\"0.25\",outcome=\"completed\",route=\"/v1/chat/completions\"} 0.0\ninfergate_request_duration_seconds_bucket{le=\"0.5\",outcome=\"completed\",route=\"/v1/chat/completions\"} 0.0\ninfergate_request_duration_seconds_bucket{le=\"1.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 0.0\ninfergate_request_duration_seconds_bucket{le=\"2.5\",outcome=\"completed\",route=\"/v1/chat/completions\"} 3.0\ninfergate_request_duration_seconds_bucket{le=\"5.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 3.0\ninfergate_request_duration_seconds_bucket{le=\"10.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 3.0\ninfergate_request_duration_seconds_bucket{le=\"30.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 3.0\ninfergate_request_duration_seconds_bucket{le=\"60.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 3.0\ninfergate_request_duration_seconds_bucket{le=\"120.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 3.0\ninfergate_request_duration_seconds_bucket{le=\"300.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 3.0\ninfergate_request_duration_seconds_bucket{le=\"+Inf\",outcome=\"completed\",route=\"/v1/chat/completions\"} 3.0\ninfergate_request_duration_seconds_count{outcome=\"completed\",route=\"/v1/chat/completions\"} 3.0\ninfergate_request_duration_seconds_sum{outcome=\"completed\",route=\"/v1/chat/completions\"} 4.133793156128377\ninfergate_request_duration_seconds_bucket{le=\"0.01\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_duration_seconds_bucket{le=\"0.05\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_duration_seconds_bucket{le=\"0.1\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_duration_seconds_bucket{le=\"0.25\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_duration_seconds_bucket{le=\"0.5\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_duration_seconds_bucket{le=\"1.0\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_duration_seconds_bucket{le=\"2.5\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_duration_seconds_bucket{le=\"5.0\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_duration_seconds_bucket{le=\"10.0\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_duration_seconds_bucket{le=\"30.0\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_duration_seconds_bucket{le=\"60.0\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_duration_seconds_bucket{le=\"120.0\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_duration_seconds_bucket{le=\"300.0\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_duration_seconds_bucket{le=\"+Inf\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_duration_seconds_count{outcome=\"rejected\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_duration_seconds_sum{outcome=\"rejected\",route=\"/v1/chat/completions\"} 0.0011377478949725628\ninfergate_request_duration_seconds_bucket{le=\"0.01\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 0.0\ninfergate_request_duration_seconds_bucket{le=\"0.05\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 0.0\ninfergate_request_duration_seconds_bucket{le=\"0.1\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 0.0\ninfergate_request_duration_seconds_bucket{le=\"0.25\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 0.0\ninfergate_request_duration_seconds_bucket{le=\"0.5\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 1.0\ninfergate_request_duration_seconds_bucket{le=\"1.0\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 1.0\ninfergate_request_duration_seconds_bucket{le=\"2.5\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 1.0\ninfergate_request_duration_seconds_bucket{le=\"5.0\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 1.0\ninfergate_request_duration_seconds_bucket{le=\"10.0\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 1.0\ninfergate_request_duration_seconds_bucket{le=\"30.0\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 1.0\ninfergate_request_duration_seconds_bucket{le=\"60.0\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 1.0\ninfergate_request_duration_seconds_bucket{le=\"120.0\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 1.0\ninfergate_request_duration_seconds_bucket{le=\"300.0\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 1.0\ninfergate_request_duration_seconds_bucket{le=\"+Inf\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 1.0\ninfergate_request_duration_seconds_count{outcome=\"transport_error\",route=\"/v1/chat/completions\"} 1.0\ninfergate_request_duration_seconds_sum{outcome=\"transport_error\",route=\"/v1/chat/completions\"} 0.3141461508348584\n# HELP infergate_request_duration_seconds_created Gateway-observed request duration including response cleanup.\n# TYPE infergate_request_duration_seconds_created gauge\ninfergate_request_duration_seconds_created{outcome=\"completed\",route=\"/v1/chat/completions\"} 1.7912712669433644e+09\ninfergate_request_duration_seconds_created{outcome=\"rejected\",route=\"/v1/chat/completions\"} 1.7912712680497231e+09\ninfergate_request_duration_seconds_created{outcome=\"transport_error\",route=\"/v1/chat/completions\"} 1.7912712703693638e+09\n# HELP infergate_request_first_byte_seconds Time from request entry to first nonempty backend stream chunk; not TTFT.\n# TYPE infergate_request_first_byte_seconds histogram\ninfergate_request_first_byte_seconds_bucket{le=\"0.01\",outcome=\"completed\",route=\"/v1/chat/completions\"} 0.0\ninfergate_request_first_byte_seconds_bucket{le=\"0.05\",outcome=\"completed\",route=\"/v1/chat/completions\"} 1.0\ninfergate_request_first_byte_seconds_bucket{le=\"0.1\",outcome=\"completed\",route=\"/v1/chat/completions\"} 1.0\ninfergate_request_first_byte_seconds_bucket{le=\"0.25\",outcome=\"completed\",route=\"/v1/chat/completions\"} 1.0\ninfergate_request_first_byte_seconds_bucket{le=\"0.5\",outcome=\"completed\",route=\"/v1/chat/completions\"} 1.0\ninfergate_request_first_byte_seconds_bucket{le=\"1.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 1.0\ninfergate_request_first_byte_seconds_bucket{le=\"2.5\",outcome=\"completed\",route=\"/v1/chat/completions\"} 1.0\ninfergate_request_first_byte_seconds_bucket{le=\"5.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 1.0\ninfergate_request_first_byte_seconds_bucket{le=\"10.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 1.0\ninfergate_request_first_byte_seconds_bucket{le=\"30.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 1.0\ninfergate_request_first_byte_seconds_bucket{le=\"60.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 1.0\ninfergate_request_first_byte_seconds_bucket{le=\"120.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 1.0\ninfergate_request_first_byte_seconds_bucket{le=\"300.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 1.0\ninfergate_request_first_byte_seconds_bucket{le=\"+Inf\",outcome=\"completed\",route=\"/v1/chat/completions\"} 1.0\ninfergate_request_first_byte_seconds_count{outcome=\"completed\",route=\"/v1/chat/completions\"} 1.0\ninfergate_request_first_byte_seconds_sum{outcome=\"completed\",route=\"/v1/chat/completions\"} 0.027230704203248024\n# HELP infergate_request_first_byte_seconds_created Time from request entry to first nonempty backend stream chunk; not TTFT.\n# TYPE infergate_request_first_byte_seconds_created gauge\ninfergate_request_first_byte_seconds_created{outcome=\"completed\",route=\"/v1/chat/completions\"} 1.7912712680487921e+09\n# HELP infergate_backend_attempts_total Finalized backend attempts, including failed fallback attempts.\n# TYPE infergate_backend_attempts_total counter\ninfergate_backend_attempts_total{backend=\"backend-a\",outcome=\"completed\"} 3.0\ninfergate_backend_attempts_total{backend=\"backend-a\",outcome=\"transport_error\"} 1.0\n# HELP infergate_backend_attempts_created Finalized backend attempts, including failed fallback attempts.\n# TYPE infergate_backend_attempts_created gauge\ninfergate_backend_attempts_created{backend=\"backend-a\",outcome=\"completed\"} 1.7912712669434235e+09\ninfergate_backend_attempts_created{backend=\"backend-a\",outcome=\"transport_error\"} 1.7912712703693967e+09\n# HELP infergate_backend_attempt_duration_seconds Backend attempt duration including cleanup for opened streams.\n# TYPE infergate_backend_attempt_duration_seconds histogram\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"0.01\",outcome=\"completed\"} 0.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"0.05\",outcome=\"completed\"} 0.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"0.1\",outcome=\"completed\"} 0.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"0.25\",outcome=\"completed\"} 0.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"0.5\",outcome=\"completed\"} 0.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"1.0\",outcome=\"completed\"} 0.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"2.5\",outcome=\"completed\"} 3.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"5.0\",outcome=\"completed\"} 3.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"10.0\",outcome=\"completed\"} 3.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"30.0\",outcome=\"completed\"} 3.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"60.0\",outcome=\"completed\"} 3.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"120.0\",outcome=\"completed\"} 3.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"300.0\",outcome=\"completed\"} 3.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"+Inf\",outcome=\"completed\"} 3.0\ninfergate_backend_attempt_duration_seconds_count{backend=\"backend-a\",outcome=\"completed\"} 3.0\ninfergate_backend_attempt_duration_seconds_sum{backend=\"backend-a\",outcome=\"completed\"} 4.130020814016461\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"0.01\",outcome=\"transport_error\"} 0.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"0.05\",outcome=\"transport_error\"} 0.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"0.1\",outcome=\"transport_error\"} 0.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"0.25\",outcome=\"transport_error\"} 0.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"0.5\",outcome=\"transport_error\"} 1.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"1.0\",outcome=\"transport_error\"} 1.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"2.5\",outcome=\"transport_error\"} 1.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"5.0\",outcome=\"transport_error\"} 1.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"10.0\",outcome=\"transport_error\"} 1.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"30.0\",outcome=\"transport_error\"} 1.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"60.0\",outcome=\"transport_error\"} 1.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"120.0\",outcome=\"transport_error\"} 1.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"300.0\",outcome=\"transport_error\"} 1.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"+Inf\",outcome=\"transport_error\"} 1.0\ninfergate_backend_attempt_duration_seconds_count{backend=\"backend-a\",outcome=\"transport_error\"} 1.0\ninfergate_backend_attempt_duration_seconds_sum{backend=\"backend-a\",outcome=\"transport_error\"} 0.3133744648657739\n# HELP infergate_backend_attempt_duration_seconds_created Backend attempt duration including cleanup for opened streams.\n# TYPE infergate_backend_attempt_duration_seconds_created gauge\ninfergate_backend_attempt_duration_seconds_created{backend=\"backend-a\",outcome=\"completed\"} 1.791271266943438e+09\ninfergate_backend_attempt_duration_seconds_created{backend=\"backend-a\",outcome=\"transport_error\"} 1.7912712703694103e+09\n# HELP infergate_backend_first_byte_seconds Time from backend attempt start to first nonempty stream chunk; not TTFT.\n# TYPE infergate_backend_first_byte_seconds histogram\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"0.01\",outcome=\"completed\"} 0.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"0.05\",outcome=\"completed\"} 1.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"0.1\",outcome=\"completed\"} 1.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"0.25\",outcome=\"completed\"} 1.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"0.5\",outcome=\"completed\"} 1.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"1.0\",outcome=\"completed\"} 1.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"2.5\",outcome=\"completed\"} 1.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"5.0\",outcome=\"completed\"} 1.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"10.0\",outcome=\"completed\"} 1.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"30.0\",outcome=\"completed\"} 1.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"60.0\",outcome=\"completed\"} 1.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"120.0\",outcome=\"completed\"} 1.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"300.0\",outcome=\"completed\"} 1.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"+Inf\",outcome=\"completed\"} 1.0\ninfergate_backend_first_byte_seconds_count{backend=\"backend-a\",outcome=\"completed\"} 1.0\ninfergate_backend_first_byte_seconds_sum{backend=\"backend-a\",outcome=\"completed\"} 0.02673246944323182\n# HELP infergate_backend_first_byte_seconds_created Time from backend attempt start to first nonempty stream chunk; not TTFT.\n# TYPE infergate_backend_first_byte_seconds_created gauge\ninfergate_backend_first_byte_seconds_created{backend=\"backend-a\",outcome=\"completed\"} 1.7912712680488367e+09\n# HELP infergate_backend_healthy Current routing health state (1 healthy, 0 unhealthy or not yet probed).\n# TYPE infergate_backend_healthy gauge\ninfergate_backend_healthy{backend=\"backend-a\"} 1.0\n",
+  "stopped_backend_pid": 3510,
+  "metrics_unhealthy": "# HELP infergate_active_requests Currently occupied global concurrency slots in this gateway process.\n# TYPE infergate_active_requests gauge\ninfergate_active_requests 0.0\n# HELP infergate_requests_total Business requests finalized after response execution and cleanup.\n# TYPE infergate_requests_total counter\ninfergate_requests_total{outcome=\"completed\",reason=\"none\",route=\"/v1/chat/completions\",status=\"200\"} 5.0\ninfergate_requests_total{outcome=\"rejected\",reason=\"no_backend_available\",route=\"/v1/chat/completions\",status=\"503\"} 4.0\ninfergate_requests_total{outcome=\"transport_error\",reason=\"backend_transport_failure\",route=\"/v1/chat/completions\",status=\"502\"} 2.0\n# HELP infergate_requests_created Business requests finalized after response execution and cleanup.\n# TYPE infergate_requests_created gauge\ninfergate_requests_created{outcome=\"completed\",reason=\"none\",route=\"/v1/chat/completions\",status=\"200\"} 1.7912712669433222e+09\ninfergate_requests_created{outcome=\"rejected\",reason=\"no_backend_available\",route=\"/v1/chat/completions\",status=\"503\"} 1.7912712680497053e+09\ninfergate_requests_created{outcome=\"transport_error\",reason=\"backend_transport_failure\",route=\"/v1/chat/completions\",status=\"502\"} 1.7912712703693397e+09\n# HELP infergate_request_duration_seconds Gateway-observed request duration including response cleanup.\n# TYPE infergate_request_duration_seconds histogram\ninfergate_request_duration_seconds_bucket{le=\"0.01\",outcome=\"completed\",route=\"/v1/chat/completions\"} 0.0\ninfergate_request_duration_seconds_bucket{le=\"0.05\",outcome=\"completed\",route=\"/v1/chat/completions\"} 0.0\ninfergate_request_duration_seconds_bucket{le=\"0.1\",outcome=\"completed\",route=\"/v1/chat/completions\"} 0.0\ninfergate_request_duration_seconds_bucket{le=\"0.25\",outcome=\"completed\",route=\"/v1/chat/completions\"} 0.0\ninfergate_request_duration_seconds_bucket{le=\"0.5\",outcome=\"completed\",route=\"/v1/chat/completions\"} 0.0\ninfergate_request_duration_seconds_bucket{le=\"1.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 0.0\ninfergate_request_duration_seconds_bucket{le=\"2.5\",outcome=\"completed\",route=\"/v1/chat/completions\"} 5.0\ninfergate_request_duration_seconds_bucket{le=\"5.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 5.0\ninfergate_request_duration_seconds_bucket{le=\"10.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 5.0\ninfergate_request_duration_seconds_bucket{le=\"30.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 5.0\ninfergate_request_duration_seconds_bucket{le=\"60.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 5.0\ninfergate_request_duration_seconds_bucket{le=\"120.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 5.0\ninfergate_request_duration_seconds_bucket{le=\"300.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 5.0\ninfergate_request_duration_seconds_bucket{le=\"+Inf\",outcome=\"completed\",route=\"/v1/chat/completions\"} 5.0\ninfergate_request_duration_seconds_count{outcome=\"completed\",route=\"/v1/chat/completions\"} 5.0\ninfergate_request_duration_seconds_sum{outcome=\"completed\",route=\"/v1/chat/completions\"} 6.387352475430816\ninfergate_request_duration_seconds_bucket{le=\"0.01\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 4.0\ninfergate_request_duration_seconds_bucket{le=\"0.05\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 4.0\ninfergate_request_duration_seconds_bucket{le=\"0.1\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 4.0\ninfergate_request_duration_seconds_bucket{le=\"0.25\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 4.0\ninfergate_request_duration_seconds_bucket{le=\"0.5\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 4.0\ninfergate_request_duration_seconds_bucket{le=\"1.0\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 4.0\ninfergate_request_duration_seconds_bucket{le=\"2.5\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 4.0\ninfergate_request_duration_seconds_bucket{le=\"5.0\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 4.0\ninfergate_request_duration_seconds_bucket{le=\"10.0\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 4.0\ninfergate_request_duration_seconds_bucket{le=\"30.0\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 4.0\ninfergate_request_duration_seconds_bucket{le=\"60.0\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 4.0\ninfergate_request_duration_seconds_bucket{le=\"120.0\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 4.0\ninfergate_request_duration_seconds_bucket{le=\"300.0\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 4.0\ninfergate_request_duration_seconds_bucket{le=\"+Inf\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 4.0\ninfergate_request_duration_seconds_count{outcome=\"rejected\",route=\"/v1/chat/completions\"} 4.0\ninfergate_request_duration_seconds_sum{outcome=\"rejected\",route=\"/v1/chat/completions\"} 0.0024396213702857494\ninfergate_request_duration_seconds_bucket{le=\"0.01\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 0.0\ninfergate_request_duration_seconds_bucket{le=\"0.05\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 0.0\ninfergate_request_duration_seconds_bucket{le=\"0.1\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 0.0\ninfergate_request_duration_seconds_bucket{le=\"0.25\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 0.0\ninfergate_request_duration_seconds_bucket{le=\"0.5\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 1.0\ninfergate_request_duration_seconds_bucket{le=\"1.0\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_duration_seconds_bucket{le=\"2.5\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_duration_seconds_bucket{le=\"5.0\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_duration_seconds_bucket{le=\"10.0\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_duration_seconds_bucket{le=\"30.0\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_duration_seconds_bucket{le=\"60.0\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_duration_seconds_bucket{le=\"120.0\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_duration_seconds_bucket{le=\"300.0\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_duration_seconds_bucket{le=\"+Inf\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_duration_seconds_count{outcome=\"transport_error\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_duration_seconds_sum{outcome=\"transport_error\",route=\"/v1/chat/completions\"} 0.8213072246871889\n# HELP infergate_request_duration_seconds_created Gateway-observed request duration including response cleanup.\n# TYPE infergate_request_duration_seconds_created gauge\ninfergate_request_duration_seconds_created{outcome=\"completed\",route=\"/v1/chat/completions\"} 1.7912712669433644e+09\ninfergate_request_duration_seconds_created{outcome=\"rejected\",route=\"/v1/chat/completions\"} 1.7912712680497231e+09\ninfergate_request_duration_seconds_created{outcome=\"transport_error\",route=\"/v1/chat/completions\"} 1.7912712703693638e+09\n# HELP infergate_request_first_byte_seconds Time from request entry to first nonempty backend stream chunk; not TTFT.\n# TYPE infergate_request_first_byte_seconds histogram\ninfergate_request_first_byte_seconds_bucket{le=\"0.01\",outcome=\"completed\",route=\"/v1/chat/completions\"} 0.0\ninfergate_request_first_byte_seconds_bucket{le=\"0.05\",outcome=\"completed\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_first_byte_seconds_bucket{le=\"0.1\",outcome=\"completed\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_first_byte_seconds_bucket{le=\"0.25\",outcome=\"completed\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_first_byte_seconds_bucket{le=\"0.5\",outcome=\"completed\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_first_byte_seconds_bucket{le=\"1.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_first_byte_seconds_bucket{le=\"2.5\",outcome=\"completed\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_first_byte_seconds_bucket{le=\"5.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_first_byte_seconds_bucket{le=\"10.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_first_byte_seconds_bucket{le=\"30.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_first_byte_seconds_bucket{le=\"60.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_first_byte_seconds_bucket{le=\"120.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_first_byte_seconds_bucket{le=\"300.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_first_byte_seconds_bucket{le=\"+Inf\",outcome=\"completed\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_first_byte_seconds_count{outcome=\"completed\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_first_byte_seconds_sum{outcome=\"completed\",route=\"/v1/chat/completions\"} 0.06593191111460328\n# HELP infergate_request_first_byte_seconds_created Time from request entry to first nonempty backend stream chunk; not TTFT.\n# TYPE infergate_request_first_byte_seconds_created gauge\ninfergate_request_first_byte_seconds_created{outcome=\"completed\",route=\"/v1/chat/completions\"} 1.7912712680487921e+09\n# HELP infergate_backend_attempts_total Finalized backend attempts, including failed fallback attempts.\n# TYPE infergate_backend_attempts_total counter\ninfergate_backend_attempts_total{backend=\"backend-a\",outcome=\"completed\"} 5.0\ninfergate_backend_attempts_total{backend=\"backend-a\",outcome=\"transport_error\"} 2.0\n# HELP infergate_backend_attempts_created Finalized backend attempts, including failed fallback attempts.\n# TYPE infergate_backend_attempts_created gauge\ninfergate_backend_attempts_created{backend=\"backend-a\",outcome=\"completed\"} 1.7912712669434235e+09\ninfergate_backend_attempts_created{backend=\"backend-a\",outcome=\"transport_error\"} 1.7912712703693967e+09\n# HELP infergate_backend_attempt_duration_seconds Backend attempt duration including cleanup for opened streams.\n# TYPE infergate_backend_attempt_duration_seconds histogram\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"0.01\",outcome=\"completed\"} 0.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"0.05\",outcome=\"completed\"} 0.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"0.1\",outcome=\"completed\"} 0.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"0.25\",outcome=\"completed\"} 0.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"0.5\",outcome=\"completed\"} 0.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"1.0\",outcome=\"completed\"} 0.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"2.5\",outcome=\"completed\"} 5.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"5.0\",outcome=\"completed\"} 5.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"10.0\",outcome=\"completed\"} 5.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"30.0\",outcome=\"completed\"} 5.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"60.0\",outcome=\"completed\"} 5.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"120.0\",outcome=\"completed\"} 5.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"300.0\",outcome=\"completed\"} 5.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"+Inf\",outcome=\"completed\"} 5.0\ninfergate_backend_attempt_duration_seconds_count{backend=\"backend-a\",outcome=\"completed\"} 5.0\ninfergate_backend_attempt_duration_seconds_sum{backend=\"backend-a\",outcome=\"completed\"} 6.382567975670099\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"0.01\",outcome=\"transport_error\"} 0.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"0.05\",outcome=\"transport_error\"} 0.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"0.1\",outcome=\"transport_error\"} 0.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"0.25\",outcome=\"transport_error\"} 0.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"0.5\",outcome=\"transport_error\"} 1.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"1.0\",outcome=\"transport_error\"} 2.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"2.5\",outcome=\"transport_error\"} 2.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"5.0\",outcome=\"transport_error\"} 2.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"10.0\",outcome=\"transport_error\"} 2.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"30.0\",outcome=\"transport_error\"} 2.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"60.0\",outcome=\"transport_error\"} 2.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"120.0\",outcome=\"transport_error\"} 2.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"300.0\",outcome=\"transport_error\"} 2.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"+Inf\",outcome=\"transport_error\"} 2.0\ninfergate_backend_attempt_duration_seconds_count{backend=\"backend-a\",outcome=\"transport_error\"} 2.0\ninfergate_backend_attempt_duration_seconds_sum{backend=\"backend-a\",outcome=\"transport_error\"} 0.8197816340252757\n# HELP infergate_backend_attempt_duration_seconds_created Backend attempt duration including cleanup for opened streams.\n# TYPE infergate_backend_attempt_duration_seconds_created gauge\ninfergate_backend_attempt_duration_seconds_created{backend=\"backend-a\",outcome=\"completed\"} 1.791271266943438e+09\ninfergate_backend_attempt_duration_seconds_created{backend=\"backend-a\",outcome=\"transport_error\"} 1.7912712703694103e+09\n# HELP infergate_backend_first_byte_seconds Time from backend attempt start to first nonempty stream chunk; not TTFT.\n# TYPE infergate_backend_first_byte_seconds histogram\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"0.01\",outcome=\"completed\"} 0.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"0.05\",outcome=\"completed\"} 2.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"0.1\",outcome=\"completed\"} 2.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"0.25\",outcome=\"completed\"} 2.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"0.5\",outcome=\"completed\"} 2.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"1.0\",outcome=\"completed\"} 2.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"2.5\",outcome=\"completed\"} 2.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"5.0\",outcome=\"completed\"} 2.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"10.0\",outcome=\"completed\"} 2.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"30.0\",outcome=\"completed\"} 2.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"60.0\",outcome=\"completed\"} 2.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"120.0\",outcome=\"completed\"} 2.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"300.0\",outcome=\"completed\"} 2.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"+Inf\",outcome=\"completed\"} 2.0\ninfergate_backend_first_byte_seconds_count{backend=\"backend-a\",outcome=\"completed\"} 2.0\ninfergate_backend_first_byte_seconds_sum{backend=\"backend-a\",outcome=\"completed\"} 0.06506498763337731\n# HELP infergate_backend_first_byte_seconds_created Time from backend attempt start to first nonempty stream chunk; not TTFT.\n# TYPE infergate_backend_first_byte_seconds_created gauge\ninfergate_backend_first_byte_seconds_created{backend=\"backend-a\",outcome=\"completed\"} 1.7912712680488367e+09\n# HELP infergate_backend_healthy Current routing health state (1 healthy, 0 unhealthy or not yet probed).\n# TYPE infergate_backend_healthy gauge\ninfergate_backend_healthy{backend=\"backend-a\"} 0.0\n",
+  "restarted_backend_pid": 4256,
+  "metrics_after": "# HELP infergate_active_requests Currently occupied global concurrency slots in this gateway process.\n# TYPE infergate_active_requests gauge\ninfergate_active_requests 0.0\n# HELP infergate_requests_total Business requests finalized after response execution and cleanup.\n# TYPE infergate_requests_total counter\ninfergate_requests_total{outcome=\"completed\",reason=\"none\",route=\"/v1/chat/completions\",status=\"200\"} 6.0\ninfergate_requests_total{outcome=\"rejected\",reason=\"no_backend_available\",route=\"/v1/chat/completions\",status=\"503\"} 4.0\ninfergate_requests_total{outcome=\"transport_error\",reason=\"backend_transport_failure\",route=\"/v1/chat/completions\",status=\"502\"} 2.0\n# HELP infergate_requests_created Business requests finalized after response execution and cleanup.\n# TYPE infergate_requests_created gauge\ninfergate_requests_created{outcome=\"completed\",reason=\"none\",route=\"/v1/chat/completions\",status=\"200\"} 1.7912712669433222e+09\ninfergate_requests_created{outcome=\"rejected\",reason=\"no_backend_available\",route=\"/v1/chat/completions\",status=\"503\"} 1.7912712680497053e+09\ninfergate_requests_created{outcome=\"transport_error\",reason=\"backend_transport_failure\",route=\"/v1/chat/completions\",status=\"502\"} 1.7912712703693397e+09\n# HELP infergate_request_duration_seconds Gateway-observed request duration including response cleanup.\n# TYPE infergate_request_duration_seconds histogram\ninfergate_request_duration_seconds_bucket{le=\"0.01\",outcome=\"completed\",route=\"/v1/chat/completions\"} 0.0\ninfergate_request_duration_seconds_bucket{le=\"0.05\",outcome=\"completed\",route=\"/v1/chat/completions\"} 0.0\ninfergate_request_duration_seconds_bucket{le=\"0.1\",outcome=\"completed\",route=\"/v1/chat/completions\"} 0.0\ninfergate_request_duration_seconds_bucket{le=\"0.25\",outcome=\"completed\",route=\"/v1/chat/completions\"} 0.0\ninfergate_request_duration_seconds_bucket{le=\"0.5\",outcome=\"completed\",route=\"/v1/chat/completions\"} 0.0\ninfergate_request_duration_seconds_bucket{le=\"1.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 0.0\ninfergate_request_duration_seconds_bucket{le=\"2.5\",outcome=\"completed\",route=\"/v1/chat/completions\"} 6.0\ninfergate_request_duration_seconds_bucket{le=\"5.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 6.0\ninfergate_request_duration_seconds_bucket{le=\"10.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 6.0\ninfergate_request_duration_seconds_bucket{le=\"30.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 6.0\ninfergate_request_duration_seconds_bucket{le=\"60.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 6.0\ninfergate_request_duration_seconds_bucket{le=\"120.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 6.0\ninfergate_request_duration_seconds_bucket{le=\"300.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 6.0\ninfergate_request_duration_seconds_bucket{le=\"+Inf\",outcome=\"completed\",route=\"/v1/chat/completions\"} 6.0\ninfergate_request_duration_seconds_count{outcome=\"completed\",route=\"/v1/chat/completions\"} 6.0\ninfergate_request_duration_seconds_sum{outcome=\"completed\",route=\"/v1/chat/completions\"} 8.060154747683555\ninfergate_request_duration_seconds_bucket{le=\"0.01\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 4.0\ninfergate_request_duration_seconds_bucket{le=\"0.05\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 4.0\ninfergate_request_duration_seconds_bucket{le=\"0.1\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 4.0\ninfergate_request_duration_seconds_bucket{le=\"0.25\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 4.0\ninfergate_request_duration_seconds_bucket{le=\"0.5\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 4.0\ninfergate_request_duration_seconds_bucket{le=\"1.0\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 4.0\ninfergate_request_duration_seconds_bucket{le=\"2.5\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 4.0\ninfergate_request_duration_seconds_bucket{le=\"5.0\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 4.0\ninfergate_request_duration_seconds_bucket{le=\"10.0\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 4.0\ninfergate_request_duration_seconds_bucket{le=\"30.0\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 4.0\ninfergate_request_duration_seconds_bucket{le=\"60.0\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 4.0\ninfergate_request_duration_seconds_bucket{le=\"120.0\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 4.0\ninfergate_request_duration_seconds_bucket{le=\"300.0\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 4.0\ninfergate_request_duration_seconds_bucket{le=\"+Inf\",outcome=\"rejected\",route=\"/v1/chat/completions\"} 4.0\ninfergate_request_duration_seconds_count{outcome=\"rejected\",route=\"/v1/chat/completions\"} 4.0\ninfergate_request_duration_seconds_sum{outcome=\"rejected\",route=\"/v1/chat/completions\"} 0.0024396213702857494\ninfergate_request_duration_seconds_bucket{le=\"0.01\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 0.0\ninfergate_request_duration_seconds_bucket{le=\"0.05\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 0.0\ninfergate_request_duration_seconds_bucket{le=\"0.1\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 0.0\ninfergate_request_duration_seconds_bucket{le=\"0.25\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 0.0\ninfergate_request_duration_seconds_bucket{le=\"0.5\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 1.0\ninfergate_request_duration_seconds_bucket{le=\"1.0\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_duration_seconds_bucket{le=\"2.5\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_duration_seconds_bucket{le=\"5.0\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_duration_seconds_bucket{le=\"10.0\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_duration_seconds_bucket{le=\"30.0\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_duration_seconds_bucket{le=\"60.0\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_duration_seconds_bucket{le=\"120.0\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_duration_seconds_bucket{le=\"300.0\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_duration_seconds_bucket{le=\"+Inf\",outcome=\"transport_error\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_duration_seconds_count{outcome=\"transport_error\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_duration_seconds_sum{outcome=\"transport_error\",route=\"/v1/chat/completions\"} 0.8213072246871889\n# HELP infergate_request_duration_seconds_created Gateway-observed request duration including response cleanup.\n# TYPE infergate_request_duration_seconds_created gauge\ninfergate_request_duration_seconds_created{outcome=\"completed\",route=\"/v1/chat/completions\"} 1.7912712669433644e+09\ninfergate_request_duration_seconds_created{outcome=\"rejected\",route=\"/v1/chat/completions\"} 1.7912712680497231e+09\ninfergate_request_duration_seconds_created{outcome=\"transport_error\",route=\"/v1/chat/completions\"} 1.7912712703693638e+09\n# HELP infergate_request_first_byte_seconds Time from request entry to first nonempty backend stream chunk; not TTFT.\n# TYPE infergate_request_first_byte_seconds histogram\ninfergate_request_first_byte_seconds_bucket{le=\"0.01\",outcome=\"completed\",route=\"/v1/chat/completions\"} 0.0\ninfergate_request_first_byte_seconds_bucket{le=\"0.05\",outcome=\"completed\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_first_byte_seconds_bucket{le=\"0.1\",outcome=\"completed\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_first_byte_seconds_bucket{le=\"0.25\",outcome=\"completed\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_first_byte_seconds_bucket{le=\"0.5\",outcome=\"completed\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_first_byte_seconds_bucket{le=\"1.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_first_byte_seconds_bucket{le=\"2.5\",outcome=\"completed\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_first_byte_seconds_bucket{le=\"5.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_first_byte_seconds_bucket{le=\"10.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_first_byte_seconds_bucket{le=\"30.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_first_byte_seconds_bucket{le=\"60.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_first_byte_seconds_bucket{le=\"120.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_first_byte_seconds_bucket{le=\"300.0\",outcome=\"completed\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_first_byte_seconds_bucket{le=\"+Inf\",outcome=\"completed\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_first_byte_seconds_count{outcome=\"completed\",route=\"/v1/chat/completions\"} 2.0\ninfergate_request_first_byte_seconds_sum{outcome=\"completed\",route=\"/v1/chat/completions\"} 0.06593191111460328\n# HELP infergate_request_first_byte_seconds_created Time from request entry to first nonempty backend stream chunk; not TTFT.\n# TYPE infergate_request_first_byte_seconds_created gauge\ninfergate_request_first_byte_seconds_created{outcome=\"completed\",route=\"/v1/chat/completions\"} 1.7912712680487921e+09\n# HELP infergate_backend_attempts_total Finalized backend attempts, including failed fallback attempts.\n# TYPE infergate_backend_attempts_total counter\ninfergate_backend_attempts_total{backend=\"backend-a\",outcome=\"completed\"} 6.0\ninfergate_backend_attempts_total{backend=\"backend-a\",outcome=\"transport_error\"} 2.0\n# HELP infergate_backend_attempts_created Finalized backend attempts, including failed fallback attempts.\n# TYPE infergate_backend_attempts_created gauge\ninfergate_backend_attempts_created{backend=\"backend-a\",outcome=\"completed\"} 1.7912712669434235e+09\ninfergate_backend_attempts_created{backend=\"backend-a\",outcome=\"transport_error\"} 1.7912712703693967e+09\n# HELP infergate_backend_attempt_duration_seconds Backend attempt duration including cleanup for opened streams.\n# TYPE infergate_backend_attempt_duration_seconds histogram\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"0.01\",outcome=\"completed\"} 0.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"0.05\",outcome=\"completed\"} 0.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"0.1\",outcome=\"completed\"} 0.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"0.25\",outcome=\"completed\"} 0.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"0.5\",outcome=\"completed\"} 0.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"1.0\",outcome=\"completed\"} 0.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"2.5\",outcome=\"completed\"} 6.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"5.0\",outcome=\"completed\"} 6.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"10.0\",outcome=\"completed\"} 6.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"30.0\",outcome=\"completed\"} 6.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"60.0\",outcome=\"completed\"} 6.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"120.0\",outcome=\"completed\"} 6.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"300.0\",outcome=\"completed\"} 6.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"+Inf\",outcome=\"completed\"} 6.0\ninfergate_backend_attempt_duration_seconds_count{backend=\"backend-a\",outcome=\"completed\"} 6.0\ninfergate_backend_attempt_duration_seconds_sum{backend=\"backend-a\",outcome=\"completed\"} 8.05435452889651\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"0.01\",outcome=\"transport_error\"} 0.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"0.05\",outcome=\"transport_error\"} 0.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"0.1\",outcome=\"transport_error\"} 0.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"0.25\",outcome=\"transport_error\"} 0.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"0.5\",outcome=\"transport_error\"} 1.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"1.0\",outcome=\"transport_error\"} 2.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"2.5\",outcome=\"transport_error\"} 2.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"5.0\",outcome=\"transport_error\"} 2.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"10.0\",outcome=\"transport_error\"} 2.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"30.0\",outcome=\"transport_error\"} 2.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"60.0\",outcome=\"transport_error\"} 2.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"120.0\",outcome=\"transport_error\"} 2.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"300.0\",outcome=\"transport_error\"} 2.0\ninfergate_backend_attempt_duration_seconds_bucket{backend=\"backend-a\",le=\"+Inf\",outcome=\"transport_error\"} 2.0\ninfergate_backend_attempt_duration_seconds_count{backend=\"backend-a\",outcome=\"transport_error\"} 2.0\ninfergate_backend_attempt_duration_seconds_sum{backend=\"backend-a\",outcome=\"transport_error\"} 0.8197816340252757\n# HELP infergate_backend_attempt_duration_seconds_created Backend attempt duration including cleanup for opened streams.\n# TYPE infergate_backend_attempt_duration_seconds_created gauge\ninfergate_backend_attempt_duration_seconds_created{backend=\"backend-a\",outcome=\"completed\"} 1.791271266943438e+09\ninfergate_backend_attempt_duration_seconds_created{backend=\"backend-a\",outcome=\"transport_error\"} 1.7912712703694103e+09\n# HELP infergate_backend_first_byte_seconds Time from backend attempt start to first nonempty stream chunk; not TTFT.\n# TYPE infergate_backend_first_byte_seconds histogram\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"0.01\",outcome=\"completed\"} 0.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"0.05\",outcome=\"completed\"} 2.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"0.1\",outcome=\"completed\"} 2.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"0.25\",outcome=\"completed\"} 2.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"0.5\",outcome=\"completed\"} 2.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"1.0\",outcome=\"completed\"} 2.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"2.5\",outcome=\"completed\"} 2.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"5.0\",outcome=\"completed\"} 2.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"10.0\",outcome=\"completed\"} 2.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"30.0\",outcome=\"completed\"} 2.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"60.0\",outcome=\"completed\"} 2.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"120.0\",outcome=\"completed\"} 2.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"300.0\",outcome=\"completed\"} 2.0\ninfergate_backend_first_byte_seconds_bucket{backend=\"backend-a\",le=\"+Inf\",outcome=\"completed\"} 2.0\ninfergate_backend_first_byte_seconds_count{backend=\"backend-a\",outcome=\"completed\"} 2.0\ninfergate_backend_first_byte_seconds_sum{backend=\"backend-a\",outcome=\"completed\"} 0.06506498763337731\n# HELP infergate_backend_first_byte_seconds_created Time from backend attempt start to first nonempty stream chunk; not TTFT.\n# TYPE infergate_backend_first_byte_seconds_created gauge\ninfergate_backend_first_byte_seconds_created{backend=\"backend-a\",outcome=\"completed\"} 1.7912712680488367e+09\n# HELP infergate_backend_healthy Current routing health state (1 healthy, 0 unhealthy or not yet probed).\n# TYPE infergate_backend_healthy gauge\ninfergate_backend_healthy{backend=\"backend-a\"} 1.0\n",
+  "completion_logs": [
+    {
+      "event": "request_finished",
+      "request_id": "ce4716fab16a47cbaeb9e9fa5787ddf0",
+      "trace_id": "fd39fda695c422cc0acd65c8eea4a5ab",
+      "span_id": "5084f4fa3f279dae",
+      "status_code": 200,
+      "outcome": "completed",
+      "reason": null,
+      "duration_sec": 1.1319139655679464,
+      "first_byte_sec": null,
+      "attempt_count": 1,
+      "cleanup_failed": false,
+      "backend_attempts": [
+        {
+          "attempt_index": 1,
+          "backend_id": "backend-a",
+          "span_id": "d57f3a019c95d20f",
+          "outcome": "completed",
+          "duration_sec": 1.1313484753482044,
+          "first_byte_sec": null
+        }
+      ]
+    },
+    {
+      "event": "request_finished",
+      "request_id": "1061e323baa143c6a19770bb920a1a32",
+      "trace_id": "03a5ce3aee12a1b60b46b682b1a3ffa9",
+      "span_id": "3ab61c84f1cefb94",
+      "status_code": 200,
+      "outcome": "completed",
+      "reason": null,
+      "duration_sec": 1.1216453537344933,
+      "first_byte_sec": 0.03870120691135526,
+      "attempt_count": 1,
+      "cleanup_failed": false,
+      "backend_attempts": [
+        {
+          "attempt_index": 1,
+          "backend_id": "backend-a",
+          "span_id": "412ed6bcd3dc7f6b",
+          "outcome": "completed",
+          "duration_sec": 1.1211986863054335,
+          "first_byte_sec": 0.03833251819014549
+        }
+      ]
+    },
+    {
+      "event": "request_finished",
+      "request_id": "d6456919ed13424fb3cb7b1dc85e26e1",
+      "trace_id": "1c339fceda22f6b09b340fb8ac7865fe",
+      "span_id": "fb0e619dff7bdbcf",
+      "status_code": 503,
+      "outcome": "rejected",
+      "reason": "no_backend_available",
+      "duration_sec": 0.0007927576079964638,
+      "first_byte_sec": null,
+      "attempt_count": 0,
+      "cleanup_failed": false,
+      "backend_attempts": []
+    },
+    {
+      "event": "request_finished",
+      "request_id": "30f2698a2fe6424dbebb898b6b0ac913",
+      "trace_id": "eac3b9f33c630f84df8b64f24898a6c4",
+      "span_id": "3fa91dd511a0f372",
+      "status_code": 502,
+      "outcome": "transport_error",
+      "reason": "backend_transport_failure",
+      "duration_sec": 0.5071610738523304,
+      "first_byte_sec": null,
+      "attempt_count": 1,
+      "cleanup_failed": false,
+      "backend_attempts": [
+        {
+          "attempt_index": 1,
+          "backend_id": "backend-a",
+          "span_id": "9b3ab35ff315e406",
+          "outcome": "transport_error",
+          "duration_sec": 0.5064071691595018,
+          "first_byte_sec": null
+        }
+      ]
+    },
+    {
+      "event": "request_finished",
+      "request_id": "03cb4372bb1a427da3d62c39ef88871d",
+      "trace_id": "319d3e8e0131d154accb9669aaaf482d",
+      "span_id": "82e1133f69b6c640",
+      "status_code": 503,
+      "outcome": "rejected",
+      "reason": "no_backend_available",
+      "duration_sec": 0.0005091158673167229,
+      "first_byte_sec": null,
+      "attempt_count": 0,
+      "cleanup_failed": false,
+      "backend_attempts": []
+    },
+    {
+      "event": "request_finished",
+      "request_id": "4d6dcfbae4ea440f89922d92c764ed92",
+      "trace_id": "9769f407457ba94c56fa64fc8103fff3",
+      "span_id": "6dfebad116ba834d",
+      "status_code": 200,
+      "outcome": "completed",
+      "reason": null,
+      "duration_sec": 1.6728022722527385,
+      "first_byte_sec": null,
+      "attempt_count": 1,
+      "cleanup_failed": false,
+      "backend_attempts": [
+        {
+          "attempt_index": 1,
+          "backend_id": "backend-a",
+          "span_id": "6b69458e0009917e",
+          "outcome": "completed",
+          "duration_sec": 1.6717865532264113,
+          "first_byte_sec": null
+        }
+      ]
+    }
+  ],
+  "status": "passed"
+}

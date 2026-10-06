@@ -1,7 +1,8 @@
 # M4.2 远程环境检查
 
-**日期：2026-10-06；独立 vLLM 安装、模型下载与直接接口验证已完成。**
-InferGate 网关接入仍待作者完成配置第一版。
+**日期：2026-10-06；独立 vLLM、模型下载、直接接口与单后端网关联调已完成。**
+作者配置第一版及 review 已通过；工程验收见
+[M4.2 验收记录](REAL_BACKEND_ACCEPTANCE.md)，作者独立复述待完成。
 
 | 项目 | 实际检查结果 |
 | --- | --- |
@@ -78,6 +79,46 @@ M4_MODEL_PATH=/root/shared-nvme/infergate-m4/models/Qwen2.5-7B-Instruct \
 ModelScope revision 使用 master，因此不承诺从该标签重下载时字节级相同。
 
 该 vLLM 的实际 OpenAPI 未声明 /v1/responses，M4.3 需另选兼容版本/后端并
-重新验证，不通过协议转换伪造支持。本轮只验证后端，未验证网关接入、
-生产负载或模型性能；客户端 SSE 事件到达时刻不等于网关读侧 first-byte 或 TTFT。
+重新验证，不通过协议转换伪造支持。后续已完成网关功能接入；未验证
+生产负载或模型性能，客户端 SSE 事件到达时刻不等于网关读侧 first-byte 或 TTFT。
 本记录不保存密码、认证材料或机器硬件序列号。
+
+## 单后端网关部署
+
+网关位于 `/root/infergate-m4/gateway`，独立 CPython 3.13.14 环境，非 editable
+安装；单 worker 监听 `127.0.0.1:8000`。启动配置：model 为
+Qwen2.5-7B-Instruct，count=1，A 为 `http://127.0.0.1:8001`，B 显式空白。
+B 不参与创建、校验或探测，指标仅有 backend-a。
+
+初次 `uv sync --locked --no-dev --no-editable --python 3.13` 下载长时间停滞，
+停止后改为从原锁文件导出带哈希 requirements，通过清华 PyPI 镜像安装。
+哈希校验开启，随后以 `--no-deps` 安装应用；未修改仓库锁文件。实际 61 个
+已安装包版本全部与锁文件一致，见
+[网关环境与源文件哈希](evidence/gateway-environment-2026-10-06.json)。
+
+复现安装（在复制了 pyproject.toml、uv.lock、README、src 和 logging 配置的目录中）：
+
+```bash
+cd /root/infergate-m4/gateway
+/root/infergate-m4/tools/bin/uv venv --python 3.13
+/root/infergate-m4/tools/bin/uv export --frozen --no-dev --no-emit-project \
+  --format requirements-txt --output-file ../gateway-requirements.txt
+/root/infergate-m4/tools/bin/uv pip install --python .venv/bin/python \
+  --require-hashes --index-url https://pypi.tuna.tsinghua.edu.cn/simple \
+  -r ../gateway-requirements.txt
+/root/infergate-m4/tools/bin/uv pip install --python .venv/bin/python --no-deps .
+```
+
+将 `scripts/start_m4_gateway.sh` 和 `scripts/verify_m4_gateway.py` 复制到工作根目录。
+启动脚本前台运行；不要在已有服务运行时重复启动。验收脚本只用于本任务
+专用网关，读取 backend.pid 并核对 vLLM 命令，短暂停止并重新启动该模型服务：
+
+```bash
+bash /root/infergate-m4/start_m4_gateway.sh
+# 另一个终端；运行前按 backend.pid / gateway.pid 记录各自的服务进程。
+/root/infergate-m4/gateway/.venv/bin/python /root/infergate-m4/verify_m4_gateway.py \
+  --output /root/infergate-m4/gateway-evidence.json
+```
+
+网关日志 `/root/infergate-m4/gateway.log`，PID 文件 `/root/infergate-m4/gateway.pid`。
+两项服务本轮保留运行；模型恢复后的 PID 以 backend.pid 为准，初始 1965 已退出。
