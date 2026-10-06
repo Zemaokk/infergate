@@ -1,6 +1,6 @@
 # M4.3 最小非流式 Responses adapter：合同准备
 
-**状态：2026-10-06，准备阶段，未实现。** B 类：共同定义合同，作者写关键路径
+**状态：2026-10-06，最小字段与共享路径合同已整理，待作者预测及第一版。** B 类：共同定义合同，作者写关键路径
 第一版，AI focused review 与测试；文档和兼容环境准备为 C 类。
 
 ## 已确定的架构边界
@@ -43,5 +43,79 @@ Responses 与 Chat Completions 语义转换。复用已有路由、健康、per-
    正确 route 日志/指标和尝试次数测试。
 5. 真实兼容后端直接请求与网关请求分别验证，更新支持矩阵，再完成 teach-back。
 
-当前仅完成合同准备。下一小步是定义非流式字段子集与共享执行边界，尚未进入
-核心实现；benchmark workload 仍由作者在 M4.4 先设计。
+初始准备只定位了字段与共享路径边界；本次补充的具体小步见下文。
+尚未进入核心实现，benchmark workload 仍由作者在 M4.4 先设计。
+
+## 最小字段子集（本项目的收窄设计）
+
+2026-10-06 使用 OpenAI Docs 核对
+[Create a model response](https://developers.openai.com/api/reference/python/resources/responses/methods/create)。
+官方支持字符串或结构化 input；instructions 是指令文本，max_output_tokens
+限制生成 token，stream 控制 SSE，store 控制后续检索所需的保存。
+以下类型、必填性及限制是 InferGate 第一版设计，不等于完整官方 schema，
+也不证明当前 vLLM 支持这些字段。
+
+| 字段 | 本项目第一版规则 |
+| --- | --- |
+| model | 必填、严格字符串；strip 后不能为空，用原值路由与转发 |
+| input | 必填、严格字符串；strip 后不能为空，保留原始文本；暂不接受数组 |
+| instructions | 可省略；提供时为严格字符串，允许空字符串，不接受 null |
+| max_output_tokens | 可省略；提供时为严格整数且 >=16，不接受 bool 或 null |
+| stream | 可省略，缺省 false；提供时须严格 bool 且为 false |
+| store | 必填，须严格 bool 且为 false |
+| background | 可省略，缺省 false；提供时须严格 bool 且为 false |
+
+官方 store 省略时默认 true。项目先要求显式 store=false，以表达无保存的
+请求意图并保持正文透明转发；网关不代填、不悄悄改 true 为 false，也不承诺
+后端实际上没有保存数据。实际兼容后端仍需单独验证。
+
+顶层使用 extra=forbid：未列出的字段全部 400，包括 tools、previous_response_id、
+conversation、text、reasoning、temperature 等。这是明确的首版支持边界，
+不是认为它们在官方接口中非法。所有 schema 错误复用已有 400 格式及
+invalid_request_body 观测原因；发生在 key 验证、扣 token、获取并发名额及
+后端尝试之前。暂不为不同不支持字段增加独立错误码。
+
+最小请求示例（model 为配置中的实际路由 key）：
+
+```json
+{"model":"responses-model","input":"Explain an HTTP gateway.","store":false}
+```
+
+省略的 stream/background 不注入转发正文；显式字段经校验后保留。
+后端 path 固定为 /v1/responses；响应状态、Content-Type 和正文使用既有
+非流式透传方式，不组装 output、不把后端响应换成 Chat 的 choices。
+后端 HTTP 错误沿用原样转发且不 fallback，连接阶段失败沿用既有有界策略。
+HTTP 200 不等于 Response 内部 status 必然 completed；网关仍按既有 HTTP
+完成语义记录，不据此声称生成完整。
+
+## 当前第一小步：只抽取 Chat 的共享执行路径
+
+作者先在 app.py 的 create_app 内抽取一个异步 execute_gateway_request。
+函数位于与 endpoint 相同的闭包中，复用既有 router、backend_client、
+key_limiter 和 concurrency_limiter；不要在函数内新建这些对象。
+
+建议输入：http_request、x_infergate_key、model、payload、backend_path、stream。
+输出仍为 Response（流式分支仍为 LimitedStreamingResponse）。共享函数不接收
+ChatCompletionRequest，也不读取 messages/input/choices/output。
+
+Chat endpoint 留下三件事：FastAPI 请求模型校验、准备 model/payload/stream，
+调用共享函数并传入 /v1/chat/completions。model_dump(exclude_unset=True)
+保持原有字段省略语义。迁移原 endpoint 的 key 校验、限流、并发获取、路由、
+尝试记录、转发、响应构造与 finally 清理，保持执行顺序；不要复制两份流程。
+
+资源边界保持：未移交流时共享函数负责关闭和释放；流式响应构造成功后移交给
+LimitedStreamingResponse，后者在发送/清理结束后释放。请求观测继续由中间件
+定稿，不能在共享函数提前结束。
+
+本小步暂不增加 Responses endpoint、请求模型、mock 或远程后端，不改观测
+route。验收为现有 336 项测试全部通过，特别是取消、失败、fallback 和流清理
+行为不变。通过后再加入 Responses schema 与实际 route 的观测支持，最后注册
+第二个 endpoint 并验证跨入口共享容量。
+
+作者写代码前先预测：
+
+1. 两个 endpoint 共用同一 key 的 token bucket 时，额度会分别计算还是合计计算？
+2. Chat 流仍占用最后一个并发名额时，schema/key 合法且 key 额度充足的
+   Responses 请求应返回什么，是否访问后端？
+
+当前只完成文档设计和代码边界检查，未实现或验证新的 Responses 行为。
