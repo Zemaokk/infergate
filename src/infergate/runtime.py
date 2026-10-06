@@ -56,22 +56,35 @@ def create_runtime_app(
         else os.environ.get("OTEL_EXPORTER_OTLP_TRACES_ENDPOINT", "")
     ).strip()
 
-    routes = {
-        "mock-model": [
+    # 读取模型名称
+    model_name = os.getenv("INFERGATE_MODEL_NAME", "mock-model").strip()
+    if not model_name:
+        raise ValueError("INFERGATE_MODEL_NAME is invalid") from None
+
+    # 读取后端数
+    backend_count = os.getenv("INFERGATE_BACKEND_COUNT", "2").strip()
+    if backend_count not in ("1", "2"):
+        raise ValueError("INFERGATE_BACKEND_COUNT is invalid") from None
+
+    backend_count = int(backend_count)
+
+    backend_ids = ["backend-a", "backend-b"]
+    backend_url_envnames = ["INFERGATE_BACKEND_A_URL", "INFERGATE_BACKEND_B_URL"]
+    backend_default_urls = ["http://127.0.0.1:8001", "http://127.0.0.1:8002"]
+
+    backend_list = []
+    for i in range(backend_count):
+        backend_list.append(
             Backend(
-                id="backend-a",
+                id=backend_ids[i],
                 base_url=read_backend_url(
-                    "INFERGATE_BACKEND_A_URL", "http://127.0.0.1:8001"
+                    backend_url_envnames[i], backend_default_urls[i]
                 ),
-            ),
-            Backend(
-                id="backend-b",
-                base_url=read_backend_url(
-                    "INFERGATE_BACKEND_B_URL", "http://127.0.0.1:8002"
-                ),
-            ),
-        ]
-    }
+            )
+        )
+
+    # 构造 routes: dict[name, list[backend]]
+    routes = {model_name: backend_list}
 
     backend_http_client = httpx.AsyncClient(
         timeout=BACKEND_TIMEOUT, trust_env=False, transport=backend_transport
