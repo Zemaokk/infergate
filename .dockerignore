@@ -1,0 +1,14 @@
+# Only application build inputs enter the Docker build context.
+*
+!Dockerfile
+!.dockerignore
+!pyproject.toml
+!uv.lock
+!README.md
+!src/
+!src/**
+!configs/
+!configs/logging.json
+**/__pycache__/
+**/*.pyc
+**/.DS_Store

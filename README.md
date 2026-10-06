@@ -18,6 +18,8 @@ M0, M1, and the scoped single-process M2 implementation are complete.
 M2 passed 122 automated tests and seven local HTTP acceptance scenarios.
 See the [M2 acceptance record and limitations](docs/M2/ACCEPTANCE.md).
 M3 observability is complete within its agreed scope; see the acceptance record.
+M4 has started with application packaging; see the [M4 work plan](docs/M4/WORKPLAN.md)
+and [packaging contract](docs/M4/PACKAGING_CONTRACT.md). Container validation is pending.
 
 InferGate currently provides:
 
