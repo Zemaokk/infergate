@@ -10,7 +10,7 @@
 | --- | --- | --- |
 | M4.1 应用打包与本地启动 | C 类：AI 完成 Dockerfile、Compose 和说明；B 类：共同定义运行配置，作者先写关键路径 | 锁定依赖安装、双 mock + 网关启动、普通/流式/健康恢复验证 |
 | M4.2 真实推理后端 | B 类：作者选择可用后端与模型，共同验证配置和兼容性 | 至少一个真实 OpenAI-compatible inference backend 的请求与原始证据 |
-| M4.3 最小非流式 Responses adapter | B 类：先定义支持字段和错误行为，作者写转换关键路径，AI review/测试 | `/v1/responses` 子集，复用 shared gateway core，不重复流控机制 |
+| M4.3 最小非流式 Responses adapter | B 类：先定义支持字段和错误行为，作者写适配与共享核心接入关键路径，AI review/测试 | `/v1/responses` 子集，同协议转发，复用 shared gateway core，不重复流控机制 |
 | M4.4 Benchmark | A 类：作者先设计 workload 与变量；C 类：AI 整理结果与绘图 | 可重复负载、原始结果、环境/模型说明、失败样本与性能图表 |
 | M4.5 CI 与交付收尾 | C 类：AI 配置 CI、架构及使用文档；作者复述与复盘 | 自动检查、第三方复现步骤、M4 验收记录 |
 
@@ -105,3 +105,7 @@ count=1、B 空白的普通/流式真实请求、后端停止后的 502/一次�
 首次工具字段断言失败与修正后通过的原始证据都保留，见
 [M4.2 验收记录](REAL_BACKEND_ACCEPTANCE.md)。两项服务保留运行，M4.2 工程
 检查通过，作者独立失败时序复述待完成；尚未开始 M4.3 或 benchmark。
+
+作者随后完成停机状态转换及恢复更新责任的独立复述；AI 补充先探测可直接
+503 的时序边界。M4.2 收尾，当前进入 [M4.3 合同准备](RESPONSES_CONTRACT.md)，
+只定义架构与验证前提，尚未改核心或升级远程 vLLM。

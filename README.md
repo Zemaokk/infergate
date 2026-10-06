@@ -24,7 +24,7 @@ stack passed packaging integration checks on 2026-10-06; author explanations
 and corrections are recorded in the [M4.1 acceptance record](docs/M4/ACCEPTANCE.md).
 M4.2 has verified Qwen2.5-7B-Instruct through a single-backend gateway on a leased
 RTX4090, including ordinary requests, SSE, shutdown and recovery. Author teach-back
-remains pending. See the [M4.2 acceptance record](docs/M4/REAL_BACKEND_ACCEPTANCE.md)
+is recorded and M4.2 is complete. See the [M4.2 acceptance record](docs/M4/REAL_BACKEND_ACCEPTANCE.md)
 and [remote environment evidence](docs/M4/REMOTE_ENVIRONMENT.md).
 
 InferGate currently provides:
