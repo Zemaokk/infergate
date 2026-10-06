@@ -134,3 +134,10 @@ M4.3 后续：AI 使用官方文档核对 Responses 字段，整理本项目文�
 警告，差异检查通过。中间件模拟拒绝的尝试次数为 0；尚未注册 Responses
 endpoint，实际 HTTP 正文校验及跨入口限额未验收。当前进入作者新增薄入口
 第一版，具体输入和验证范围见 RESPONSES_CONTRACT.md 第四小步。
+
+作者完成 Responses 薄入口及路由修正；AI 补 18 项受控后端 HTTP 测试。
+正文/path/响应透传、实际校验失败观测、跨入口 key 额度、Chat 流占满容量
+时 Responses 零次尝试的 503，以及连接失败/fallback/取消释放全部通过。
+完整 405 passed，2 条已有依赖警告，差异检查通过；README 已区分网关受控
+测试与真实后端支持。下一步完成作者复述及兼容 Responses 的真实环境验收，
+不将现有 vLLM Chat 验收当作 Responses 推理验收，M4.3 尚未收尾。

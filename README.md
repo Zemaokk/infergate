@@ -6,7 +6,14 @@ The current architecture, scope, milestones, and engineering constraints are doc
 
 The learning and AI contribution boundaries are documented in [docs/COLLABORATION_CONTRACT.md](docs/COLLABORATION_CONTRACT.md).
 
-API direction: Chat Completions is the M0 compatibility baseline; a non-streaming Responses API adapter is planned after the shared gateway core is complete. See [ADR-0001](docs/decisions/0001-api-surface.md).
+API direction: Chat Completions and a minimal non-streaming Responses adapter share the gateway core. Requests are forwarded to the same protocol on the backend; no protocol translation is performed. See [ADR-0001](docs/decisions/0001-api-surface.md).
+
+| API | Gateway validation | Real backend validation |
+| --- | --- | --- |
+| `POST /v1/chat/completions` | Non-streaming and streaming tests pass | Qwen2.5-7B-Instruct on vLLM 0.8.5 verified in M4.2 |
+| `POST /v1/responses` | Minimal text-only, non-streaming subset tested with controlled backends | Pending; the M4.2 vLLM backend does not advertise this endpoint |
+
+Responses requires explicit `store=false`; `stream` and `background` may only be false. Unknown fields are rejected. See the [Responses contract](docs/M4/RESPONSES_CONTRACT.md) for the supported fields and limits. This adapter does not make a Chat-only backend support Responses.
 
 For the original M0 workflow, see the [M0 full workflow guide](docs/M0/FULL_WORKFLOW_GUIDE.md).
 The M1 streaming and backend-health acceptance record is in

@@ -445,4 +445,22 @@ def create_app(
             x_infergate_key=x_infergate_key,
         )
 
+    @app.post("/v1/responses")
+    async def create_responses(
+        http_request: Request,
+        request: ResponsesRequest,
+        x_infergate_key: Annotated[str | None, Header()] = None,
+    ) -> Response:
+        payload = request.model_dump(exclude_unset=True)
+        model = request.model
+
+        return await execute_gateway_request(
+            http_request=http_request,
+            model=model,
+            payload=payload,
+            backend_path="/v1/responses",
+            stream=request.stream,
+            x_infergate_key=x_infergate_key,
+        )
+
     return app
