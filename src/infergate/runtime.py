@@ -22,6 +22,26 @@ HEALTH_PROBE_DEADLINE = 2.0
 HEALTH_PROBE_INTERVAL = 5.0
 
 
+def read_backend_url(env_name: str, default: str) -> str:
+    backend_url = os.getenv(env_name, default).strip()
+    if not backend_url:
+        raise ValueError(f"{env_name} is invalid") from None
+    try:
+        url = httpx.URL(backend_url)
+    except httpx.InvalidURL:
+        raise ValueError(f"{env_name} is invalid") from None
+    if (
+        url.scheme not in ("http", "https")
+        or not url.host
+        or url.userinfo
+        or url.query
+        or url.fragment
+        or url.path not in ("", "/")
+    ):
+        raise ValueError(f"{env_name} is invalid") from None
+    return backend_url
+
+
 def create_runtime_app(
     *,
     backend_transport: httpx.AsyncBaseTransport | None = None,
@@ -35,19 +55,30 @@ def create_runtime_app(
         if otlp_traces_endpoint is not None
         else os.environ.get("OTEL_EXPORTER_OTLP_TRACES_ENDPOINT", "")
     ).strip()
+
+    routes = {
+        "mock-model": [
+            Backend(
+                id="backend-a",
+                base_url=read_backend_url(
+                    "INFERGATE_BACKEND_A_URL", "http://127.0.0.1:8001"
+                ),
+            ),
+            Backend(
+                id="backend-b",
+                base_url=read_backend_url(
+                    "INFERGATE_BACKEND_B_URL", "http://127.0.0.1:8002"
+                ),
+            ),
+        ]
+    }
+
     backend_http_client = httpx.AsyncClient(
         timeout=BACKEND_TIMEOUT, trust_env=False, transport=backend_transport
     )
     probe_http_client = httpx.AsyncClient(
         timeout=None, trust_env=False, transport=probe_transport
     )
-
-    routes = {
-        "mock-model": [
-            Backend(id="backend-a", base_url="http://127.0.0.1:8001"),
-            Backend(id="backend-b", base_url="http://127.0.0.1:8002"),
-        ]
-    }
 
     # 根据 backend.id 对 backend 进行去重
     backends = list(
