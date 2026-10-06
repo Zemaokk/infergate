@@ -50,6 +50,8 @@ async def test_observation_is_available_through_request_state_and_messages_pass_
         {"type": "websocket", "path": "/v1/chat/completions"},
         {"type": "http", "method": "GET", "path": "/v1/chat/completions"},
         {"type": "http", "method": "GET", "path": "/metrics"},
+        {"type": "http", "method": "GET", "path": "/v1/responses"},
+        {"type": "http", "method": "POST", "path": "/v1/unknown"},
     ],
 )
 async def test_other_scopes_pass_through_without_observation(scope):

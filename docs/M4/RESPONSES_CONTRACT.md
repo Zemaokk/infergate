@@ -1,6 +1,6 @@
 # M4.3 最小非流式 Responses adapter：合同准备
 
-**状态：2026-10-06，共享执行路径抽取通过，当前进入请求模型第一版。** B 类：共同定义合同，作者写关键路径
+**状态：2026-10-06，共享执行路径、请求模型和 route 观测验证通过，当前进入 endpoint 第一版。** B 类：共同定义合同，作者写关键路径
 第一版，AI focused review 与测试；文档和兼容环境准备为 C 类。
 
 ## 已确定的架构边界
@@ -170,3 +170,56 @@ exclude_unset=True 不补默认值，显式 null 原样保留；不新增 endpoi
 边界、可选 null、原文/省略保留、未知字段、Schema 与原 Chat 行为。完整
 383 passed，2 条已有依赖警告。请求模型完成，实际 Responses endpoint、
 跨入口限额和 route 观测尚待接入与验证。
+
+## 当前第三小步：观测记录实际入口
+
+作者先修改 observability.py 与 metrics.py，仍不注册 Responses endpoint。
+RequestObservation 增加 route，默认 /v1/chat/completions，以兼容既有直接
+构造方式；中间件创建观测时显式传入实际业务入口。只匹配 HTTP POST 的
+/v1/chat/completions 与 /v1/responses 两个固定路径，不把任意原始路径作为
+指标标签，不观测 /metrics 或其他未知入口。
+
+中间件的 span 名称使用 POST 加实际 route，http.route 使用同一 route。
+build_request_log 增加 route 字段；GatewayMetrics.record_request 的 request
+counter、duration、first-byte 标签从 observation.route 读取，不再固定 Chat。
+backend attempt 指标、健康指标与全局 active gauge 沿用现有定义，不因为
+新增入口复制 registry、limiter 或健康状态。
+
+保持观测生命周期：在 schema 校验前创建，在响应执行及清理结束后定稿。
+即使将来的 Responses 正文校验失败，也应有对应 route 的 400/rejected
+记录、零次后端尝试且无首字节样本。不能把定稿移到 endpoint 或共享函数。
+日志增加字段后，旧测试若断言完整字典，需要共同更新预期；不因此删掉
+原有清理、取消、fallback 或 trace 断言。
+
+作者先预测：Responses 请求的正文校验失败，还应有完成日志吗？后端尝试
+次数应是多少？随后写 route 传递第一版。AI review 后补固定入口匹配、日志、
+指标与 trace 的测试，再注册第二个 endpoint 做跨入口流控验证。
+
+作者完成观测第一版及 review 修正：route 保存在每个请求的 observation 中，
+span 名称与 http.route 从同一 observation 读取，不使用 middleware 共享字段。
+AI 新增两个并发入口的完成/拒绝测试及固定匹配范围测试。完整 387 passed，
+2 条已有依赖警告，差异检查通过；日志、请求 counter/duration、trace 的入口
+归属一致，模拟正文拒绝时完成记录存在、attempt_count=0、无首字节样本。
+这些是中间件测试，尚未注册实际 Responses endpoint，不能视为真实 schema
+拒绝或跨接口限额的端到端验收。
+
+## 当前第四小步：注册 Responses endpoint
+
+作者在 create_app 内、return app 前新增 POST /v1/responses 的异步入口。
+参数与 Chat 入口一致，但正文类型为 ResponsesRequest，返回类型为 Response。
+入口只准备 request.model、model_dump(exclude_unset=True)、request.stream，
+并 return await execute_gateway_request；backend_path 固定 /v1/responses，
+原样传入 http_request 和 x_infergate_key。沿用现有异常 handler，不重复校验、
+扣额度、获取并发或创建客户端/路由器/控制器，不转换为 Chat 正文。
+
+第一版后由 AI review 并补实际 ASGI HTTP 测试：
+
+- 后端 path 与正文透传；省略字段不补默认值，显式 null 保留；响应状态、
+  Content-Type 与正文透传，HTTP 错误不 fallback。
+- 非法正文返回 400，记录 Responses route、invalid_request_body 与零次尝试，
+  不访问后端且不扣 key 额度；缺少 key 沿用既有错误。
+- 同一 key 在两个入口合计使用额度；Chat 占用最后一个并发名额时，合法
+  Responses 请求返回 503/concurrency_limit_exceeded，不访问后端。
+- 无可用后端、连接阶段失败及成功/失败/取消后的容量释放沿用共享路径。
+
+本小步先用受控后端验证网关；真实 Responses 兼容环境仍待单独准备及验收。

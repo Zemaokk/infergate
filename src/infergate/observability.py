@@ -73,7 +73,8 @@ class BackendAttemptObservation:
 
 
 class RequestObservation:
-    def __init__(self, started_at: float):
+    def __init__(self, started_at: float, route: str = "/v1/chat/completions"):
+        self.route = route
         self.started_at = started_at
         self.backend_attempts = []
         self.first_byte_sec = None
@@ -174,6 +175,7 @@ class RequestObservation:
 def build_request_log(observation: RequestObservation) -> dict[str, object]:
     """Build a completion record from finalized state; do not emit or mutate it."""
     return {
+        "route": observation.route,
         "event": "request_finished",
         "request_id": observation.request_id,
         "trace_id": observation.trace_id,
@@ -214,13 +216,15 @@ class RequestObservationMiddleware:
         if not (
             scope["type"] == "http"
             and scope["method"] == "POST"
-            and scope["path"] == "/v1/chat/completions"
+            and scope["path"] in ("/v1/chat/completions", "/v1/responses")
         ):
             await self.app(scope, receive, send)
             return
 
         state = scope.setdefault("state", {})
-        observation = RequestObservation(started_at=time.monotonic())
+        observation = RequestObservation(
+            started_at=time.monotonic(), route=scope["path"]
+        )
         state["observation"] = observation
         request_span = None
         if self.tracer is not None:
@@ -235,12 +239,12 @@ class RequestObservationMiddleware:
                     carrier, context=Context()
                 )
                 request_span = self.tracer.start_span(
-                    "POST /v1/chat/completions",
+                    f"POST {observation.route}",
                     context=parent_context,
                     kind=SpanKind.SERVER,
                     attributes={
                         "http.request.method": "POST",
-                        "http.route": "/v1/chat/completions",
+                        "http.route": observation.route,
                         "infergate.request_id": observation.request_id,
                     },
                 )
@@ -322,7 +326,8 @@ class RequestObservationMiddleware:
                                 )
                             if observation.first_byte_sec is not None:
                                 request_span.set_attribute(
-                                    "infergate.first_byte_sec", observation.first_byte_sec
+                                    "infergate.first_byte_sec",
+                                    observation.first_byte_sec,
                                 )
                             if observation.outcome == "completed":
                                 request_span.set_status(StatusCode.OK)

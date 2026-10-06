@@ -124,3 +124,13 @@ M4.3 后续：AI 使用官方文档核对 Responses 字段，整理本项目文�
 与严格布尔的声明组合，保留 Chat 行为，将 instructions/max_output_tokens
 修订为可省略或 null，新增 47 项测试；完整 383 passed。当前模型验证通过，
 下一步接入实际 route 观测与 Responses endpoint，尚未宣称双接口支持。
+
+当前推进 route 观测：先由作者扩展 RequestObservation、中间件固定入口匹配、
+日志及 request 指标标签，保持定稿/资源清理与全局状态不变；测试通过后再
+注册 Responses endpoint。本小步尚未修改观测核心。
+
+作者随后完成 route 观测第一版和 review 修正；AI 补并发双入口的完成/拒绝
+日志、指标、trace 归属及固定匹配范围测试。完整 387 passed，2 条已有依赖
+警告，差异检查通过。中间件模拟拒绝的尝试次数为 0；尚未注册 Responses
+endpoint，实际 HTTP 正文校验及跨入口限额未验收。当前进入作者新增薄入口
+第一版，具体输入和验证范围见 RESPONSES_CONTRACT.md 第四小步。

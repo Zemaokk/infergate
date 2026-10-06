@@ -83,7 +83,7 @@ class GatewayMetrics:
         # Caller submits only when finish() returns True. Do not count pending work.
         if not observation.is_finished:
             return
-        route = "/v1/chat/completions"
+        route = observation.route
         self.requests.labels(
             route=route,
             status=str(observation.status_code)
