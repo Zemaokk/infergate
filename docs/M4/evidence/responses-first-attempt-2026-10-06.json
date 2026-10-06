@@ -1,0 +1,23 @@
+{
+  "started_at": "2026-10-06T14:47:13.848629+00:00",
+  "model": "Qwen2.5-7B-Instruct",
+  "backend_url": "http://127.0.0.1:8002",
+  "gateway_url": "http://127.0.0.1:8003",
+  "backend_declares_responses": true,
+  "backend_version": {
+    "version": "0.10.1"
+  },
+  "payload": {
+    "model": "Qwen2.5-7B-Instruct",
+    "input": "Briefly explain what an HTTP gateway does.",
+    "store": false,
+    "max_output_tokens": 64
+  },
+  "direct": {
+    "status_code": 200,
+    "content_type": "application/json",
+    "body": "{\"id\":\"resp_ffb9edf4a1f44f41921a656634bcdefc\",\"created_at\":1791298034,\"instructions\":null,\"metadata\":null,\"model\":\"Qwen2.5-7B-Instruct\",\"object\":\"response\",\"output\":[{\"id\":\"msg_d18273ea294e44d8af4e8f23a3d65dd4\",\"content\":[{\"annotations\":[],\"text\":\"An HTTP gateway acts as an intermediary between clients (such as web browsers or mobile apps) and backend services. Its primary functions include:\\n\\n1. **Routing**: It routes incoming HTTP requests to the appropriate backend service based on the request URL, path, or other criteria.\\n2. **API Management**: It can manage API\",\"type\":\"output_text\",\"logprobs\":null}],\"role\":\"assistant\",\"status\":\"completed\",\"type\":\"message\"}],\"parallel_tool_calls\":true,\"temperature\":0.7,\"tool_choice\":\"auto\",\"tools\":[],\"top_p\":0.8,\"background\":false,\"max_output_tokens\":64,\"max_tool_calls\":null,\"previous_response_id\":null,\"prompt\":null,\"reasoning\":null,\"service_tier\":\"auto\",\"status\":\"completed\",\"text\":null,\"top_logprobs\":0,\"truncation\":\"disabled\",\"usage\":{\"input_tokens\":38,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens\":64,\"output_tokens_details\":{\"reasoning_tokens\":0},\"total_tokens\":102},\"user\":null}"
+  },
+  "status": "failed",
+  "error": "'store'"
+}

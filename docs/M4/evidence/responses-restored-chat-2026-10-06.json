@@ -1,0 +1,1178 @@
+{
+  "started_at": "2026-10-06T14:51:13.113415+00:00",
+  "model": "Qwen2.5-7B-Instruct",
+  "health_status": 200,
+  "models": {
+    "object": "list",
+    "data": [
+      {
+        "id": "Qwen2.5-7B-Instruct",
+        "object": "model",
+        "created": 1791298273,
+        "owned_by": "vllm",
+        "root": "/root/shared-nvme/infergate-m4/models/Qwen2.5-7B-Instruct",
+        "parent": null,
+        "max_model_len": 4096,
+        "permission": [
+          {
+            "id": "modelperm-ade0ef2bcfc641c6a7996823892ec32f",
+            "object": "model_permission",
+            "created": 1791298273,
+            "allow_create_engine": false,
+            "allow_sampling": true,
+            "allow_logprobs": true,
+            "allow_search_indices": false,
+            "allow_view": true,
+            "allow_fine_tuning": false,
+            "organization": "*",
+            "group": null,
+            "is_blocking": false
+          }
+        ]
+      }
+    ]
+  },
+  "non_streaming": {
+    "id": "chatcmpl-1cb2af2c209a40b6b7e4e6c5370106b7",
+    "object": "chat.completion",
+    "created": 1791298273,
+    "model": "Qwen2.5-7B-Instruct",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "reasoning_content": null,
+          "content": "An HTTP gateway acts as an intermediary between clients and backend services, handling requests from clients and routing them to the appropriate backend service or resource. It can perform various functions such as:\n\n1. **Routing**: Directing incoming requests to the correct backend service based on URL, path, or other criteria.\n2. **Authentication",
+          "tool_calls": []
+        },
+        "logprobs": null,
+        "finish_reason": "length",
+        "stop_reason": null
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 38,
+      "total_tokens": 102,
+      "completion_tokens": 64,
+      "prompt_tokens_details": null
+    },
+    "prompt_logprobs": null
+  },
+  "streaming": {
+    "events": [
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "role": "assistant",
+              "content": ""
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": "An"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " HTTP"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " gateway"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " acts"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " as"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " an"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " intermediary"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " between"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " clients"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " and"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " backend"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " services"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": ","
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " handling"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " requests"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " from"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " clients"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " and"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " routing"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " them"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " to"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " the"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " appropriate"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " backend"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " service"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " or"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " resource"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": "."
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " It"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " can"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " perform"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " various"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " functions"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " such"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " as"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": ":\n\n"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": "1"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": "."
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " **"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": "Routing"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": "**:"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " Direct"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": "ing"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " incoming"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " requests"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " to"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " the"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " correct"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " backend"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " service"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " based"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " on"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " URL"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": ","
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " path"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": ","
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " or"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " other"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " criteria"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": ".\n"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": "2"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": "."
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": " **"
+            },
+            "logprobs": null,
+            "finish_reason": null
+          }
+        ]
+      },
+      {
+        "id": "chatcmpl-1fd9f24993c843beb7123f1f8951cf5b",
+        "object": "chat.completion.chunk",
+        "created": 1791298274,
+        "model": "Qwen2.5-7B-Instruct",
+        "choices": [
+          {
+            "index": 0,
+            "delta": {
+              "content": "Authentication"
+            },
+            "logprobs": null,
+            "finish_reason": "length",
+            "stop_reason": null
+          }
+        ]
+      }
+    ],
+    "done": true,
+    "text": "An HTTP gateway acts as an intermediary between clients and backend services, handling requests from clients and routing them to the appropriate backend service or resource. It can perform various functions such as:\n\n1. **Routing**: Directing incoming requests to the correct backend service based on URL, path, or other criteria.\n2. **Authentication",
+    "client_event_arrival_seconds": [
+      0.03889011638239026,
+      0.0389412110671401,
+      0.05588893732056022,
+      0.07327543199062347,
+      0.09040316613391042,
+      0.10752176539972425,
+      0.12458617798984051,
+      0.14157948130741715,
+      0.15890674432739615,
+      0.17608189629390836,
+      0.1930260770022869,
+      0.21008304320275784,
+      0.22713953536003828,
+      0.24435429833829403,
+      0.26141676120460033,
+      0.278583497274667,
+      0.2958024372346699,
+      0.3129662503488362,
+      0.3299774620682001,
+      0.3471268373541534,
+      0.36424697237089276,
+      0.3814105251803994,
+      0.39844075636938214,
+      0.41556774638593197,
+      0.432762757409364,
+      0.4497213242575526,
+      0.46685928013175726,
+      0.48404986737295985,
+      0.5010645291768014,
+      0.5181227950379252,
+      0.5350790042430162,
+      0.5520938341505826,
+      0.5691876639612019,
+      0.5864569921977818,
+      0.603440904058516,
+      0.6204023570753634,
+      0.6374474540352821,
+      0.6545188510790467,
+      0.6715749343857169,
+      0.6886105472221971,
+      0.7059460650198162,
+      0.7228903891518712,
+      0.739875219296664,
+      0.7569081922993064,
+      0.7740006842650473,
+      0.7912248591892421,
+      0.8083153259940445,
+      0.8252900033257902,
+      0.8422530451789498,
+      0.8592820214107633,
+      0.8764215232804418,
+      0.8936480502597988,
+      0.9106625472195446,
+      0.9278174610808492,
+      0.9448740151710808,
+      0.9618981531821191,
+      0.9790429342538118,
+      0.996155396103859,
+      1.0131737403571606,
+      1.0302586033940315,
+      1.047458854969591,
+      1.0643965699709952,
+      1.0814685709774494,
+      1.0984256342053413,
+      1.1158922682516277
+    ]
+  },
+  "status": "passed"
+}

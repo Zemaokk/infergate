@@ -1,6 +1,6 @@
 # M4.3 最小非流式 Responses adapter：合同准备
 
-**状态：2026-10-06，Responses endpoint 及受控 HTTP 验证通过，真实兼容后端验收和作者复述待完成。** B 类：共同定义合同，作者写关键路径
+**状态：2026-10-06，共享执行路径、请求模型、观测、endpoint、受控 HTTP 与真实后端验收通过，作者额度顺序复述完成；M4.3 收尾。** B 类：共同定义合同，作者写关键路径
 第一版，AI focused review 与测试；文档和兼容环境准备为 C 类。
 
 ## 已确定的架构边界
@@ -236,3 +236,24 @@ Content-Type/正文透传及 HTTP 错误不 fallback；非法正文先于 key �
 
 下一步作者复述：为什么非法正文不消耗 key 额度，而并发已满的合法正文会
 消耗一次 key 额度？随后再准备兼容 Responses 的真实后端并独立验收。
+
+作者已复述正文拒绝在入口前发生、并发拒绝仍应受 key 限流。AI 精确补充：
+正文校验→key 校验→key 限流/扣额度→并发检查→后端尝试；额度是否消耗
+取决于此顺序，不能仅凭是否访问后端判断。本项学习闭环完成。
+
+真实环境准备：远程实时检查仍为 vLLM 0.8.5、驱动 550.54.14，原 8001
+健康检查 200。核对官方带版本源码与发布资产后，选择 vLLM 0.10.1+cu118
+作为候选，建立独立 /root/infergate-m43/vllm-env，不覆盖 M4.2 环境；
+安装完成，PyTorch 2.7.1+cu118、Transformers 4.55.2、OpenAI SDK 1.99.1，
+GPU BF16 计算及真实原生 Responses 请求验证通过。
+源码证据为 [原生路由](https://github.com/vllm-project/vllm/blob/v0.10.1/vllm/entrypoints/openai/api_server.py)
+及 [Responses 执行实现](https://github.com/vllm-project/vllm/blob/v0.10.1/vllm/entrypoints/openai/serving_responses.py)，
+构建来自 [官方 release](https://github.com/vllm-project/vllm/releases/tag/v0.10.1)。
+
+配套启动与验收工具完成，复用已有模型权重，独立后端 8002、验收网关
+8003。用户明确授权源码/配置/依赖/脚本上传后完成独立部署。直接及网关
+Response 非空生成、显式 store=false 请求、非法字段拒绝、Chat 回归、
+完成日志和最终并发占用验证通过。vLLM 响应不回显 store；首次验收工具
+错误要求此字段而失败，修正为只检查存在时的值，保留首次失败证据。
+不通过回显字段推断存储保证。详见 [M4.3 验收记录](RESPONSES_ACCEPTANCE.md)。
+临时服务已停止，原 Chat 模型及网关恢复并重新验证普通/SSE；M4.3 收尾。

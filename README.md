@@ -11,9 +11,11 @@ API direction: Chat Completions and a minimal non-streaming Responses adapter sh
 | API | Gateway validation | Real backend validation |
 | --- | --- | --- |
 | `POST /v1/chat/completions` | Non-streaming and streaming tests pass | Qwen2.5-7B-Instruct on vLLM 0.8.5 verified in M4.2 |
-| `POST /v1/responses` | Minimal text-only, non-streaming subset tested with controlled backends | Pending; the M4.2 vLLM backend does not advertise this endpoint |
+| `POST /v1/responses` | Minimal text-only, non-streaming subset tested with controlled backends | Qwen2.5-7B-Instruct on native vLLM 0.10.1+cu118 verified in M4.3; the separate M4.2 vLLM 0.8.5 deployment does not advertise this endpoint |
 
 Responses requires explicit `store=false`; `stream` and `background` may only be false. Unknown fields are rejected. See the [Responses contract](docs/M4/RESPONSES_CONTRACT.md) for the supported fields and limits. This adapter does not make a Chat-only backend support Responses.
+
+See the [M4.3 acceptance record](docs/M4/RESPONSES_ACCEPTANCE.md) for real request evidence and the dedicated inference environment. The tested backend omits `store` from response JSON; InferGate forwards that response unchanged. Temporary M4.3 services were stopped after acceptance and the original M4.2 Chat deployment was restored.
 
 For the original M0 workflow, see the [M0 full workflow guide](docs/M0/FULL_WORKFLOW_GUIDE.md).
 The M1 streaming and backend-health acceptance record is in
