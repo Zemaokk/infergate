@@ -22,8 +22,9 @@ M4 has started with application packaging; see the [M4 work plan](docs/M4/WORKPL
 and [packaging contract](docs/M4/PACKAGING_CONTRACT.md). The three-container mock
 stack passed packaging integration checks on 2026-10-06; author explanations
 and corrections are recorded in the [M4.1 acceptance record](docs/M4/ACCEPTANCE.md).
-M4.2 is preparing the [real backend contract](docs/M4/REAL_BACKEND_CONTRACT.md);
-no real inference backend has been connected yet.
+M4.2 has verified a real Qwen2.5-7B-Instruct backend directly on a leased RTX4090;
+gateway integration remains pending. See the [real backend contract](docs/M4/REAL_BACKEND_CONTRACT.md)
+and [remote environment evidence](docs/M4/REMOTE_ENVIRONMENT.md).
 
 InferGate currently provides:
 

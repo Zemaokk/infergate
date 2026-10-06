@@ -1,9 +1,10 @@
 # M4.2 真实推理后端：接入准备
 
-**状态：2026-10-06 作者已租用单卡 RTX4090 机器，SSH 只读环境检查完成；
-vLLM 与模型尚未安装，尚未接入。** 环境详情见 [REMOTE_ENVIRONMENT.md](REMOTE_ENVIRONMENT.md)。
+**状态：2026-10-06 单卡 RTX4090 上 vLLM 与 Qwen2.5-7B-Instruct 已直接验证；
+网关接入尚待完成。** 环境详情见 [REMOTE_ENVIRONMENT.md](REMOTE_ENVIRONMENT.md)。
 类别为 B 类：先定义可验证的接口与配置，作者写关键路径第一版，AI review、
-测试和工具配套。保持 learning mode，不提前下载模型或安装推理框架。
+测试和工具配套。保持 learning mode，环境安装和验收工具属 C 类，AI 已按
+作者继续指令完成；runtime 关键配置仍由作者先写第一版。
 
 ## 1. 已发现的接入差距
 
@@ -68,3 +69,29 @@ NVIDIA PyTorch 构建的 CUDA 检测可用。根文件系统约 30 GB；安装�
 受控测试验证。单实例验证不证明轮换或 fallback 冗余，已有 mock 测试保留。
 本步骤无 benchmark 结论，不把首字节命名为 TTFT，不从文本长度估算 token/s。
 真实后端支持矩阵将与 M4.3 Responses adapter 分开记录。
+
+## 4. 当前作者任务：单后端与模型名配置
+
+已确认真实服务使用 /health 与 /v1/chat/completions，模型别名
+Qwen2.5-7B-Instruct。服务为一个真实实例，先沿用远程同机部署路径。
+新增两个最小配置项，沿用既有 URL 校验与 Backend 对象：
+
+| 配置项 | 缺省值 | 真实后端值 | 非法值 |
+| --- | --- | --- | --- |
+| INFERGATE_MODEL_NAME | mock-model | Qwen2.5-7B-Instruct | strip 后为空 |
+| INFERGATE_BACKEND_COUNT | 2 | 1 | strip 后不是字符串 1 或 2 |
+
+合同：
+
+- app 创建时读取一次，所有配置验证仍在创建 HTTP 客户端前完成。
+- model 配置作为 routes 的 key；请求 model 原样转发，不改请求正文。
+- count=1 时只创建 backend-a，不读取或验证 B URL，也不探测 B。
+- count=2 时继续配置 A/B，并保持原有 B URL 空白拒绝规则。
+- 仅未设置配置项才使用缺省值；无效配置抛 ValueError，消息只包含配置项名。
+- 不改 router、流控、fallback 或健康转换算法；单实例不伪装为两份冗余实例。
+- 不设置新配置时，原有双 mock 行为和 Compose 保持不变。
+
+作者先预测：count=1、A 合法、B 显式空白时，应该创建几个 Backend，
+是否验证或探测 B？如果请求仍写 mock-model，会发生什么？
+随后只修改 runtime.py 的配置读取和 routes 构造关键路径。
+AI focused review 后补持久测试，并部署真实网关做普通/流式联调及失效恢复验证。

@@ -1,0 +1,7 @@
+# Initial Chat Completions backend for the leased machine's CUDA 12.4 driver.
+# vLLM's metadata pins torch==2.6.0. Keep this separate from InferGate's env.
+vllm==0.8.5
+transformers==4.51.3
+huggingface-hub==0.30.2
+fastapi==0.115.12
+modelscope==1.40.1

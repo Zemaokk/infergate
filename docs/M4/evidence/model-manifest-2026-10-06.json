@@ -1,0 +1,26 @@
+{
+  "source": "https://modelscope.cn/models/Qwen/Qwen2.5-7B-Instruct",
+  "revision_requested": "master",
+  "weight_files": [
+    {
+      "name": "model-00001-of-00004.safetensors",
+      "bytes": 3945441440
+    },
+    {
+      "name": "model-00002-of-00004.safetensors",
+      "bytes": 3864726352
+    },
+    {
+      "name": "model-00003-of-00004.safetensors",
+      "bytes": 3864726424
+    },
+    {
+      "name": "model-00004-of-00004.safetensors",
+      "bytes": 3556377672
+    }
+  ],
+  "config_sha256": "7463bb0ea78315365e6c6b74de4e73bbcc8359dfb0c5a737584e077d42c0b03c",
+  "index_sha256": "624bf7c47cd12468fdc16e38a47cf4f19e0415b859a223ba3c027eed2f0e1028",
+  "chat_completions_declared": true,
+  "responses_declared": false
+}

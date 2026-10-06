@@ -87,3 +87,12 @@ Docker Engine 29.8.2 现可访问。真实 Linux ARM64 镜像构建、非 root �
 检查，见 [远程环境记录](REMOTE_ENVIRONMENT.md)。预装 PyTorch CUDA 检测
 可用，但尚未验证 vLLM。下一步确认数据盘与安装位置，再建立独立推理环境。
 InferGate 的 Python >=3.13 与远程默认 Python 3.12.3 分开处理。
+
+作者继续授权环境准备后，AI 在专用目录安装 uv 与独立 vLLM 0.8.5 / torch
+2.6.0+cu124，验证 GPU BF16 计算；Qwen 官方 ModelScope 7B 权重下载到
+50 GB shared-nvme 挂载，cgroup 内存限额实测为 120 GiB。单实例仅监听
+127.0.0.1:8001，健康、模型列表、普通/流式真实请求验证通过，证据保存在
+evidence；服务保留运行，便于下一步接入。网关代码未改，M4.2 未验收。
+下一步作者完成单实例数量与模型名配置合同的预测和第一版，见
+REAL_BACKEND_CONTRACT.md 第 4 节。当前后端未声明 Responses，后续 M4.3
+需另定兼容版本/后端，不将本次 Chat Completions 成功视为双协议支持。
