@@ -20,8 +20,10 @@ See the [M2 acceptance record and limitations](docs/M2/ACCEPTANCE.md).
 M3 observability is complete within its agreed scope; see the acceptance record.
 M4 has started with application packaging; see the [M4 work plan](docs/M4/WORKPLAN.md)
 and [packaging contract](docs/M4/PACKAGING_CONTRACT.md). The three-container mock
-stack passed packaging integration checks on 2026-10-06; author teach-back is
-pending. See the [M4.1 acceptance record](docs/M4/ACCEPTANCE.md).
+stack passed packaging integration checks on 2026-10-06; author explanations
+and corrections are recorded in the [M4.1 acceptance record](docs/M4/ACCEPTANCE.md).
+M4.2 is preparing the [real backend contract](docs/M4/REAL_BACKEND_CONTRACT.md);
+no real inference backend has been connected yet.
 
 InferGate currently provides:
 
