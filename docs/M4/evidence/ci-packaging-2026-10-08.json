@@ -1,0 +1,136 @@
+{
+  "started_at": "2026-10-07T15:39:57.800805+00:00",
+  "project": "infergate-m4-verify",
+  "containers": "{\"Command\":\"\\\"uvicorn infergate.m…\\\"\",\"CreatedAt\":\"2026-10-07 15:40:07 +0000 UTC\",\"ExitCode\":0,\"Health\":\"healthy\",\"ID\":\"0069aae6a173\",\"Image\":\"infergate:m4-dev\",\"Labels\":\"com.docker.compose.config-hash=26820490ae26d4e22beaca39f432b56cf89e4bec032b918c4f6eabeb2c5917a0,com.docker.compose.container-number=1,com.docker.compose.project=infergate-m4-verify,com.docker.compose.service=backend-a,com.docker.compose.version=2.38.2,com.docker.compose.depends_on=,com.docker.compose.oneoff=False,com.docker.compose.project.config_files=/home/runner/work/infergate/infergate/compose.yaml,com.docker.compose.project.working_dir=/home/runner/work/infergate/infergate\",\"LocalVolumes\":\"0\",\"Mounts\":\"\",\"Name\":\"infergate-m4-verify-backend-a-1\",\"Names\":\"infergate-m4-verify-backend-a-1\",\"Networks\":\"infergate-m4-verify_default\",\"Ports\":\"8000/tcp\",\"Project\":\"infergate-m4-verify\",\"Publishers\":[{\"URL\":\"\",\"TargetPort\":8000,\"PublishedPort\":0,\"Protocol\":\"tcp\"}],\"RunningFor\":\"12 seconds ago\",\"Service\":\"backend-a\",\"Size\":\"0B\",\"State\":\"running\",\"Status\":\"Up 11 seconds (healthy)\"}\n{\"Command\":\"\\\"uvicorn infergate.m…\\\"\",\"CreatedAt\":\"2026-10-07 15:40:07 +0000 UTC\",\"ExitCode\":0,\"Health\":\"healthy\",\"ID\":\"c2097be632ed\",\"Image\":\"infergate:m4-dev\",\"Labels\":\"com.docker.compose.container-number=1,com.docker.compose.depends_on=,com.docker.compose.service=backend-b,com.docker.compose.config-hash=26820490ae26d4e22beaca39f432b56cf89e4bec032b918c4f6eabeb2c5917a0,com.docker.compose.oneoff=False,com.docker.compose.project=infergate-m4-verify,com.docker.compose.project.config_files=/home/runner/work/infergate/infergate/compose.yaml,com.docker.compose.project.working_dir=/home/runner/work/infergate/infergate,com.docker.compose.version=2.38.2\",\"LocalVolumes\":\"0\",\"Mounts\":\"\",\"Name\":\"infergate-m4-verify-backend-b-1\",\"Names\":\"infergate-m4-verify-backend-b-1\",\"Networks\":\"infergate-m4-verify_default\",\"Ports\":\"8000/tcp\",\"Project\":\"infergate-m4-verify\",\"Publishers\":[{\"URL\":\"\",\"TargetPort\":8000,\"PublishedPort\":0,\"Protocol\":\"tcp\"}],\"RunningFor\":\"12 seconds ago\",\"Service\":\"backend-b\",\"Size\":\"0B\",\"State\":\"running\",\"Status\":\"Up 11 seconds (healthy)\"}\n{\"Command\":\"\\\"uvicorn infergate.r…\\\"\",\"CreatedAt\":\"2026-10-07 15:40:07 +0000 UTC\",\"ExitCode\":0,\"Health\":\"healthy\",\"ID\":\"7b5c07cda934\",\"Image\":\"infergate:m4-dev\",\"Labels\":\"com.docker.compose.container-number=1,com.docker.compose.oneoff=False,com.docker.compose.project=infergate-m4-verify,com.docker.compose.service=gateway,com.docker.compose.version=2.38.2,com.docker.compose.config-hash=48ae9c0a73af260010f9932d44f48c926bf34df700af9e57474245174d4769e2,com.docker.compose.depends_on=backend-a:service_healthy:false,backend-b:service_healthy:false,com.docker.compose.project.config_files=/home/runner/work/infergate/infergate/compose.yaml,com.docker.compose.project.working_dir=/home/runner/work/infergate/infergate\",\"LocalVolumes\":\"0\",\"Mounts\":\"\",\"Name\":\"infergate-m4-verify-gateway-1\",\"Names\":\"infergate-m4-verify-gateway-1\",\"Networks\":\"infergate-m4-verify_default\",\"Ports\":\"127.0.0.1:8000-\\u003e8000/tcp\",\"Project\":\"infergate-m4-verify\",\"Publishers\":[{\"URL\":\"127.0.0.1\",\"TargetPort\":8000,\"PublishedPort\":8000,\"Protocol\":\"tcp\"}],\"RunningFor\":\"12 seconds ago\",\"Service\":\"gateway\",\"Size\":\"0B\",\"State\":\"running\",\"Status\":\"Up 5 seconds (healthy)\"}\n",
+  "installed_runtime": "10001 3.13.16 (main, Oct  6 2026, 02:02:59) [GCC 14.2.0] /app/.venv/lib/python3.13/site-packages/infergate/__init__.py",
+  "image": {
+    "Id": "sha256:67ee242b7b14161dbc77dcbccf9b491b770edeb346cf9f104946b0ea7c10d47a",
+    "RepoTags": [
+      "infergate:m4-dev"
+    ],
+    "RepoDigests": [],
+    "Parent": "",
+    "Comment": "buildkit.dockerfile.v0",
+    "Created": "2026-10-07T15:40:06.364574201Z",
+    "DockerVersion": "",
+    "Author": "",
+    "Config": {
+      "Hostname": "",
+      "Domainname": "",
+      "User": "10001:10001",
+      "AttachStdin": false,
+      "AttachStdout": false,
+      "AttachStderr": false,
+      "ExposedPorts": {
+        "8000/tcp": {}
+      },
+      "Tty": false,
+      "OpenStdin": false,
+      "StdinOnce": false,
+      "Env": [
+        "PATH=/app/.venv/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+        "GPG_KEY=7169605F62C751356D054A26A821E680E5FA6305",
+        "PYTHON_VERSION=3.13.16",
+        "PYTHON_SHA256=f4b1bfb3c79b5bb11b8d228a12504163b4c0dab4d679828d8f5f26b6cb6ab35d",
+        "PYTHONUNBUFFERED=1",
+        "PYTHONDONTWRITEBYTECODE=1"
+      ],
+      "Cmd": [
+        "uvicorn",
+        "infergate.runtime:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8000",
+        "--workers",
+        "1",
+        "--log-config",
+        "/app/configs/logging.json"
+      ],
+      "ArgsEscaped": true,
+      "Image": "",
+      "Volumes": null,
+      "WorkingDir": "/app",
+      "Entrypoint": null,
+      "OnBuild": null,
+      "Labels": null
+    },
+    "Architecture": "amd64",
+    "Os": "linux",
+    "Size": 174865033,
+    "GraphDriver": {
+      "Data": {
+        "LowerDir": "/var/lib/docker/overlay2/yd3r99dnvc5kad1t57f3cn19f/diff:/var/lib/docker/overlay2/f08xaewo0l69mbqrcz5cmnntu/diff:/var/lib/docker/overlay2/24fb6cadecc45bbb79dadeb8988183e95c93defdd5b66da11fc828f6d0ebba08/diff:/var/lib/docker/overlay2/7637be45d3e49133a6bf7d3e16314dd74870e274f4f816cceff57a0c912534fb/diff:/var/lib/docker/overlay2/9eef61968feced66a3c71ddcd3373e66412db61eb21287dcb69031f38256d874/diff:/var/lib/docker/overlay2/06523b768e0950e99d21cd41410d0801419e47e815d6e203f6992552b7ca1dc5/diff",
+        "MergedDir": "/var/lib/docker/overlay2/jkvpx37us2p2pm0m127bypa15/merged",
+        "UpperDir": "/var/lib/docker/overlay2/jkvpx37us2p2pm0m127bypa15/diff",
+        "WorkDir": "/var/lib/docker/overlay2/jkvpx37us2p2pm0m127bypa15/work"
+      },
+      "Name": "overlay2"
+    },
+    "RootFS": {
+      "Type": "layers",
+      "Layers": [
+        "sha256:15f1c8eb1ab18eae260c7fb6296434cbe1ff0e1e30fd814ae92a80dd54005e62",
+        "sha256:285510654d1d6a26507ed6576cae8fa995ba16469050787032499e9a34cbe9f5",
+        "sha256:acbf34fa608c522642659b109edfd70959b7c26593ea51141f3d339cc1875cfd",
+        "sha256:d175833b7147479e4e08f4f5d9dd2055b5ee746dc2f73520462468538d168bf6",
+        "sha256:dbc36a081a90c19bd6835c84876bf567d58ea9622681540920f2d2cd65c417d2",
+        "sha256:d508f72a77b52f332c3d6e19f3f57a0e47cb5e4b7d362b1c1c2d441073690a99",
+        "sha256:8c927db56995945b212f4ca475bb131bf28d393d3157b96157802473a5df9d12"
+      ]
+    },
+    "Metadata": {
+      "LastTagTime": "2026-10-07T15:40:07.381548175Z"
+    }
+  },
+  "health_states": [
+    {
+      "backend-a": 1,
+      "backend-b": 1
+    },
+    {
+      "backend-a": 0,
+      "backend-b": 1
+    },
+    {
+      "backend-a": 1,
+      "backend-b": 1
+    },
+    {
+      "backend-a": 0,
+      "backend-b": 0
+    }
+  ],
+  "round_robin": [
+    "backend-a",
+    "backend-b",
+    "backend-a",
+    "backend-b"
+  ],
+  "stream": {
+    "body_preserved": true,
+    "chunk_arrival_seconds": [
+      0.049687558999991666,
+      0.34796805999999947
+    ]
+  },
+  "a_stopped_routes": [
+    "backend-b",
+    "backend-b",
+    "backend-b"
+  ],
+  "restored_routes": [
+    "backend-a",
+    "backend-b"
+  ],
+  "all_stopped": {
+    "status": 503,
+    "code": "no_backend_available"
+  },
+  "active_requests_final": 0,
+  "request_count": 11,
+  "status": "passed",
+  "completion_logs": "gateway-1  | INFO:     Started server process [7]\ngateway-1  | INFO:     Waiting for application startup.\ngateway-1  | INFO:     Application startup complete.\ngateway-1  | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)\ngateway-1  | INFO:     127.0.0.1:56684 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK\ngateway-1  | {\"route\": \"/v1/chat/completions\", \"event\": \"request_finished\", \"request_id\": \"de82be6e50d943c2a35583ebf96b732f\", \"trace_id\": \"36d2bb2cc697b5519d94cc2006685c8d\", \"span_id\": \"fbac71f262866009\", \"status_code\": 200, \"outcome\": \"completed\", \"reason\": null, \"duration_sec\": 0.0064905710000005, \"first_byte_sec\": null, \"attempt_count\": 1, \"cleanup_failed\": false, \"backend_attempts\": [{\"attempt_index\": 1, \"backend_id\": \"backend-a\", \"span_id\": \"4fbcdaeff72111da\", \"outcome\": \"completed\", \"duration_sec\": 0.005203574999995908, \"first_byte_sec\": null}]}\ngateway-1  | INFO:     172.18.0.1:51164 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK\ngateway-1  | {\"route\": \"/v1/chat/completions\", \"event\": \"request_finished\", \"request_id\": \"252edd450f7e4589ab771c85519784df\", \"trace_id\": \"31d6b850ba7a359d02ae0e23c6355fc1\", \"span_id\": \"461537de69ae30f1\", \"status_code\": 200, \"outcome\": \"completed\", \"reason\": null, \"duration_sec\": 0.004720439000010401, \"first_byte_sec\": null, \"attempt_count\": 1, \"cleanup_failed\": false, \"backend_attempts\": [{\"attempt_index\": 1, \"backend_id\": \"backend-b\", \"span_id\": \"0950882e1f2a20ab\", \"outcome\": \"completed\", \"duration_sec\": 0.003920360999998707, \"first_byte_sec\": null}]}\ngateway-1  | INFO:     172.18.0.1:51164 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK\ngateway-1  | {\"route\": \"/v1/chat/completions\", \"event\": \"request_finished\", \"request_id\": \"4b19f9570c14401893e6aa2038e89a87\", \"trace_id\": \"58742bc3db43fe147f9400d835615bbf\", \"span_id\": \"5227cf0e1719754f\", \"status_code\": 200, \"outcome\": \"completed\", \"reason\": null, \"duration_sec\": 0.0029228619999912553, \"first_byte_sec\": null, \"attempt_count\": 1, \"cleanup_failed\": false, \"backend_attempts\": [{\"attempt_index\": 1, \"backend_id\": \"backend-a\", \"span_id\": \"8ee6d316c9e5f202\", \"outcome\": \"completed\", \"duration_sec\": 0.0022877789999995457, \"first_byte_sec\": null}]}\ngateway-1  | INFO:     172.18.0.1:51164 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK\ngateway-1  | {\"route\": \"/v1/chat/completions\", \"event\": \"request_finished\", \"request_id\": \"272a0fe2ffa24735868ce1222d3232ea\", \"trace_id\": \"cb716ef19542f93452d2237ef40cdc9d\", \"span_id\": \"57e6a9474cad54f6\", \"status_code\": 200, \"outcome\": \"completed\", \"reason\": null, \"duration_sec\": 0.0027608120000053304, \"first_byte_sec\": null, \"attempt_count\": 1, \"cleanup_failed\": false, \"backend_attempts\": [{\"attempt_index\": 1, \"backend_id\": \"backend-b\", \"span_id\": \"6a1cca9dee775252\", \"outcome\": \"completed\", \"duration_sec\": 0.002197342999991747, \"first_byte_sec\": null}]}\ngateway-1  | INFO:     172.18.0.1:51164 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK\ngateway-1  | {\"route\": \"/v1/chat/completions\", \"event\": \"request_finished\", \"request_id\": \"f5afb65742614b609bf7ae1fe851e1f1\", \"trace_id\": \"a946dc25d0f3d8f9ab34e0ac8fb38a34\", \"span_id\": \"a87498373c4814c2\", \"status_code\": 200, \"outcome\": \"completed\", \"reason\": null, \"duration_sec\": 0.34724037099999805, \"first_byte_sec\": 0.04805886500000156, \"attempt_count\": 1, \"cleanup_failed\": false, \"backend_attempts\": [{\"attempt_index\": 1, \"backend_id\": \"backend-a\", \"span_id\": \"2a1f7d4b2c886996\", \"outcome\": \"completed\", \"duration_sec\": 0.34663785200000063, \"first_byte_sec\": 0.047536936000000196}]}\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK\ngateway-1  | {\"route\": \"/v1/chat/completions\", \"event\": \"request_finished\", \"request_id\": \"96ebf991a48f4d0c8b3569753b86f7ac\", \"trace_id\": \"ed42e33ec4800e4151c0b0714d00b326\", \"span_id\": \"aabe6ce0aa81dc11\", \"status_code\": 200, \"outcome\": \"completed\", \"reason\": null, \"duration_sec\": 0.00339338700000269, \"first_byte_sec\": null, \"attempt_count\": 1, \"cleanup_failed\": false, \"backend_attempts\": [{\"attempt_index\": 1, \"backend_id\": \"backend-b\", \"span_id\": \"7f7ec4eb9eda3344\", \"outcome\": \"completed\", \"duration_sec\": 0.0026312579999938635, \"first_byte_sec\": null}]}\ngateway-1  | INFO:     172.18.0.1:51164 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK\ngateway-1  | {\"route\": \"/v1/chat/completions\", \"event\": \"request_finished\", \"request_id\": \"c17bc736e5a24361ae07ab5ac23ad27f\", \"trace_id\": \"c9c2ddf99d392caaaaae348c8eb0ee73\", \"span_id\": \"15daa0194f817f56\", \"status_code\": 200, \"outcome\": \"completed\", \"reason\": null, \"duration_sec\": 0.0028776970000023994, \"first_byte_sec\": null, \"attempt_count\": 1, \"cleanup_failed\": false, \"backend_attempts\": [{\"attempt_index\": 1, \"backend_id\": \"backend-b\", \"span_id\": \"640fcf3ee43f4784\", \"outcome\": \"completed\", \"duration_sec\": 0.0022116370000020424, \"first_byte_sec\": null}]}\ngateway-1  | INFO:     172.18.0.1:51164 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK\ngateway-1  | {\"route\": \"/v1/chat/completions\", \"event\": \"request_finished\", \"request_id\": \"3123ebded6e74e96854c2daaa9f7cc35\", \"trace_id\": \"e34143c8e584bc09f833599078e2e05a\", \"span_id\": \"2f4be2090148edb0\", \"status_code\": 200, \"outcome\": \"completed\", \"reason\": null, \"duration_sec\": 0.0026267900000078725, \"first_byte_sec\": null, \"attempt_count\": 1, \"cleanup_failed\": false, \"backend_attempts\": [{\"attempt_index\": 1, \"backend_id\": \"backend-b\", \"span_id\": \"337c2942c2456a9d\", \"outcome\": \"completed\", \"duration_sec\": 0.0020123460000007753, \"first_byte_sec\": null}]}\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     127.0.0.1:56694 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK\ngateway-1  | {\"route\": \"/v1/chat/completions\", \"event\": \"request_finished\", \"request_id\": \"75e82eab892a4c589900b43e5845a274\", \"trace_id\": \"5a0ba5d1aa195dd3cd2f7dc9ea758934\", \"span_id\": \"5ee119883380210e\", \"status_code\": 200, \"outcome\": \"completed\", \"reason\": null, \"duration_sec\": 0.004824251000002278, \"first_byte_sec\": null, \"attempt_count\": 1, \"cleanup_failed\": false, \"backend_attempts\": [{\"attempt_index\": 1, \"backend_id\": \"backend-a\", \"span_id\": \"b3db3a413bf15740\", \"outcome\": \"completed\", \"duration_sec\": 0.004074596000009478, \"first_byte_sec\": null}]}\ngateway-1  | INFO:     172.18.0.1:51164 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK\ngateway-1  | {\"route\": \"/v1/chat/completions\", \"event\": \"request_finished\", \"request_id\": \"dfc82ecc499f438991473b5cb4bd8947\", \"trace_id\": \"4e233e328b7c315a8bd95d64ac160de2\", \"span_id\": \"a2e92138a6e8aaa1\", \"status_code\": 200, \"outcome\": \"completed\", \"reason\": null, \"duration_sec\": 0.003121901999989518, \"first_byte_sec\": null, \"attempt_count\": 1, \"cleanup_failed\": false, \"backend_attempts\": [{\"attempt_index\": 1, \"backend_id\": \"backend-b\", \"span_id\": \"23f38f9206aebec4\", \"outcome\": \"completed\", \"duration_sec\": 0.002356856999995216, \"first_byte_sec\": null}]}\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     127.0.0.1:53740 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\ngateway-1  | INFO:     172.18.0.1:51164 - \"POST /v1/chat/completions HTTP/1.1\" 503 Service Unavailable\ngateway-1  | {\"route\": \"/v1/chat/completions\", \"event\": \"request_finished\", \"request_id\": \"19f6c0296b6643799fe113ca9443ffb0\", \"trace_id\": \"d59e0c18377038834a461db1d6b9466b\", \"span_id\": \"ff3965022b90a5f1\", \"status_code\": 503, \"outcome\": \"rejected\", \"reason\": \"no_backend_available\", \"duration_sec\": 0.0009476599999942437, \"first_byte_sec\": null, \"attempt_count\": 0, \"cleanup_failed\": false, \"backend_attempts\": []}\ngateway-1  | INFO:     172.18.0.1:51164 - \"GET /metrics HTTP/1.1\" 200 OK\n",
+  "cleaned_up": true,
+  "finished_at": "2026-10-07T15:40:31.083958+00:00"
+}

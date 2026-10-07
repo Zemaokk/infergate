@@ -1,0 +1,115 @@
+{
+  "verified_on": "2026-10-08",
+  "repository": "Zemaokk/infergate",
+  "head_sha": "35c6902d096b8a36440a54b2a3364d5bfe0d8d4d",
+  "run_id": 37645717168,
+  "url": "https://github.com/Zemaokk/infergate/actions/runs/37645717168",
+  "event": "push",
+  "conclusion": "success",
+  "created_at": "2026-10-07T15:39:45Z",
+  "updated_at": "2026-10-07T15:40:36Z",
+  "jobs": [
+    {
+      "id": 112875825474,
+      "name": "packaging",
+      "conclusion": "success",
+      "started_at": "2026-10-07T15:39:49Z",
+      "completed_at": "2026-10-07T15:40:35Z",
+      "url": "https://github.com/Zemaokk/infergate/actions/runs/37645717168/job/112875825474",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-python@v5",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install locked environment",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify isolated Docker stack",
+          "conclusion": "success"
+        },
+        {
+          "name": "Print packaging evidence",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-python@v5",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 112875825576,
+      "name": "tests",
+      "conclusion": "success",
+      "started_at": "2026-10-07T15:39:49Z",
+      "completed_at": "2026-10-07T15:40:09Z",
+      "url": "https://github.com/Zemaokk/infergate/actions/runs/37645717168/job/112875825576",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-python@v5",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install locked environment",
+          "conclusion": "success"
+        },
+        {
+          "name": "Check and test",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-python@v5",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "tests": {
+    "passed": 435,
+    "warnings": 2,
+    "source": "tests job log"
+  },
+  "packaging": {
+    "status": "passed",
+    "architecture": "amd64",
+    "os": "linux",
+    "request_count": 11,
+    "active_requests_final": 0,
+    "cleaned_up": true,
+    "image_id": "sha256:67ee242b7b14161dbc77dcbccf9b491b770edeb346cf9f104946b0ea7c10d47a"
+  }
+}

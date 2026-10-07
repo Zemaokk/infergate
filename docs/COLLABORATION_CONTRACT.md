@@ -243,3 +243,18 @@ Linux ARM64、CPython 3.13.16、UID 10001；镜像包含 Chat/Responses 两个 r
 此前 Docker 不可用的阻塞已解除，M4.5 本地工程验收完成。
 首次托管 CI 尚待推送后执行，不宣称 Linux AMD64 或托管 job 已验证。
 详见项目总验收与 delivery-packaging-2026-10-07.json。
+
+
+2026-10-08 作者确认已 push 并要求 M1–M4 全项目验收。AI 通过 GitHub 连接
+核对提交 35c6902 的首次 push CI：tests 与 packaging 均成功，读取实际 job
+日志确认 435 passed / 2 warnings、Linux AMD64 镜像 11 个业务请求通过、
+最终 active=0、清理正常。本机 gh CLI 账号无该私库权限，改用已有授权
+GitHub 连接只读查询，没有切换账号或修改认证。
+本地 435 项测试、M2 七组真实 HTTP 与 M3 观测栈再次通过；M3 为 9 请求、
+10 次尝试、11 个 Grafana provisioning 面板，日志/指标/trace 对应。
+所有应用进程与本轮启动的观测容器已停止，原有数据卷保留。
+两份原始实验压缩包校验通过，真实实验归档的 14 个核心源码文件均与当前
+一致，自 M4.3 以来核心未改，因此未启动远程 GPU 或重复正式 benchmark。
+本轮没有重新做浏览器渲染和新 GPU 从零安装，边界保留在总验收中。
+M4.5 与 M1–M4 约定第一版工程验收收尾；记录见 PROJECT_ACCEPTANCE.md，
+本轮只有验收文档与证据更新，没有改核心、提交或推送。

@@ -161,13 +161,14 @@ receive
 后端内部排队和模型计算。原始扩展指标仍待后续另定范围。
 完成证据及作者复述见 [M3 验收记录](M3/ACCEPTANCE.md)。
 
-### M4：真实后端与可复现实验（M4.1–M4.4 已完成，M4.5 配套已交付）
+### M4：真实后端与可复现实验（约定范围已完成）
 
 工作计划见 [M4/WORKPLAN.md](M4/WORKPLAN.md)。打包、真实单后端、最小
 Responses adapter、受控与真实 benchmark 及对应作者复述均已完成。
 M4.5 提供 CI、当前架构、复现指南、便携原始证据及总验收；当前版本的
 Linux ARM64 镜像重验、本地独立安装与交付检查均通过，见
-[总验收](PROJECT_ACCEPTANCE.md)。托管 CI 首次运行仍待推送后验证。
+[总验收](PROJECT_ACCEPTANCE.md)。首次托管 CI 的测试与 Linux AMD64 容器
+验收均通过，2026-10-08 全项目复核完成，M4.5 收尾。
 
 范围：
 
@@ -223,8 +224,7 @@ prompt/output 长度扫描、其他 routing strategy、冷/热 cache 对照未�
 
 ## 10. 当前下一步
 
-M0–M3 与 M4.1–M4.4 已完成约定范围验收，M4.5 配套已交付并接受本地检查。
-当前镜像已经复核；下一步在授权推送后查看首次托管 CI 结果，再记录
-托管环境验证状态；不需要重跑 GPU benchmark。
+M0–M4 已完成约定范围验收，首次托管 CI 两个 job 均通过。后续维护按现有
+CI 和复现指南执行；可选扩展另定范围，不需要重跑本次 GPU benchmark。
 当前实现、复现和验收入口分别见 [架构](ARCHITECTURE.md)、
 [复现指南](REPRODUCING.md) 与 [总验收](PROJECT_ACCEPTANCE.md)。

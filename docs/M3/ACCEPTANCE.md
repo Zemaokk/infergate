@@ -41,3 +41,11 @@ HTTP 状态码与流式最终结果独立。计数、取消、fallback 与本地
 现有边界继续保留：单进程配额、首字节不等于 TTFT、没有可信 token/s、
 没有等待队列、网关 trace 不能证明后端内部计算阶段、trace 导出为 best effort，
 本轮无生产性能或多进程验证。
+
+
+2026-10-08 全项目复核：当前核心下再次运行 verify_m3.py，通过 9 请求/
+10 次尝试的日志、Prometheus 与 Jaeger trace 对应及 Grafana 11 面板
+provisioning 检查，最终 active=0。见
+[当日验收证据](evidence/acceptance-2026-10-08.json)。本轮未重做浏览器
+目视渲染；原截图保留为 2026-10-05 证据。应用进程均停止，AI 本轮启动的
+观测容器恢复停止状态，原有卷保留。其余原范围与解释边界保持。

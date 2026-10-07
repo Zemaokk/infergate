@@ -30,15 +30,16 @@ M3 observability is complete within its agreed scope; see the acceptance record.
 M4.1–M4.4 are complete within their agreed scope: mock container packaging,
 real single-backend ordinary/SSE requests and failure recovery, native Responses,
 and local plus real-model benchmarks. Author teach-back is recorded. M4.5 now
-provides CI and delivery documentation. Current-code Docker packaging passed
-again on 2026-10-07 (Linux ARM64); hosted CI execution remains pending its first
-run. See the [M4 work plan](docs/M4/WORKPLAN.md).
+provides CI and delivery documentation. M1–M4 final acceptance passed on
+2026-10-08: current-code Docker packaging passed on Linux ARM64 locally and
+Linux AMD64 in hosted CI; all 435 tests passed. See the [M4 work plan](docs/M4/WORKPLAN.md).
 
 Start with the [current architecture](docs/ARCHITECTURE.md),
 [installation and reproduction guide](docs/REPRODUCING.md), and
 [project acceptance and remaining verification](docs/PROJECT_ACCEPTANCE.md).
 The [CI workflow](.github/workflows/ci.yml) runs locked-install tests and isolated
-Docker packaging checks; no hosted CI success is claimed before its first run.
+Docker packaging checks. Its [first hosted run](https://github.com/Zemaokk/infergate/actions/runs/37645717168)
+passed both jobs for commit `35c6902`.
 
 InferGate currently provides:
 

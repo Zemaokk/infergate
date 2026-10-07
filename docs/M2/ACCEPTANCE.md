@@ -92,3 +92,9 @@ uv run python scripts/verify_m2.py --output /tmp/infergate-m2-evidence.json
 
 这些边界作为后续部署或范围扩展的输入，不能从本次通过推导出生产就绪。
 下一阶段为 M3 可观测性，尚未启动；继续保持 learning mode，先定义指标含义。
+
+
+2026-10-08 全项目复核：当前核心下再次运行 verify_m2.py，七组真实 HTTP
+检查及全部子进程清理通过，见
+[当日验收证据](acceptance-2026-10-08.json)。当前完整测试为 435 passed，
+2 条已有依赖警告；原单进程、key 状态与总时限边界保持。

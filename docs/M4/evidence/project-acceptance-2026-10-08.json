@@ -1,0 +1,174 @@
+{
+  "recorded_utc": "2026-10-07T23:49:24.884611+00:00",
+  "commit": "35c6902d096b8a36440a54b2a3364d5bfe0d8d4d",
+  "scope": "M1-M4 agreed first version, single process; no production readiness claim",
+  "conclusion": "passed",
+  "local_tests": {
+    "passed": 435,
+    "existing_dependency_warnings": 2
+  },
+  "ci": {
+    "verified_on": "2026-10-08",
+    "repository": "Zemaokk/infergate",
+    "head_sha": "35c6902d096b8a36440a54b2a3364d5bfe0d8d4d",
+    "run_id": 37645717168,
+    "url": "https://github.com/Zemaokk/infergate/actions/runs/37645717168",
+    "event": "push",
+    "conclusion": "success",
+    "created_at": "2026-10-07T15:39:45Z",
+    "updated_at": "2026-10-07T15:40:36Z",
+    "jobs": [
+      {
+        "id": 112875825474,
+        "name": "packaging",
+        "conclusion": "success",
+        "started_at": "2026-10-07T15:39:49Z",
+        "completed_at": "2026-10-07T15:40:35Z",
+        "url": "https://github.com/Zemaokk/infergate/actions/runs/37645717168/job/112875825474",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install locked environment",
+            "conclusion": "success"
+          },
+          {
+            "name": "Verify isolated Docker stack",
+            "conclusion": "success"
+          },
+          {
+            "name": "Print packaging evidence",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      },
+      {
+        "id": 112875825576,
+        "name": "tests",
+        "conclusion": "success",
+        "started_at": "2026-10-07T15:39:49Z",
+        "completed_at": "2026-10-07T15:40:09Z",
+        "url": "https://github.com/Zemaokk/infergate/actions/runs/37645717168/job/112875825576",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "conclusion": "success"
+          },
+          {
+            "name": "Install locked environment",
+            "conclusion": "success"
+          },
+          {
+            "name": "Check and test",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "conclusion": "success"
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "conclusion": "success"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success"
+          }
+        ]
+      }
+    ],
+    "tests": {
+      "passed": 435,
+      "warnings": 2,
+      "source": "tests job log"
+    },
+    "packaging": {
+      "status": "passed",
+      "architecture": "amd64",
+      "os": "linux",
+      "request_count": 11,
+      "active_requests_final": 0,
+      "cleaned_up": true,
+      "image_id": "sha256:67ee242b7b14161dbc77dcbccf9b491b770edeb346cf9f104946b0ea7c10d47a"
+    }
+  },
+  "m2": {
+    "checks": 7,
+    "all_passed": true,
+    "all_child_processes_stopped": true,
+    "evidence": "../../M2/acceptance-2026-10-08.json"
+  },
+  "m3": {
+    "status": "passed",
+    "requests": 9,
+    "attempts": 10,
+    "active_requests_final": 0,
+    "grafana_panels": 11,
+    "all_application_processes_stopped": true,
+    "evidence": "../../M3/evidence/acceptance-2026-10-08.json"
+  },
+  "real_model_evidence_reused": {
+    "archive": "benchmark-real-2026-10-07.tar.gz",
+    "all_14_core_files_match_current": true,
+    "core_sha256": {
+      "metrics.py": "5b38f3def6abbf8d832e68c368aa0f1b730c170417fa165cf5182031aca4970d",
+      "tracing.py": "aa78e377dbd3c225d0395236a22147e55d263e58c6205d82a8448eb33abd89b0",
+      "mock_backend.py": "398b1461b23b13ffc44a7fb2b1e3cd6647986be833edcc4aa4d24e40a20eaab7",
+      "health.py": "26618dcafcf8e211963a7293a4e9e3fe6b3865997c02acb0f4b896e65c528aae",
+      "api_errors.py": "009e94aca0f9a6c992d26426999bd1aa3becfc0395903332ea06e23867efdfc8",
+      "token_bucket.py": "72b5ebb35e05f7bc0aaa67273dfc8938cb453344b78e8ade73b04e2170e7b299",
+      "__init__.py": "890aa87622226758e64334477b7b439287f08de8a240fe937824d238f39bce0d",
+      "observability.py": "cb6ca951461d890b2987f17c99c3287d2d0f3b718fc39cb64b444688f1c9b24d",
+      "runtime.py": "67bc3e5c3c9d2950ed87f45a37cc444460f757c4de90e9c1492ba1cdd4e537e3",
+      "concurrency_limiter.py": "8e577e643a42cd17c210a84abc2874e784c630c7c9f0fb73c98ffadb7279d01d",
+      "health_checker.py": "d870ab3e820979805332225c6f85db9149251cb8f73c67efbb558a166dd1c4b6",
+      "app.py": "cb3a7017c590c7a3f4904ed67971c7c60f2af0e8edb7eb597c4cbf3a37174f86",
+      "backend_client.py": "14b13bcc6f394b200ab8ca3eb4cbc1f3635eba8705c765ea0de13ffaca9adbb9",
+      "router.py": "47a84a17218486a7992cb34d3a6f123c5ed2711555debd1136567f510f1c0946"
+    },
+    "remote_gpu_started_this_turn": false,
+    "notes": "Native nonstreaming Chat/Responses benchmark uses identical core. M4.2 SSE and failure-recovery remain explicitly dated historical evidence; current streaming regression covered by tests and real mock HTTP."
+  },
+  "archive_sha256_checks": "both passed",
+  "cleanup": {
+    "owned_application_processes_stopped": true,
+    "observability_containers_started_this_turn_then_stopped": true,
+    "existing_volumes_preserved": true
+  },
+  "limits": [
+    "single-process quotas and caller-supplied keys",
+    "no total generation deadline or key-state eviction",
+    "no production SLA, TTFT or token/s claim",
+    "new GPU clean install not repeated; model revision unknown"
+  ]
+}

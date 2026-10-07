@@ -1,0 +1,310 @@
+{
+  "recorded_at_utc": "2026-10-07T23:47:05.171026+00:00",
+  "scope": "controlled local HTTP plus running compose observability services",
+  "status": "passed",
+  "checks": [
+    {
+      "check": "prometheus_ready",
+      "status": 200
+    },
+    {
+      "check": "grafana_ready",
+      "status": 200
+    },
+    {
+      "check": "jaeger_ready",
+      "status": 200
+    },
+    {
+      "check": "normal",
+      "trace_id": "084e550f660c48db8bfe331add44ff72",
+      "span_count": 2,
+      "outcome": "completed"
+    },
+    {
+      "check": "stream",
+      "trace_id": "db5070efb64b4ecea68550ac49d6b8fd",
+      "span_count": 2,
+      "outcome": "completed"
+    },
+    {
+      "check": "normal_after_scrape",
+      "trace_id": "1685b4c21feb4e1c84692d2eab779a60",
+      "span_count": 2,
+      "outcome": "completed"
+    },
+    {
+      "check": "stream_after_scrape",
+      "trace_id": "297b81c6155f4713b5252e97b824adc3",
+      "span_count": 2,
+      "outcome": "completed"
+    },
+    {
+      "check": "rejected",
+      "trace_id": "74ffbe5c2bb74a4bb49f4cdffde75aef",
+      "span_count": 1,
+      "outcome": "rejected"
+    },
+    {
+      "check": "cancelled_stream",
+      "trace_id": "1f1efc65194c4cc3abdf9881f2158791",
+      "span_count": 2,
+      "outcome": "cancelled"
+    },
+    {
+      "check": "align_0",
+      "trace_id": "cd4a45ed3d8c40ce9abc5e0298d784a9",
+      "span_count": 2,
+      "outcome": "completed"
+    },
+    {
+      "check": "fallback",
+      "trace_id": "4a40451a0aa54dffbbd86165d62295ff",
+      "span_count": 3,
+      "outcome": "completed"
+    },
+    {
+      "check": "both_offline",
+      "trace_id": "297c2a2ee7fb4f58a17229f39da7f05f",
+      "span_count": 3,
+      "outcome": "transport_error"
+    },
+    {
+      "check": "prometheus_matches_logs",
+      "requests": 9.0,
+      "attempts": 10.0,
+      "active_requests": 0,
+      "routing_healthy_backends": 2
+    },
+    {
+      "check": "grafana_dashboard_provisioned",
+      "panels": 11
+    }
+  ],
+  "completion_records": [
+    {
+      "route": "/v1/chat/completions",
+      "event": "request_finished",
+      "request_id": "03a71881d7e84a2bad389eaa9735dd95",
+      "trace_id": "084e550f660c48db8bfe331add44ff72",
+      "span_id": "f4fe937d57f0880d",
+      "status_code": 200,
+      "outcome": "completed",
+      "reason": null,
+      "duration_sec": 0.0019037500023841858,
+      "first_byte_sec": null,
+      "attempt_count": 1,
+      "cleanup_failed": false,
+      "backend_attempts": [
+        {
+          "attempt_index": 1,
+          "backend_id": "backend-a",
+          "span_id": "039b545b52dc3f2d",
+          "outcome": "completed",
+          "duration_sec": 0.00117891700938344,
+          "first_byte_sec": null
+        }
+      ]
+    },
+    {
+      "route": "/v1/chat/completions",
+      "event": "request_finished",
+      "request_id": "12f5c30d8e374af9b86b6812f6047e98",
+      "trace_id": "db5070efb64b4ecea68550ac49d6b8fd",
+      "span_id": "427a8f920c778d02",
+      "status_code": 200,
+      "outcome": "completed",
+      "reason": null,
+      "duration_sec": 0.00536554103018716,
+      "first_byte_sec": 0.005133875005412847,
+      "attempt_count": 1,
+      "cleanup_failed": false,
+      "backend_attempts": [
+        {
+          "attempt_index": 1,
+          "backend_id": "backend-b",
+          "span_id": "de391417fc13bcbb",
+          "outcome": "completed",
+          "duration_sec": 0.005229124973993748,
+          "first_byte_sec": 0.0050141249666921794
+        }
+      ]
+    },
+    {
+      "route": "/v1/chat/completions",
+      "event": "request_finished",
+      "request_id": "b655ad743ccc44baa51eca76d6f6c5b5",
+      "trace_id": "1685b4c21feb4e1c84692d2eab779a60",
+      "span_id": "1153b53b7cd70bae",
+      "status_code": 200,
+      "outcome": "completed",
+      "reason": null,
+      "duration_sec": 0.004148166975937784,
+      "first_byte_sec": null,
+      "attempt_count": 1,
+      "cleanup_failed": false,
+      "backend_attempts": [
+        {
+          "attempt_index": 1,
+          "backend_id": "backend-a",
+          "span_id": "5f82fe152d5d4b51",
+          "outcome": "completed",
+          "duration_sec": 0.0031168750138022006,
+          "first_byte_sec": null
+        }
+      ]
+    },
+    {
+      "route": "/v1/chat/completions",
+      "event": "request_finished",
+      "request_id": "92d942ebcf45439e9d24cfaa5fc8d75a",
+      "trace_id": "297b81c6155f4713b5252e97b824adc3",
+      "span_id": "5ecc9d1865dfd2a2",
+      "status_code": 200,
+      "outcome": "completed",
+      "reason": null,
+      "duration_sec": 0.0025948749971576035,
+      "first_byte_sec": 0.0021288749994710088,
+      "attempt_count": 1,
+      "cleanup_failed": false,
+      "backend_attempts": [
+        {
+          "attempt_index": 1,
+          "backend_id": "backend-b",
+          "span_id": "5cff99ebca68ddba",
+          "outcome": "completed",
+          "duration_sec": 0.002282375004142523,
+          "first_byte_sec": 0.001857166993431747
+        }
+      ]
+    },
+    {
+      "route": "/v1/chat/completions",
+      "event": "request_finished",
+      "request_id": "0e96e672f30c434cbbce5bfa4306ffa0",
+      "trace_id": "74ffbe5c2bb74a4bb49f4cdffde75aef",
+      "span_id": "a1c4ffa02d3626ad",
+      "status_code": 400,
+      "outcome": "rejected",
+      "reason": "invalid_infergate_key",
+      "duration_sec": 0.0004747920320369303,
+      "first_byte_sec": null,
+      "attempt_count": 0,
+      "cleanup_failed": false,
+      "backend_attempts": []
+    },
+    {
+      "route": "/v1/chat/completions",
+      "event": "request_finished",
+      "request_id": "7905ad65df834ae9b70004aba729f6c0",
+      "trace_id": "1f1efc65194c4cc3abdf9881f2158791",
+      "span_id": "4508991cddff9eaa",
+      "status_code": 200,
+      "outcome": "cancelled",
+      "reason": null,
+      "duration_sec": 0.015967708954121917,
+      "first_byte_sec": 0.014371416997164488,
+      "attempt_count": 1,
+      "cleanup_failed": false,
+      "backend_attempts": [
+        {
+          "attempt_index": 1,
+          "backend_id": "backend-a",
+          "span_id": "09e8097a4aff85f2",
+          "outcome": "cancelled",
+          "duration_sec": 0.01567579200491309,
+          "first_byte_sec": 0.014128000009804964
+        }
+      ]
+    },
+    {
+      "route": "/v1/chat/completions",
+      "event": "request_finished",
+      "request_id": "f2904cd16e4847048fed50ba439566e9",
+      "trace_id": "cd4a45ed3d8c40ce9abc5e0298d784a9",
+      "span_id": "6eb5ac31377d3f05",
+      "status_code": 200,
+      "outcome": "completed",
+      "reason": null,
+      "duration_sec": 0.0018369160243310034,
+      "first_byte_sec": null,
+      "attempt_count": 1,
+      "cleanup_failed": false,
+      "backend_attempts": [
+        {
+          "attempt_index": 1,
+          "backend_id": "backend-b",
+          "span_id": "6cadc6548e569fe2",
+          "outcome": "completed",
+          "duration_sec": 0.001312415988650173,
+          "first_byte_sec": null
+        }
+      ]
+    },
+    {
+      "route": "/v1/chat/completions",
+      "event": "request_finished",
+      "request_id": "685f1ab6c9104c2c9ca429a4d9261b02",
+      "trace_id": "4a40451a0aa54dffbbd86165d62295ff",
+      "span_id": "398a9b7ffed8187b",
+      "status_code": 200,
+      "outcome": "completed",
+      "reason": null,
+      "duration_sec": 0.003827792010270059,
+      "first_byte_sec": null,
+      "attempt_count": 2,
+      "cleanup_failed": false,
+      "backend_attempts": [
+        {
+          "attempt_index": 1,
+          "backend_id": "backend-a",
+          "span_id": "1c383819a58ef402",
+          "outcome": "transport_error",
+          "duration_sec": 0.0013844159548170865,
+          "first_byte_sec": null
+        },
+        {
+          "attempt_index": 2,
+          "backend_id": "backend-b",
+          "span_id": "1d8286c48a36220d",
+          "outcome": "completed",
+          "duration_sec": 0.0016232500202022493,
+          "first_byte_sec": null
+        }
+      ]
+    },
+    {
+      "route": "/v1/chat/completions",
+      "event": "request_finished",
+      "request_id": "bad30d2135604998bca45d10118ad8f2",
+      "trace_id": "297c2a2ee7fb4f58a17229f39da7f05f",
+      "span_id": "14ff1abbe3251afe",
+      "status_code": 502,
+      "outcome": "transport_error",
+      "reason": "backend_transport_failure",
+      "duration_sec": 0.004237624991219491,
+      "first_byte_sec": null,
+      "attempt_count": 2,
+      "cleanup_failed": false,
+      "backend_attempts": [
+        {
+          "attempt_index": 1,
+          "backend_id": "backend-a",
+          "span_id": "3e604129146f6e19",
+          "outcome": "transport_error",
+          "duration_sec": 0.0018164170323871076,
+          "first_byte_sec": null
+        },
+        {
+          "attempt_index": 2,
+          "backend_id": "backend-b",
+          "span_id": "a723699b2c3b6420",
+          "outcome": "transport_error",
+          "duration_sec": 0.0009999579633586109,
+          "first_byte_sec": null
+        }
+      ]
+    }
+  ],
+  "all_application_processes_stopped": true
+}
