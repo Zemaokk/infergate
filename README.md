@@ -27,19 +27,25 @@ M0, M1, and the scoped single-process M2 implementation are complete.
 M2 passed 122 automated tests and seven local HTTP acceptance scenarios.
 See the [M2 acceptance record and limitations](docs/M2/ACCEPTANCE.md).
 M3 observability is complete within its agreed scope; see the acceptance record.
-M4 has started with application packaging; see the [M4 work plan](docs/M4/WORKPLAN.md)
-and [packaging contract](docs/M4/PACKAGING_CONTRACT.md). The three-container mock
-stack passed packaging integration checks on 2026-10-06; author explanations
-and corrections are recorded in the [M4.1 acceptance record](docs/M4/ACCEPTANCE.md).
-M4.2 has verified Qwen2.5-7B-Instruct through a single-backend gateway on a leased
-RTX4090, including ordinary requests, SSE, shutdown and recovery. Author teach-back
-is recorded and M4.2 is complete. See the [M4.2 acceptance record](docs/M4/REAL_BACKEND_ACCEPTANCE.md)
-and [remote environment evidence](docs/M4/REMOTE_ENVIRONMENT.md).
+M4.1–M4.4 are complete within their agreed scope: mock container packaging,
+real single-backend ordinary/SSE requests and failure recovery, native Responses,
+and local plus real-model benchmarks. Author teach-back is recorded. M4.5 now
+provides CI and delivery documentation. Current-code Docker packaging passed
+again on 2026-10-07 (Linux ARM64); hosted CI execution remains pending its first
+run. See the [M4 work plan](docs/M4/WORKPLAN.md).
+
+Start with the [current architecture](docs/ARCHITECTURE.md),
+[installation and reproduction guide](docs/REPRODUCING.md), and
+[project acceptance and remaining verification](docs/PROJECT_ACCEPTANCE.md).
+The [CI workflow](.github/workflows/ci.yml) runs locked-install tests and isolated
+Docker packaging checks; no hosted CI success is claimed before its first run.
 
 InferGate currently provides:
 
 - a validated `POST /v1/chat/completions` endpoint with non-streaming and
   streaming passthrough;
+- a minimal native `POST /v1/responses` endpoint sharing the same admission,
+  routing, backend client and observation resources;
 - model-aware round-robin routing that skips unhealthy backends and restores
   them after a successful health probe;
 - parallel startup probes, periodic `GET /health` checks, and `503` when no
@@ -91,7 +97,7 @@ Install the project and run the test suite:
 
 ```bash
 uv sync
-uv run pytest -q
+uv run python -m pytest -q
 ```
 
 Start the two mock backends in separate terminals:
@@ -134,6 +140,11 @@ raise `ValueError` at app creation before HTTP clients are created. Both health
 probes and inference calls use the configured base URL; changes require a new
 app/process. URLs must use HTTP(S), have a host, and contain no userinfo, query,
 fragment or path prefix. See the packaging contract for the supported subset.
+
+For a real single backend, set `INFERGATE_MODEL_NAME` to its served model alias
+and `INFERGATE_BACKEND_COUNT=1` (default: `2`). Only A is then created, validated
+and probed; B can be empty and is ignored. With count `2`, both URLs must be valid.
+The default model alias is `mock-model`. These settings are also frozen per app.
 
 For admitted requests, `X-InferGate-Backend` alternates between `backend-a` and
 `backend-b` while both are healthy. Wait for quota to refill before this streaming example:
@@ -293,3 +304,10 @@ requests on one GPU host. The [2026-10-07 real-model results](docs/M4/benchmark-
 include 1,200 successful measured requests, three-round ranges and portable raw
 evidence. Results cover a short repeated prompt, warm prefix cache and concurrency
 1/2; they do not establish production tail-latency guarantees.
+
+Both local original/retry records and real-model raw evidence are shipped as
+small archives with [SHA256 checksums](docs/M4/evidence/SHA256SUMS).
+The [reproduction guide](docs/REPRODUCING.md) explains extraction and redrawing
+without a GPU. Quotas are single-process and caller keys are not authentication;
+there is no total generation deadline or key-state eviction. This project has
+not been validated as a production service.

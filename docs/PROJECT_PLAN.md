@@ -15,7 +15,7 @@ Client
 InferGate
   |-- API adapters
   |     |-- /v1/chat/completions (M0)
-  |     +-- /v1/responses (planned)
+  |     +-- /v1/responses (minimal non-streaming subset)
   |-- request validation
   |-- routing
   |-- rate limiting / backpressure
@@ -46,9 +46,9 @@ InferGate 的价值是集中解决这些问题，让客户端不需要了解后�
 - 提供一个精简的 OpenAI-compatible HTTP API
 - 维护后端实例的状态并选择后端
 - 转发普通响应和 streaming 响应
-- 实施限流、并发上限和有界等待
+- 实施限流、并发上限和明确的快速拒绝（第一版不等待）
 - 处理超时、可重试错误和 fallback
-- 记录请求、token、延迟、错误和队列指标
+- 记录请求/尝试、延迟、错误、并发及健康指标；token 和队列相关扩展另定范围
 - 提供可复现的 benchmark 工具
 
 ### InferGate 不负责
@@ -161,10 +161,13 @@ receive
 后端内部排队和模型计算。原始扩展指标仍待后续另定范围。
 完成证据及作者复述见 [M3 验收记录](M3/ACCEPTANCE.md)。
 
-### M4：真实后端与可复现实验（已启动）
+### M4：真实后端与可复现实验（M4.1–M4.4 已完成，M4.5 配套已交付）
 
-工作计划见 [M4/WORKPLAN.md](M4/WORKPLAN.md)。M4.1 打包与容器联调、M4.2
-真实单后端接入和作者复述已完成；当前准备 M4.3 合同，后续任务逐项验证。
+工作计划见 [M4/WORKPLAN.md](M4/WORKPLAN.md)。打包、真实单后端、最小
+Responses adapter、受控与真实 benchmark 及对应作者复述均已完成。
+M4.5 提供 CI、当前架构、复现指南、便携原始证据及总验收；当前版本的
+Linux ARM64 镜像重验、本地独立安装与交付检查均通过，见
+[总验收](PROJECT_ACCEPTANCE.md)。托管 CI 首次运行仍待推送后验证。
 
 范围：
 
@@ -174,12 +177,14 @@ receive
 - benchmark workload
 - CI、使用说明和架构说明
 
-实验变量：
+第一版实际实验变量：
 
 - concurrency
-- prompt length / output length
-- routing strategy
-- cache on / off（如果实现缓存）
+- 请求到达率、key 数量及容量
+- 直连/网关、原生 Chat/Responses（分别对照）
+
+prompt/output 长度扫描、其他 routing strategy、冷/热 cache 对照未实施；
+本次固定短输入和输出上限，不把初始候选变量写成已完成的实验。
 
 完成标准：第三方可以按文档启动系统、复现实验，并从原始结果生成性能图表。
 
@@ -188,7 +193,8 @@ receive
 项目不以“功能数量最多”为成功标准。第一版成功需要同时满足：
 
 - Correct：请求和 streaming 内容没有被错误修改
-- Bounded：并发、排队、timeout 和 retry 都有明确上限
+- Bounded：并发和尝试次数有限、无等待队列、每次 HTTP 操作有 timeout；
+  不承诺总生成时长、流式清理等待或整体内存有界
 - Observable：关键阶段有指标，错误可以定位
 - Testable：路由与失败行为能用 mock backend 稳定复现
 - Explainable：作者能够说明每个状态、策略和 trade-off
@@ -217,6 +223,8 @@ receive
 
 ## 10. 当前下一步
 
-M0、M1 和约定范围内的 M2、M3 已完成验收。M4 已启动，先完成应用打包和
-可复现启动，再逐项推进真实后端、Responses adapter 与 benchmark。
-共享 gateway core 不应依赖 Chat Completions 专属字段；性能结论需真实实验支持。
+M0–M3 与 M4.1–M4.4 已完成约定范围验收，M4.5 配套已交付并接受本地检查。
+当前镜像已经复核；下一步在授权推送后查看首次托管 CI 结果，再记录
+托管环境验证状态；不需要重跑 GPU benchmark。
+当前实现、复现和验收入口分别见 [架构](ARCHITECTURE.md)、
+[复现指南](REPRODUCING.md) 与 [总验收](PROJECT_ACCEPTANCE.md)。
