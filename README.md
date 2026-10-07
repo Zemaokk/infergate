@@ -276,3 +276,14 @@ The local Prometheus/Jaeger/Grafana Compose configuration, provisioned dashboard
 and controlled acceptance script are described in [observability/README.md](observability/README.md).
 Docker Desktop integration passed on 2026-10-05 with 9 requests and 10 attempts;
 see [acceptance evidence](docs/M3/ACCEPTANCE.md). M3 author teach-back is complete.
+
+## Benchmark tooling
+
+The [M4 benchmark tools](scripts/m4_benchmark/README.md) run loopback HTTP
+experiments for direct-versus-gateway overhead, global concurrency rejection and
+per-key quotas. Start with the small `pilot` profile before the three-round
+`local` profile. Production limiter defaults are unchanged; experiment settings,
+source snapshots, per-request data and completion logs are retained separately.
+Successful latency excludes rejections; success rate includes all issued attempts.
+These controlled mock experiments do not measure GPU inference performance.
+See the [experiment contract](docs/M4/BENCHMARK_CONTRACT.md) for workloads and scope.
