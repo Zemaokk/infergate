@@ -287,3 +287,9 @@ source snapshots, per-request data and completion logs are retained separately.
 Successful latency excludes rejections; success rate includes all issued attempts.
 These controlled mock experiments do not measure GPU inference performance.
 See the [experiment contract](docs/M4/BENCHMARK_CONTRACT.md) for workloads and scope.
+
+The separate native-model profile compares direct and gateway Chat/Responses
+requests on one GPU host. The [2026-10-07 real-model results](docs/M4/benchmark-real-20261007/RESULTS.md)
+include 1,200 successful measured requests, three-round ranges and portable raw
+evidence. Results cover a short repeated prompt, warm prefix cache and concurrency
+1/2; they do not establish production tail-latency guarantees.

@@ -1,0 +1,1269 @@
+{
+  "manifest": {
+    "profile": "real",
+    "scope": "real native nonstreaming HTTP; repeated warm prompt",
+    "started_utc": "2026-10-07T05:15:22.758655+00:00",
+    "command": [
+      "/root/infergate-m44/gateway/scripts/m4_benchmark/real.py",
+      "--profile",
+      "real",
+      "--environment",
+      "/root/infergate-m44/environment.json",
+      "--output",
+      "/root/infergate-m44/real-01"
+    ],
+    "python": "3.13.14 (main, Aug  5 2026, 15:44:26) [Clang 22.1.3 ]",
+    "platform": "Linux-5.15.0-119-generic-x86_64-with-glibc2.39",
+    "environment": {
+      "inference": {
+        "python": "3.12.3 (main, Feb  4 2025, 14:48:35) [GCC 13.3.0]",
+        "cuda": "11.8",
+        "packages": {
+          "vllm": "0.10.1+cu118",
+          "torch": "2.7.1+cu118",
+          "transformers": "4.55.2",
+          "openai": "1.99.1"
+        }
+      },
+      "gpu": "NVIDIA GeForce RTX 4090, 24564 MiB, 550.54.14",
+      "startup": {
+        "pid": 1415,
+        "command": [
+          "bash",
+          "/root/infergate-m43/gateway/scripts/start_m43_backend.sh"
+        ],
+        "log": "/root/infergate-m44/backend-20261007.log",
+        "started_unix": 1791349611.3278885
+      },
+      "startup_script": "#!/usr/bin/env bash\nset -euo pipefail\nwork_root=\"${M43_WORK_ROOT:-/root/infergate-m43}\"\nmodel_path=\"${M43_MODEL_PATH:-/root/shared-nvme/infergate-m4/models/Qwen2.5-7B-Instruct}\"\ntest -f \"$model_path/config.json\"\nexport HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1\nexport VLLM_NO_USAGE_STATS=1 DO_NOT_TRACK=1\nexport VLLM_USE_V1=1 VLLM_ENABLE_RESPONSES_API_STORE=0\nexec \"$work_root/vllm-env/bin/vllm\" serve \"$model_path\" \\\n  --served-model-name Qwen2.5-7B-Instruct --host 127.0.0.1 --port 8002 \\\n  --dtype bfloat16 --max-model-len 4096 --max-num-seqs 2 \\\n  --gpu-memory-utilization 0.85 --enforce-eager\n",
+      "verified_engine_config": {
+        "engine": "V1",
+        "dtype": "bfloat16",
+        "max_model_len": 4096,
+        "max_num_seqs": 2,
+        "gpu_memory_utilization": 0.85,
+        "enforce_eager": true,
+        "prefix_caching": true,
+        "chunked_prefill": true,
+        "seed": 0
+      },
+      "generation_defaults": {
+        "repetition_penalty": 1.05,
+        "temperature": 0.7,
+        "top_k": 20,
+        "top_p": 0.8
+      },
+      "model_path": "/root/shared-nvme/infergate-m4/models/Qwen2.5-7B-Instruct",
+      "model_revision": "not recorded in the retained local snapshot",
+      "model_config": {
+        "architectures": [
+          "Qwen2ForCausalLM"
+        ],
+        "attention_dropout": 0.0,
+        "bos_token_id": 151643,
+        "eos_token_id": 151645,
+        "hidden_act": "silu",
+        "hidden_size": 3584,
+        "initializer_range": 0.02,
+        "intermediate_size": 18944,
+        "max_position_embeddings": 32768,
+        "max_window_layers": 28,
+        "model_type": "qwen2",
+        "num_attention_heads": 28,
+        "num_hidden_layers": 28,
+        "num_key_value_heads": 4,
+        "rms_norm_eps": 1e-06,
+        "rope_theta": 1000000.0,
+        "sliding_window": 131072,
+        "tie_word_embeddings": false,
+        "torch_dtype": "bfloat16",
+        "transformers_version": "4.43.1",
+        "use_cache": true,
+        "use_sliding_window": false,
+        "vocab_size": 152064
+      },
+      "generation_config": {
+        "bos_token_id": 151643,
+        "pad_token_id": 151643,
+        "do_sample": true,
+        "eos_token_id": [
+          151645,
+          151643
+        ],
+        "repetition_penalty": 1.05,
+        "temperature": 0.7,
+        "top_p": 0.8,
+        "top_k": 20,
+        "transformers_version": "4.37.0"
+      },
+      "model_metadata_hashes": {
+        "config.json": "7463bb0ea78315365e6c6b74de4e73bbcc8359dfb0c5a737584e077d42c0b03c",
+        "configuration.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "generation_config.json": "3a8f9087e486054c8a4a08dae2e5a3ba62e23da212b5b8c08bc42cb983c3459f",
+        "model.safetensors.index.json": "624bf7c47cd12468fdc16e38a47cf4f19e0415b859a223ba3c027eed2f0e1028",
+        "tokenizer.json": "c0382117ea329cdf097041132f6d735924b697924d6f6fc3945713e96ce87539",
+        "tokenizer_config.json": "5b5d4f65d0acd3b2d56a35b56d374a36cbc1c8fa5cf3b3febbbfabf22f359583",
+        "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+      },
+      "weight_files": {
+        "model-00001-of-00004.safetensors": 3945441440,
+        "model-00002-of-00004.safetensors": 3864726352,
+        "model-00003-of-00004.safetensors": 3864726424,
+        "model-00004-of-00004.safetensors": 3556377672
+      },
+      "gateway_hashes": {
+        "tracing.py": "aa78e377dbd3c225d0395236a22147e55d263e58c6205d82a8448eb33abd89b0",
+        "backend_client.py": "14b13bcc6f394b200ab8ca3eb4cbc1f3635eba8705c765ea0de13ffaca9adbb9",
+        "health.py": "26618dcafcf8e211963a7293a4e9e3fe6b3865997c02acb0f4b896e65c528aae",
+        "metrics.py": "5b38f3def6abbf8d832e68c368aa0f1b730c170417fa165cf5182031aca4970d",
+        "token_bucket.py": "72b5ebb35e05f7bc0aaa67273dfc8938cb453344b78e8ade73b04e2170e7b299",
+        "mock_backend.py": "398b1461b23b13ffc44a7fb2b1e3cd6647986be833edcc4aa4d24e40a20eaab7",
+        "router.py": "47a84a17218486a7992cb34d3a6f123c5ed2711555debd1136567f510f1c0946",
+        "concurrency_limiter.py": "8e577e643a42cd17c210a84abc2874e784c630c7c9f0fb73c98ffadb7279d01d",
+        "app.py": "cb3a7017c590c7a3f4904ed67971c7c60f2af0e8edb7eb597c4cbf3a37174f86",
+        "observability.py": "cb6ca951461d890b2987f17c99c3287d2d0f3b718fc39cb64b444688f1c9b24d",
+        "runtime.py": "67bc3e5c3c9d2950ed87f45a37cc444460f757c4de90e9c1492ba1cdd4e537e3",
+        "__init__.py": "890aa87622226758e64334477b7b439287f08de8a240fe937824d238f39bce0d",
+        "health_checker.py": "d870ab3e820979805332225c6f85db9149251cb8f73c67efbb558a166dd1c4b6",
+        "api_errors.py": "009e94aca0f9a6c992d26426999bd1aa3becfc0395903332ea06e23867efdfc8"
+      },
+      "uploaded_archive_sha256": "9f3766fb7085441f2d9d3ca8a9be69c5e84e7f3ab57bb554b1ce29f817c21c82",
+      "backend_idle": true
+    },
+    "client_timeout_seconds": 120,
+    "client_pool": 32,
+    "otlp_export": false,
+    "gateway_limit": 2,
+    "key_capacity": 100000,
+    "key_refill_rate": 100000,
+    "payloads": {
+      "chat": {
+        "model": "Qwen2.5-7B-Instruct",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Briefly explain what an HTTP gateway does."
+          }
+        ],
+        "stream": false,
+        "max_tokens": 64,
+        "temperature": 0
+      },
+      "responses": {
+        "model": "Qwen2.5-7B-Instruct",
+        "input": "Briefly explain what an HTTP gateway does.",
+        "store": false,
+        "max_output_tokens": 64
+      }
+    },
+    "backend_timeout_seconds": {
+      "connect": 5,
+      "pool": 5,
+      "write": 30,
+      "read": 30
+    },
+    "packages": {
+      "infergate": "0.1.0",
+      "fastapi": "0.141.1",
+      "httpx": "0.28.1",
+      "uvicorn": "0.52.4"
+    },
+    "source_sha256": {
+      "/root/infergate-m44/gateway/scripts/m4_benchmark/retry.py": "e22f375fc9452510445ab0ced7bce1dcbf08dff8226796436ee29a43418a23d6",
+      "/root/infergate-m44/gateway/scripts/m4_benchmark/real.py": "81a5b067581686709cadb2c4286e4b846edbec487ee1184d71bd16fc457a1437",
+      "/root/infergate-m44/gateway/scripts/m4_benchmark/server.py": "0274ea7d02ba03d05ad43f24b6f0f94d4f3b5663f3cd8774e299d75f0300e04f",
+      "/root/infergate-m44/gateway/scripts/m4_benchmark/client.py": "9cc3ba6847b435589d95736826817ff97fae06418bc78610ecfe5d2a5c80c68a",
+      "/root/infergate-m44/gateway/scripts/m4_benchmark/run.py": "35df9d6093952e5797456fe4654ccea133d9bead0deda5c9c7f461e037a56def",
+      "/root/infergate-m44/gateway/scripts/m4_benchmark/report.py": "a1a8892581c10504e393b4ece69995c4abfa74ba901e610e3235ea29a8ba2fe5",
+      "/root/infergate-m44/gateway/scripts/m4_benchmark/__init__.py": "e84f0b2942545b416f8f144246f4fb063887d9ece1811a71af876afc4d2f5e96",
+      "/root/infergate-m44/gateway/configs/logging.json": "dbee12c15d1c7b4da247024ff69d53f64d63295d3a4e8f10a687fc652cdc0f88",
+      "/root/infergate-m43/gateway/.venv/lib/python3.13/site-packages/infergate/tracing.py": "aa78e377dbd3c225d0395236a22147e55d263e58c6205d82a8448eb33abd89b0",
+      "/root/infergate-m43/gateway/.venv/lib/python3.13/site-packages/infergate/backend_client.py": "14b13bcc6f394b200ab8ca3eb4cbc1f3635eba8705c765ea0de13ffaca9adbb9",
+      "/root/infergate-m43/gateway/.venv/lib/python3.13/site-packages/infergate/health.py": "26618dcafcf8e211963a7293a4e9e3fe6b3865997c02acb0f4b896e65c528aae",
+      "/root/infergate-m43/gateway/.venv/lib/python3.13/site-packages/infergate/metrics.py": "5b38f3def6abbf8d832e68c368aa0f1b730c170417fa165cf5182031aca4970d",
+      "/root/infergate-m43/gateway/.venv/lib/python3.13/site-packages/infergate/token_bucket.py": "72b5ebb35e05f7bc0aaa67273dfc8938cb453344b78e8ade73b04e2170e7b299",
+      "/root/infergate-m43/gateway/.venv/lib/python3.13/site-packages/infergate/mock_backend.py": "398b1461b23b13ffc44a7fb2b1e3cd6647986be833edcc4aa4d24e40a20eaab7",
+      "/root/infergate-m43/gateway/.venv/lib/python3.13/site-packages/infergate/router.py": "47a84a17218486a7992cb34d3a6f123c5ed2711555debd1136567f510f1c0946",
+      "/root/infergate-m43/gateway/.venv/lib/python3.13/site-packages/infergate/concurrency_limiter.py": "8e577e643a42cd17c210a84abc2874e784c630c7c9f0fb73c98ffadb7279d01d",
+      "/root/infergate-m43/gateway/.venv/lib/python3.13/site-packages/infergate/app.py": "cb3a7017c590c7a3f4904ed67971c7c60f2af0e8edb7eb597c4cbf3a37174f86",
+      "/root/infergate-m43/gateway/.venv/lib/python3.13/site-packages/infergate/observability.py": "cb6ca951461d890b2987f17c99c3287d2d0f3b718fc39cb64b444688f1c9b24d",
+      "/root/infergate-m43/gateway/.venv/lib/python3.13/site-packages/infergate/runtime.py": "67bc3e5c3c9d2950ed87f45a37cc444460f757c4de90e9c1492ba1cdd4e537e3",
+      "/root/infergate-m43/gateway/.venv/lib/python3.13/site-packages/infergate/__init__.py": "890aa87622226758e64334477b7b439287f08de8a240fe937824d238f39bce0d",
+      "/root/infergate-m43/gateway/.venv/lib/python3.13/site-packages/infergate/health_checker.py": "d870ab3e820979805332225c6f85db9149251cb8f73c67efbb558a166dd1c4b6",
+      "/root/infergate-m43/gateway/.venv/lib/python3.13/site-packages/infergate/api_errors.py": "009e94aca0f9a6c992d26426999bd1aa3becfc0395903332ea06e23867efdfc8"
+    },
+    "outcome": "passed",
+    "finished_utc": "2026-10-07T05:34:27.551919+00:00",
+    "source_changed_during_run": []
+  },
+  "summary": {
+    "cases": [
+      {
+        "case": "real-r0-chat-c1-direct",
+        "group": "real-chat",
+        "protocol": "chat",
+        "target": "direct",
+        "repetition": 0,
+        "concurrency": 1,
+        "offered_rate_per_key": null,
+        "key_count": 1,
+        "issued": 50,
+        "success": 50,
+        "success_rate": 1.0,
+        "measurement_seconds": 56.20829758327454,
+        "success_rps": 0.8895483789723976,
+        "success_p50_seconds": 1.1235782019793987,
+        "success_p95_seconds": 1.1264474185183644,
+        "rejected_p50_seconds": null,
+        "categories": {
+          "success": 50
+        },
+        "valid_case": true,
+        "issues": [],
+        "gateway_state_after": {
+          "active": 0,
+          "limit": 2,
+          "capacity": 100000,
+          "rate": 100000,
+          "healthy": true,
+          "quota_events": []
+        }
+      },
+      {
+        "case": "real-r0-chat-c1-gateway",
+        "group": "real-chat",
+        "protocol": "chat",
+        "target": "gateway",
+        "repetition": 0,
+        "concurrency": 1,
+        "offered_rate_per_key": null,
+        "key_count": 1,
+        "issued": 50,
+        "success": 50,
+        "success_rate": 1.0,
+        "measurement_seconds": 56.32424748968333,
+        "success_rps": 0.8877171418785184,
+        "success_p50_seconds": 1.1259265500120819,
+        "success_p95_seconds": 1.128283686307259,
+        "rejected_p50_seconds": null,
+        "categories": {
+          "success": 50
+        },
+        "valid_case": true,
+        "issues": [],
+        "gateway_state_after": {
+          "active": 0,
+          "limit": 2,
+          "capacity": 100000,
+          "rate": 100000,
+          "healthy": true,
+          "quota_events": []
+        }
+      },
+      {
+        "case": "real-r0-chat-c2-direct",
+        "group": "real-chat",
+        "protocol": "chat",
+        "target": "direct",
+        "repetition": 0,
+        "concurrency": 2,
+        "offered_rate_per_key": null,
+        "key_count": 1,
+        "issued": 50,
+        "success": 50,
+        "success_rate": 1.0,
+        "measurement_seconds": 29.26215252187103,
+        "success_rps": 1.7086917977968008,
+        "success_p50_seconds": 1.1693901126272976,
+        "success_p95_seconds": 1.1735768560087307,
+        "rejected_p50_seconds": null,
+        "categories": {
+          "success": 50
+        },
+        "valid_case": true,
+        "issues": [],
+        "gateway_state_after": {
+          "active": 0,
+          "limit": 2,
+          "capacity": 100000,
+          "rate": 100000,
+          "healthy": true,
+          "quota_events": []
+        }
+      },
+      {
+        "case": "real-r0-chat-c2-gateway",
+        "group": "real-chat",
+        "protocol": "chat",
+        "target": "gateway",
+        "repetition": 0,
+        "concurrency": 2,
+        "offered_rate_per_key": null,
+        "key_count": 1,
+        "issued": 50,
+        "success": 50,
+        "success_rate": 1.0,
+        "measurement_seconds": 29.246078133117408,
+        "success_rps": 1.7096309382891737,
+        "success_p50_seconds": 1.169118743389845,
+        "success_p95_seconds": 1.1708099118899553,
+        "rejected_p50_seconds": null,
+        "categories": {
+          "success": 50
+        },
+        "valid_case": true,
+        "issues": [],
+        "gateway_state_after": {
+          "active": 0,
+          "limit": 2,
+          "capacity": 100000,
+          "rate": 100000,
+          "healthy": true,
+          "quota_events": []
+        }
+      },
+      {
+        "case": "real-r0-responses-c1-direct",
+        "group": "real-responses",
+        "protocol": "responses",
+        "target": "direct",
+        "repetition": 0,
+        "concurrency": 1,
+        "offered_rate_per_key": null,
+        "key_count": 1,
+        "issued": 50,
+        "success": 50,
+        "success_rate": 1.0,
+        "measurement_seconds": 56.899895918089896,
+        "success_rps": 0.8787362295350658,
+        "success_p50_seconds": 1.1371237733401358,
+        "success_p95_seconds": 1.1401612028246746,
+        "rejected_p50_seconds": null,
+        "categories": {
+          "success": 50
+        },
+        "valid_case": true,
+        "issues": [],
+        "gateway_state_after": {
+          "active": 0,
+          "limit": 2,
+          "capacity": 100000,
+          "rate": 100000,
+          "healthy": true,
+          "quota_events": []
+        }
+      },
+      {
+        "case": "real-r0-responses-c1-gateway",
+        "group": "real-responses",
+        "protocol": "responses",
+        "target": "gateway",
+        "repetition": 0,
+        "concurrency": 1,
+        "offered_rate_per_key": null,
+        "key_count": 1,
+        "issued": 50,
+        "success": 50,
+        "success_rate": 1.0,
+        "measurement_seconds": 56.995109223760664,
+        "success_rps": 0.8772682547848425,
+        "success_p50_seconds": 1.139425759203732,
+        "success_p95_seconds": 1.1419569710036739,
+        "rejected_p50_seconds": null,
+        "categories": {
+          "success": 50
+        },
+        "valid_case": true,
+        "issues": [],
+        "gateway_state_after": {
+          "active": 0,
+          "limit": 2,
+          "capacity": 100000,
+          "rate": 100000,
+          "healthy": true,
+          "quota_events": []
+        }
+      },
+      {
+        "case": "real-r0-responses-c2-direct",
+        "group": "real-responses",
+        "protocol": "responses",
+        "target": "direct",
+        "repetition": 0,
+        "concurrency": 2,
+        "offered_rate_per_key": null,
+        "key_count": 1,
+        "issued": 50,
+        "success": 50,
+        "success_rate": 1.0,
+        "measurement_seconds": 29.862554013729095,
+        "success_rps": 1.6743376998837025,
+        "success_p50_seconds": 1.1937252355273813,
+        "success_p95_seconds": 1.1966145579470322,
+        "rejected_p50_seconds": null,
+        "categories": {
+          "success": 50
+        },
+        "valid_case": true,
+        "issues": [],
+        "gateway_state_after": {
+          "active": 0,
+          "limit": 2,
+          "capacity": 100000,
+          "rate": 100000,
+          "healthy": true,
+          "quota_events": []
+        }
+      },
+      {
+        "case": "real-r0-responses-c2-gateway",
+        "group": "real-responses",
+        "protocol": "responses",
+        "target": "gateway",
+        "repetition": 0,
+        "concurrency": 2,
+        "offered_rate_per_key": null,
+        "key_count": 1,
+        "issued": 50,
+        "success": 50,
+        "success_rate": 1.0,
+        "measurement_seconds": 29.871732753701508,
+        "success_rps": 1.6738232231876247,
+        "success_p50_seconds": 1.1940231777261943,
+        "success_p95_seconds": 1.1973308817250654,
+        "rejected_p50_seconds": null,
+        "categories": {
+          "success": 50
+        },
+        "valid_case": true,
+        "issues": [],
+        "gateway_state_after": {
+          "active": 0,
+          "limit": 2,
+          "capacity": 100000,
+          "rate": 100000,
+          "healthy": true,
+          "quota_events": []
+        }
+      },
+      {
+        "case": "real-r1-chat-c1-gateway",
+        "group": "real-chat",
+        "protocol": "chat",
+        "target": "gateway",
+        "repetition": 1,
+        "concurrency": 1,
+        "offered_rate_per_key": null,
+        "key_count": 1,
+        "issued": 50,
+        "success": 50,
+        "success_rate": 1.0,
+        "measurement_seconds": 56.287174167111516,
+        "success_rps": 0.8883018332303294,
+        "success_p50_seconds": 1.1249752664007246,
+        "success_p95_seconds": 1.1285155855817721,
+        "rejected_p50_seconds": null,
+        "categories": {
+          "success": 50
+        },
+        "valid_case": true,
+        "issues": [],
+        "gateway_state_after": {
+          "active": 0,
+          "limit": 2,
+          "capacity": 100000,
+          "rate": 100000,
+          "healthy": true,
+          "quota_events": []
+        }
+      },
+      {
+        "case": "real-r1-chat-c1-direct",
+        "group": "real-chat",
+        "protocol": "chat",
+        "target": "direct",
+        "repetition": 1,
+        "concurrency": 1,
+        "offered_rate_per_key": null,
+        "key_count": 1,
+        "issued": 50,
+        "success": 50,
+        "success_rate": 1.0,
+        "measurement_seconds": 56.18666265485808,
+        "success_rps": 0.8898909035964399,
+        "success_p50_seconds": 1.1230307943187654,
+        "success_p95_seconds": 1.1259591072797774,
+        "rejected_p50_seconds": null,
+        "categories": {
+          "success": 50
+        },
+        "valid_case": true,
+        "issues": [],
+        "gateway_state_after": {
+          "active": 0,
+          "limit": 2,
+          "capacity": 100000,
+          "rate": 100000,
+          "healthy": true,
+          "quota_events": []
+        }
+      },
+      {
+        "case": "real-r1-chat-c2-gateway",
+        "group": "real-chat",
+        "protocol": "chat",
+        "target": "gateway",
+        "repetition": 1,
+        "concurrency": 2,
+        "offered_rate_per_key": null,
+        "key_count": 1,
+        "issued": 50,
+        "success": 50,
+        "success_rate": 1.0,
+        "measurement_seconds": 29.256000686902553,
+        "success_rps": 1.7090510946830886,
+        "success_p50_seconds": 1.168788802344352,
+        "success_p95_seconds": 1.1738085011718795,
+        "rejected_p50_seconds": null,
+        "categories": {
+          "success": 50
+        },
+        "valid_case": true,
+        "issues": [],
+        "gateway_state_after": {
+          "active": 0,
+          "limit": 2,
+          "capacity": 100000,
+          "rate": 100000,
+          "healthy": true,
+          "quota_events": []
+        }
+      },
+      {
+        "case": "real-r1-chat-c2-direct",
+        "group": "real-chat",
+        "protocol": "chat",
+        "target": "direct",
+        "repetition": 1,
+        "concurrency": 2,
+        "offered_rate_per_key": null,
+        "key_count": 1,
+        "issued": 50,
+        "success": 50,
+        "success_rate": 1.0,
+        "measurement_seconds": 29.240973366890103,
+        "success_rps": 1.7099293984726098,
+        "success_p50_seconds": 1.1687899334356189,
+        "success_p95_seconds": 1.1718514654552563,
+        "rejected_p50_seconds": null,
+        "categories": {
+          "success": 50
+        },
+        "valid_case": true,
+        "issues": [],
+        "gateway_state_after": {
+          "active": 0,
+          "limit": 2,
+          "capacity": 100000,
+          "rate": 100000,
+          "healthy": true,
+          "quota_events": []
+        }
+      },
+      {
+        "case": "real-r1-responses-c1-gateway",
+        "group": "real-responses",
+        "protocol": "responses",
+        "target": "gateway",
+        "repetition": 1,
+        "concurrency": 1,
+        "offered_rate_per_key": null,
+        "key_count": 1,
+        "issued": 50,
+        "success": 50,
+        "success_rate": 1.0,
+        "measurement_seconds": 56.99618115602061,
+        "success_rps": 0.8772517559225704,
+        "success_p50_seconds": 1.1396023645065725,
+        "success_p95_seconds": 1.1416254139738158,
+        "rejected_p50_seconds": null,
+        "categories": {
+          "success": 50
+        },
+        "valid_case": true,
+        "issues": [],
+        "gateway_state_after": {
+          "active": 0,
+          "limit": 2,
+          "capacity": 100000,
+          "rate": 100000,
+          "healthy": true,
+          "quota_events": []
+        }
+      },
+      {
+        "case": "real-r1-responses-c1-direct",
+        "group": "real-responses",
+        "protocol": "responses",
+        "target": "direct",
+        "repetition": 1,
+        "concurrency": 1,
+        "offered_rate_per_key": null,
+        "key_count": 1,
+        "issued": 50,
+        "success": 50,
+        "success_rate": 1.0,
+        "measurement_seconds": 56.802549398038536,
+        "success_rps": 0.8802421815547343,
+        "success_p50_seconds": 1.1359283151105046,
+        "success_p95_seconds": 1.1381256635766477,
+        "rejected_p50_seconds": null,
+        "categories": {
+          "success": 50
+        },
+        "valid_case": true,
+        "issues": [],
+        "gateway_state_after": {
+          "active": 0,
+          "limit": 2,
+          "capacity": 100000,
+          "rate": 100000,
+          "healthy": true,
+          "quota_events": []
+        }
+      },
+      {
+        "case": "real-r1-responses-c2-gateway",
+        "group": "real-responses",
+        "protocol": "responses",
+        "target": "gateway",
+        "repetition": 1,
+        "concurrency": 2,
+        "offered_rate_per_key": null,
+        "key_count": 1,
+        "issued": 50,
+        "success": 50,
+        "success_rate": 1.0,
+        "measurement_seconds": 29.882424101233482,
+        "success_rps": 1.67322436193977,
+        "success_p50_seconds": 1.194104821421206,
+        "success_p95_seconds": 1.1991747623309492,
+        "rejected_p50_seconds": null,
+        "categories": {
+          "success": 50
+        },
+        "valid_case": true,
+        "issues": [],
+        "gateway_state_after": {
+          "active": 0,
+          "limit": 2,
+          "capacity": 100000,
+          "rate": 100000,
+          "healthy": true,
+          "quota_events": []
+        }
+      },
+      {
+        "case": "real-r1-responses-c2-direct",
+        "group": "real-responses",
+        "protocol": "responses",
+        "target": "direct",
+        "repetition": 1,
+        "concurrency": 2,
+        "offered_rate_per_key": null,
+        "key_count": 1,
+        "issued": 50,
+        "success": 50,
+        "success_rate": 1.0,
+        "measurement_seconds": 29.873453864827752,
+        "success_rps": 1.6737267885474982,
+        "success_p50_seconds": 1.1939679125789553,
+        "success_p95_seconds": 1.1976919420761987,
+        "rejected_p50_seconds": null,
+        "categories": {
+          "success": 50
+        },
+        "valid_case": true,
+        "issues": [],
+        "gateway_state_after": {
+          "active": 0,
+          "limit": 2,
+          "capacity": 100000,
+          "rate": 100000,
+          "healthy": true,
+          "quota_events": []
+        }
+      },
+      {
+        "case": "real-r2-chat-c1-direct",
+        "group": "real-chat",
+        "protocol": "chat",
+        "target": "direct",
+        "repetition": 2,
+        "concurrency": 1,
+        "offered_rate_per_key": null,
+        "key_count": 1,
+        "issued": 50,
+        "success": 50,
+        "success_rate": 1.0,
+        "measurement_seconds": 56.23831288004294,
+        "success_rps": 0.8890736126215354,
+        "success_p50_seconds": 1.1242182997521013,
+        "success_p95_seconds": 1.126151426602155,
+        "rejected_p50_seconds": null,
+        "categories": {
+          "success": 50
+        },
+        "valid_case": true,
+        "issues": [],
+        "gateway_state_after": {
+          "active": 0,
+          "limit": 2,
+          "capacity": 100000,
+          "rate": 100000,
+          "healthy": true,
+          "quota_events": []
+        }
+      },
+      {
+        "case": "real-r2-chat-c1-gateway",
+        "group": "real-chat",
+        "protocol": "chat",
+        "target": "gateway",
+        "repetition": 2,
+        "concurrency": 1,
+        "offered_rate_per_key": null,
+        "key_count": 1,
+        "issued": 50,
+        "success": 50,
+        "success_rate": 1.0,
+        "measurement_seconds": 56.31467886501923,
+        "success_rps": 0.8878679770126204,
+        "success_p50_seconds": 1.1256645685061812,
+        "success_p95_seconds": 1.1289601042401045,
+        "rejected_p50_seconds": null,
+        "categories": {
+          "success": 50
+        },
+        "valid_case": true,
+        "issues": [],
+        "gateway_state_after": {
+          "active": 0,
+          "limit": 2,
+          "capacity": 100000,
+          "rate": 100000,
+          "healthy": true,
+          "quota_events": []
+        }
+      },
+      {
+        "case": "real-r2-chat-c2-direct",
+        "group": "real-chat",
+        "protocol": "chat",
+        "target": "direct",
+        "repetition": 2,
+        "concurrency": 2,
+        "offered_rate_per_key": null,
+        "key_count": 1,
+        "issued": 50,
+        "success": 50,
+        "success_rate": 1.0,
+        "measurement_seconds": 29.235507457051426,
+        "success_rps": 1.7102490891753037,
+        "success_p50_seconds": 1.1687577283009887,
+        "success_p95_seconds": 1.1706877471413464,
+        "rejected_p50_seconds": null,
+        "categories": {
+          "success": 50
+        },
+        "valid_case": true,
+        "issues": [],
+        "gateway_state_after": {
+          "active": 0,
+          "limit": 2,
+          "capacity": 100000,
+          "rate": 100000,
+          "healthy": true,
+          "quota_events": []
+        }
+      },
+      {
+        "case": "real-r2-chat-c2-gateway",
+        "group": "real-chat",
+        "protocol": "chat",
+        "target": "gateway",
+        "repetition": 2,
+        "concurrency": 2,
+        "offered_rate_per_key": null,
+        "key_count": 1,
+        "issued": 50,
+        "success": 50,
+        "success_rate": 1.0,
+        "measurement_seconds": 29.232317918911576,
+        "success_rps": 1.7104356944494288,
+        "success_p50_seconds": 1.1684284305665642,
+        "success_p95_seconds": 1.170634546293877,
+        "rejected_p50_seconds": null,
+        "categories": {
+          "success": 50
+        },
+        "valid_case": true,
+        "issues": [],
+        "gateway_state_after": {
+          "active": 0,
+          "limit": 2,
+          "capacity": 100000,
+          "rate": 100000,
+          "healthy": true,
+          "quota_events": []
+        }
+      },
+      {
+        "case": "real-r2-responses-c1-direct",
+        "group": "real-responses",
+        "protocol": "responses",
+        "target": "direct",
+        "repetition": 2,
+        "concurrency": 1,
+        "offered_rate_per_key": null,
+        "key_count": 1,
+        "issued": 50,
+        "success": 50,
+        "success_rate": 1.0,
+        "measurement_seconds": 56.890898193232715,
+        "success_rps": 0.8788752083008525,
+        "success_p50_seconds": 1.137200620956719,
+        "success_p95_seconds": 1.1402935702586547,
+        "rejected_p50_seconds": null,
+        "categories": {
+          "success": 50
+        },
+        "valid_case": true,
+        "issues": [],
+        "gateway_state_after": {
+          "active": 0,
+          "limit": 2,
+          "capacity": 100000,
+          "rate": 100000,
+          "healthy": true,
+          "quota_events": []
+        }
+      },
+      {
+        "case": "real-r2-responses-c1-gateway",
+        "group": "real-responses",
+        "protocol": "responses",
+        "target": "gateway",
+        "repetition": 2,
+        "concurrency": 1,
+        "offered_rate_per_key": null,
+        "key_count": 1,
+        "issued": 50,
+        "success": 50,
+        "success_rate": 1.0,
+        "measurement_seconds": 56.961104047019035,
+        "success_rps": 0.8777919746556715,
+        "success_p50_seconds": 1.1387129046488553,
+        "success_p95_seconds": 1.1417430268600584,
+        "rejected_p50_seconds": null,
+        "categories": {
+          "success": 50
+        },
+        "valid_case": true,
+        "issues": [],
+        "gateway_state_after": {
+          "active": 0,
+          "limit": 2,
+          "capacity": 100000,
+          "rate": 100000,
+          "healthy": true,
+          "quota_events": []
+        }
+      },
+      {
+        "case": "real-r2-responses-c2-direct",
+        "group": "real-responses",
+        "protocol": "responses",
+        "target": "direct",
+        "repetition": 2,
+        "concurrency": 2,
+        "offered_rate_per_key": null,
+        "key_count": 1,
+        "issued": 50,
+        "success": 50,
+        "success_rate": 1.0,
+        "measurement_seconds": 30.022304526995867,
+        "success_rps": 1.6654284468748999,
+        "success_p50_seconds": 1.1941351506393403,
+        "success_p95_seconds": 1.2001992157194763,
+        "rejected_p50_seconds": null,
+        "categories": {
+          "success": 50
+        },
+        "valid_case": true,
+        "issues": [],
+        "gateway_state_after": {
+          "active": 0,
+          "limit": 2,
+          "capacity": 100000,
+          "rate": 100000,
+          "healthy": true,
+          "quota_events": []
+        }
+      },
+      {
+        "case": "real-r2-responses-c2-gateway",
+        "group": "real-responses",
+        "protocol": "responses",
+        "target": "gateway",
+        "repetition": 2,
+        "concurrency": 2,
+        "offered_rate_per_key": null,
+        "key_count": 1,
+        "issued": 50,
+        "success": 50,
+        "success_rate": 1.0,
+        "measurement_seconds": 29.871355714742094,
+        "success_rps": 1.6738443503360656,
+        "success_p50_seconds": 1.193712847540155,
+        "success_p95_seconds": 1.2010746355634183,
+        "rejected_p50_seconds": null,
+        "categories": {
+          "success": 50
+        },
+        "valid_case": true,
+        "issues": [],
+        "gateway_state_after": {
+          "active": 0,
+          "limit": 2,
+          "capacity": 100000,
+          "rate": 100000,
+          "healthy": true,
+          "quota_events": []
+        }
+      }
+    ],
+    "aggregate": [
+      {
+        "group": "real-chat",
+        "target": "direct",
+        "concurrency": 1,
+        "rate": null,
+        "keys": 1,
+        "cases": [
+          "real-r0-chat-c1-direct",
+          "real-r1-chat-c1-direct",
+          "real-r2-chat-c1-direct"
+        ],
+        "valid": true,
+        "success_rate": {
+          "median": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "success_rps": {
+          "median": 0.8895483789723976,
+          "min": 0.8890736126215354,
+          "max": 0.8898909035964399
+        },
+        "success_p50_seconds": {
+          "median": 1.1235782019793987,
+          "min": 1.1230307943187654,
+          "max": 1.1242182997521013
+        },
+        "success_p95_seconds": {
+          "median": 1.126151426602155,
+          "min": 1.1259591072797774,
+          "max": 1.1264474185183644
+        }
+      },
+      {
+        "group": "real-chat",
+        "target": "gateway",
+        "concurrency": 1,
+        "rate": null,
+        "keys": 1,
+        "cases": [
+          "real-r0-chat-c1-gateway",
+          "real-r1-chat-c1-gateway",
+          "real-r2-chat-c1-gateway"
+        ],
+        "valid": true,
+        "success_rate": {
+          "median": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "success_rps": {
+          "median": 0.8878679770126204,
+          "min": 0.8877171418785184,
+          "max": 0.8883018332303294
+        },
+        "success_p50_seconds": {
+          "median": 1.1256645685061812,
+          "min": 1.1249752664007246,
+          "max": 1.1259265500120819
+        },
+        "success_p95_seconds": {
+          "median": 1.1285155855817721,
+          "min": 1.128283686307259,
+          "max": 1.1289601042401045
+        }
+      },
+      {
+        "group": "real-chat",
+        "target": "direct",
+        "concurrency": 2,
+        "rate": null,
+        "keys": 1,
+        "cases": [
+          "real-r0-chat-c2-direct",
+          "real-r1-chat-c2-direct",
+          "real-r2-chat-c2-direct"
+        ],
+        "valid": true,
+        "success_rate": {
+          "median": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "success_rps": {
+          "median": 1.7099293984726098,
+          "min": 1.7086917977968008,
+          "max": 1.7102490891753037
+        },
+        "success_p50_seconds": {
+          "median": 1.1687899334356189,
+          "min": 1.1687577283009887,
+          "max": 1.1693901126272976
+        },
+        "success_p95_seconds": {
+          "median": 1.1718514654552563,
+          "min": 1.1706877471413464,
+          "max": 1.1735768560087307
+        }
+      },
+      {
+        "group": "real-chat",
+        "target": "gateway",
+        "concurrency": 2,
+        "rate": null,
+        "keys": 1,
+        "cases": [
+          "real-r0-chat-c2-gateway",
+          "real-r1-chat-c2-gateway",
+          "real-r2-chat-c2-gateway"
+        ],
+        "valid": true,
+        "success_rate": {
+          "median": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "success_rps": {
+          "median": 1.7096309382891737,
+          "min": 1.7090510946830886,
+          "max": 1.7104356944494288
+        },
+        "success_p50_seconds": {
+          "median": 1.168788802344352,
+          "min": 1.1684284305665642,
+          "max": 1.169118743389845
+        },
+        "success_p95_seconds": {
+          "median": 1.1708099118899553,
+          "min": 1.170634546293877,
+          "max": 1.1738085011718795
+        }
+      },
+      {
+        "group": "real-responses",
+        "target": "direct",
+        "concurrency": 1,
+        "rate": null,
+        "keys": 1,
+        "cases": [
+          "real-r0-responses-c1-direct",
+          "real-r1-responses-c1-direct",
+          "real-r2-responses-c1-direct"
+        ],
+        "valid": true,
+        "success_rate": {
+          "median": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "success_rps": {
+          "median": 0.8788752083008525,
+          "min": 0.8787362295350658,
+          "max": 0.8802421815547343
+        },
+        "success_p50_seconds": {
+          "median": 1.1371237733401358,
+          "min": 1.1359283151105046,
+          "max": 1.137200620956719
+        },
+        "success_p95_seconds": {
+          "median": 1.1401612028246746,
+          "min": 1.1381256635766477,
+          "max": 1.1402935702586547
+        }
+      },
+      {
+        "group": "real-responses",
+        "target": "gateway",
+        "concurrency": 1,
+        "rate": null,
+        "keys": 1,
+        "cases": [
+          "real-r0-responses-c1-gateway",
+          "real-r1-responses-c1-gateway",
+          "real-r2-responses-c1-gateway"
+        ],
+        "valid": true,
+        "success_rate": {
+          "median": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "success_rps": {
+          "median": 0.8772682547848425,
+          "min": 0.8772517559225704,
+          "max": 0.8777919746556715
+        },
+        "success_p50_seconds": {
+          "median": 1.139425759203732,
+          "min": 1.1387129046488553,
+          "max": 1.1396023645065725
+        },
+        "success_p95_seconds": {
+          "median": 1.1417430268600584,
+          "min": 1.1416254139738158,
+          "max": 1.1419569710036739
+        }
+      },
+      {
+        "group": "real-responses",
+        "target": "direct",
+        "concurrency": 2,
+        "rate": null,
+        "keys": 1,
+        "cases": [
+          "real-r0-responses-c2-direct",
+          "real-r1-responses-c2-direct",
+          "real-r2-responses-c2-direct"
+        ],
+        "valid": true,
+        "success_rate": {
+          "median": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "success_rps": {
+          "median": 1.6737267885474982,
+          "min": 1.6654284468748999,
+          "max": 1.6743376998837025
+        },
+        "success_p50_seconds": {
+          "median": 1.1939679125789553,
+          "min": 1.1937252355273813,
+          "max": 1.1941351506393403
+        },
+        "success_p95_seconds": {
+          "median": 1.1976919420761987,
+          "min": 1.1966145579470322,
+          "max": 1.2001992157194763
+        }
+      },
+      {
+        "group": "real-responses",
+        "target": "gateway",
+        "concurrency": 2,
+        "rate": null,
+        "keys": 1,
+        "cases": [
+          "real-r0-responses-c2-gateway",
+          "real-r1-responses-c2-gateway",
+          "real-r2-responses-c2-gateway"
+        ],
+        "valid": true,
+        "success_rate": {
+          "median": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "success_rps": {
+          "median": 1.6738232231876247,
+          "min": 1.67322436193977,
+          "max": 1.6738443503360656
+        },
+        "success_p50_seconds": {
+          "median": 1.1940231777261943,
+          "min": 1.193712847540155,
+          "max": 1.194104821421206
+        },
+        "success_p95_seconds": {
+          "median": 1.1991747623309492,
+          "min": 1.1973308817250654,
+          "max": 1.2010746355634183
+        }
+      }
+    ],
+    "all_valid": true
+  },
+  "audit": {
+    "formal_measured": 1200,
+    "formal_warmup": 120,
+    "gateway_completed": 660,
+    "formal_source_changed": [],
+    "all_valid": true,
+    "unique_trace_ids": 1200,
+    "native_backend_success_metrics": [
+      "vllm:request_success_total{engine=\"0\",finished_reason=\"stop\",model_name=\"Qwen2.5-7B-Instruct\"} 2.0",
+      "vllm:request_success_total{engine=\"0\",finished_reason=\"length\",model_name=\"Qwen2.5-7B-Instruct\"} 1378.0",
+      "vllm:request_success_total{engine=\"0\",finished_reason=\"abort\",model_name=\"Qwen2.5-7B-Instruct\"} 0.0"
+    ],
+    "cpu_affinity": 128,
+    "host_cpu_count": 128,
+    "cpu_model": "INTEL(R) XEON(R) GOLD 6530",
+    "memory_info": [
+      "MemTotal:       1056466516 kB",
+      "MemFree:        722431220 kB",
+      "MemAvailable:   1000783880 kB"
+    ],
+    "token_counts": {
+      "chat-direct": {
+        "n": 300,
+        "min": 64,
+        "max": 64,
+        "sum": 19200
+      },
+      "chat-gateway": {
+        "n": 300,
+        "min": 64,
+        "max": 64,
+        "sum": 19200
+      },
+      "responses-direct": {
+        "n": 300,
+        "min": 62,
+        "max": 64,
+        "sum": 19198
+      },
+      "responses-gateway": {
+        "n": 300,
+        "min": 63,
+        "max": 64,
+        "sum": 19199
+      }
+    }
+  },
+  "cleanup": {
+    "stopped_owned_model_pid": 1415,
+    "remaining_gpu_compute": "",
+    "gateway_shutdown": true,
+    "gpu": "NVIDIA GeForce RTX 4090, 1 MiB"
+  },
+  "archive_sha256": "f900803ff6e06feda4d5a2b708e887fe823ee3e8d342df9a5f67d8d910e6d5c7",
+  "archive_bytes": 362609
+}

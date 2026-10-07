@@ -183,3 +183,82 @@ def test_retry_merge_requires_same_workload_and_keeps_failed_retry_visible():
     replacement["offered_rate_per_key"] = 1
     with pytest.raises(ValueError, match="experiment variable"):
         merge_cases([original], [replacement])
+
+
+@pytest.mark.parametrize("finish", ["stop", "length"])
+def test_real_chat_accepts_success_at_output_budget(finish):
+    from scripts.m4_benchmark.real import generated
+    body = {"object": "chat.completion", "model": "qwen", "choices": [
+        {"message": {"content": "An HTTP gateway routes requests."}, "finish_reason": finish}]}
+    assert generated(body, "chat", "qwen")
+    assert not generated(body, "chat", "other-model")
+
+
+@pytest.mark.parametrize("extra,valid", [({}, True), ({"store": False}, True),
+                                         ({"store": True}, False), ({"status": "incomplete"}, False)])
+def test_real_responses_require_completed_text_but_not_store_echo(extra, valid):
+    from scripts.m4_benchmark.real import generated
+    body = {"object": "response", "model": "qwen", "status": "completed", "output": [
+        {"type": "message", "content": [{"type": "output_text", "text": "A gateway routes traffic."}]}], **extra}
+    assert generated(body, "responses", "qwen") is valid
+
+
+@pytest.mark.asyncio
+async def test_real_client_uses_native_path_and_saves_metadata_and_usage():
+    from scripts.m4_benchmark.real import generated, payload, response_metadata
+    received = []
+    def transport(req):
+        import json
+        assert req.url.path == "/v1/responses"
+        assert json.loads(req.content)["store"] is False
+        return httpx.Response(200, json={"object": "response", "model": "qwen", "status": "completed",
+            "output": [{"type": "message", "content": [{"type": "output_text", "text": "hello"}]}],
+            "usage": {"input_tokens": 10, "output_tokens": 2}})
+    async with httpx.AsyncClient(transport=httpx.MockTransport(transport)) as client:
+        record = await request(client, "http://test", case="real", sequence=0,
+            path="/v1/responses", payload=payload("responses", "qwen"),
+            validator=lambda body: generated(body, "responses", "qwen"),
+            metadata=lambda body: response_metadata(body, "responses"), on_record=received.append)
+    assert record["valid_response"]
+    assert record["usage"]["output_tokens"] == 2
+    assert record["response_meta"]["output_characters"] == 5
+    assert received == [record]
+
+
+@pytest.mark.asyncio
+async def test_cancelled_real_request_is_persisted_before_cancellation_propagates():
+    started = asyncio.Event()
+    async def transport(req):
+        started.set()
+        await asyncio.Event().wait()
+    records = []
+    async with httpx.AsyncClient(transport=httpx.MockTransport(transport)) as client:
+        task = asyncio.create_task(request(client, "http://test", case="cancel", sequence=0,
+                                           on_record=records.append))
+        await started.wait()
+        task.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await task
+    assert len(records) == 1
+    assert records[0]["client_exception"] == "CancelledError"
+    assert not records[0]["valid_response"]
+
+
+def test_real_log_check_uses_completed_outcome_and_native_route():
+    from scripts.m4_benchmark.real import validate_case
+    r = {**row(), "protocol": "chat"}
+    logs = {"abc": {"attempt_count": 1, "status_code": 200, "cleanup_failed": False,
+                    "outcome": "completed", "route": "/v1/chat/completions"}}
+    assert not validate_case([r], logs, {"active": 0, "healthy": True})
+    logs["abc"]["route"] = "/v1/responses"
+    assert validate_case([r], logs, {"active": 0, "healthy": True})
+
+
+def test_real_token_summary_reports_missing_usage_without_inventing_counts():
+    from scripts.m4_benchmark.real_report import token_summary
+    rows = [{"valid_response": True, "usage": {"output_tokens": 64}},
+            {"valid_response": True, "usage": None},
+            {"valid_response": True, "usage": {"output_tokens": True}},
+            {"valid_response": False, "usage": {"output_tokens": 200}}]
+    assert token_summary(rows, "responses") == {"samples": 1, "missing": 2,
+                                               "min": 64, "max": 64, "mean": 64}

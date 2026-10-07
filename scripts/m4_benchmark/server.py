@@ -70,7 +70,7 @@ class AuditedLimiter(TokenBucketLimiter):
         return allowed
 
 
-def gateway(backend_url: str, limit: int, capacity: float, rate: float):
+def gateway(backend_url: str, limit: int, capacity: float, rate: float, model="mock-model"):
     backend = Backend(id="backend-a", base_url=backend_url)
     health = HealthManager([backend.id])
     backend_http = httpx.AsyncClient(timeout=BACKEND_TIMEOUT, trust_env=False)
@@ -98,7 +98,7 @@ def gateway(backend_url: str, limit: int, capacity: float, rate: float):
             await shutdown_trace_provider(app.state.tracer_provider)
 
     app = create_app(
-        router=RoundRobinRouter({"mock-model": [backend]}, health),
+        router=RoundRobinRouter({model: [backend]}, health),
         backend_client=BackendClient(backend_http),
         key_limiter=quota,
         concurrency_limiter=limiter,
@@ -120,13 +120,14 @@ def main():
     parser.add_argument("role", choices=("mock", "gateway"))
     parser.add_argument("--fd", type=int, required=True)
     parser.add_argument("--backend-url")
+    parser.add_argument("--model", default="mock-model")
     parser.add_argument("--limit", type=int, default=32)
     parser.add_argument("--capacity", type=float, default=100_000)
     parser.add_argument("--rate", type=float, default=100_000)
     parser.add_argument("--delay", type=float, default=0)
     args = parser.parse_args()
     app = (DelayedMock(args.delay) if args.role == "mock"
-           else gateway(args.backend_url, args.limit, args.capacity, args.rate))
+           else gateway(args.backend_url, args.limit, args.capacity, args.rate, args.model))
     config = uvicorn.Config(
         app, log_config=str(Path(__file__).resolve().parents[2] / "configs/logging.json"),
         access_log=True, workers=1, timeout_graceful_shutdown=5,

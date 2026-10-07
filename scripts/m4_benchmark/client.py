@@ -24,7 +24,8 @@ def valid_response(body):
         return False
 
 
-async def request(client, url, *, case, sequence, key="key-a", planned=None, wave=None):
+async def request(client, url, *, case, sequence, key="key-a", planned=None, wave=None,
+                  payload=None, path=PATH, validator=None, metadata=None, on_record=None):
     trace_id = uuid4().hex
     headers = {"X-InferGate-Key": f"m44-benchmark-{key}",
                "traceparent": f"00-{trace_id}-{uuid4().hex[:16]}-01"}
@@ -34,8 +35,9 @@ async def request(client, url, *, case, sequence, key="key-a", planned=None, wav
               "scheduling_lag_seconds": None if planned is None else started - planned,
               "status": None, "error_code": None, "client_exception": None,
               "valid_response": False, "usage": None}
+    cancelled = False
     try:
-        response = await client.post(url + PATH, json=PAYLOAD, headers=headers)
+        response = await client.post(url + path, json=PAYLOAD if payload is None else payload, headers=headers)
         # Client total time ends once the full body is received; parse separately.
         record["ended_at"] = time.perf_counter()
         record["status"] = response.status_code
@@ -43,26 +45,36 @@ async def request(client, url, *, case, sequence, key="key-a", planned=None, wav
             body = response.json()
         except ValueError:
             body = None
-        record["valid_response"] = response.status_code == 200 and valid_response(body)
+        record["valid_response"] = response.status_code == 200 and (validator or valid_response)(body)
         if isinstance(body, dict):
             error = body.get("error")
             record["error_code"] = error.get("code") if isinstance(error, dict) else None
             record["usage"] = body.get("usage")
+            if metadata is not None:
+                record["response_meta"] = metadata(body)
     except httpx.RequestError as exc:
         record["ended_at"] = time.perf_counter()
         # Store class only: exception text can contain URLs or other sensitive content.
         record["client_exception"] = type(exc).__name__
+    except asyncio.CancelledError:
+        record["ended_at"] = time.perf_counter()
+        record["client_exception"] = "CancelledError"
+        cancelled = True
     record["duration_seconds"] = record["ended_at"] - started
+    if on_record is not None:
+        on_record(record)
+    if cancelled:
+        raise asyncio.CancelledError
     return record
 
 
-async def closed_loop(client, url, case, concurrency, count):
+async def closed_loop(client, url, case, concurrency, count, **request_options):
     counter = iter(range(count))
     rows = []
 
     async def worker():
         for sequence in counter:
-            rows.append(await request(client, url, case=case, sequence=sequence))
+            rows.append(await request(client, url, case=case, sequence=sequence, **request_options))
 
     await asyncio.gather(*(worker() for _ in range(concurrency)))
     return rows

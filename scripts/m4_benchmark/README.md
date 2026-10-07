@@ -44,3 +44,36 @@ matplotlib 只用于报告，不加入网关运行依赖。报告保存绘图库
 一致。合并 summary 显式保留被排除的原 case、原因及补测对应关系。
 生成报告时指向补测目录，且必须同时备份原运行与补测目录。补测再次无效时
 仍返回非零，不自动反复尝试直到得到较好结果。
+
+## 真实模型
+
+先在 GPU 主机核对模型服务健康、原生 Chat/Responses 路由、网关安装源码哈希，
+并记录实际推理参数、生成配置和 GPU 环境。`--environment` 指向这次实时核对
+得到的 JSON，不要直接复用旧机器或旧进程的环境记录。M4.4 的实际环境记录在
+远程 `/root/infergate-m44/environment.json`；模型服务与采集客户端都在该主机。
+
+```sh
+.venv/bin/python -m scripts.m4_benchmark.real --profile pilot --environment /root/infergate-m44/environment.json --output /root/infergate-m44/pilot-02
+.venv/bin/python -m scripts.m4_benchmark.real --profile real --environment /root/infergate-m44/environment.json --output /root/infergate-m44/real-01
+```
+
+只接受 `http://127.0.0.1:端口` 后端，禁止无意中从 Mac 经公网进行性能测量。
+采集器创建临时单 worker 网关，保留健康检查与观测，关闭 OTLP 导出；全局
+容量 2、key 大额度。Chat 使用 temperature=0，Responses 保留后端默认采样，
+分别做直连/网关对照，不能据两协议延迟差断言协议本身更快。
+
+正式 profile：两协议 × 两入口 × 并发 1/2 × 三轮，每 case 50 次、预热 5 次。
+成功 Chat 允许 stop/length；成功 Responses 要求 completed 与非空 output_text，
+不要求响应回显 store。逐请求保存原生响应与 usage，结束/取消时及时落盘。
+失败立即结束正式运行，保留证据；不得修改正在测量的远程源码。
+
+将证据下载回本机后，在独立 matplotlib 环境生成正式图表：
+
+```sh
+python -m scripts.m4_benchmark.real_report artifacts/m4-benchmark/remote-20261007/real-01 --output docs/M4/benchmark-real-20261007
+```
+
+报告要求完整 24 个 case、1,200 条原始测量记录，且正式 run 成功、源码未变。
+模型下载 revision 若没有原始记录，应保留未知；配置哈希和权重文件大小不能
+等价替代全部权重逐字节校验。报告同时说明热 cache、64-token 上限、单轮
+尾延迟样本有限以及 HTTP 请求成功不保证文本没有截断。
