@@ -1,159 +1,130 @@
-# InferGate
+<a id="readme-top"></a>
 
-A learning-driven, production-style LLM inference gateway built incrementally from first principles.
+<div align="center">
+  <h1>InferGate</h1>
+  <p>An async HTTP gateway for LLM backends.</p>
+  <p>
+    <a href="docs/README.md"><strong>Documentation</strong></a>
+    &middot;
+    <a href="docs/ARCHITECTURE.md">Architecture</a>
+    &middot;
+    <a href="docs/BENCHMARKS.md">Benchmarks</a>
+    &middot;
+    <a href="https://github.com/Zemaokk/infergate/issues">Report an issue</a>
+  </p>
+</div>
 
-The current architecture, scope, milestones, and engineering constraints are documented in [docs/PROJECT_PLAN.md](docs/PROJECT_PLAN.md).
+<details>
+  <summary>Table of contents</summary>
 
-The learning and AI contribution boundaries are documented in [docs/COLLABORATION_CONTRACT.md](docs/COLLABORATION_CONTRACT.md).
+- [About the project](#about-the-project)
+- [Getting started](#getting-started)
+- [Usage](#usage)
+- [Tests and benchmarks](#tests-and-benchmarks)
+- [Project status](#project-status)
+- [Contributing](#contributing)
+- [Acknowledgments](#acknowledgments)
 
-API direction: Chat Completions and a minimal non-streaming Responses adapter share the gateway core. Requests are forwarded to the same protocol on the backend; no protocol translation is performed. See [ADR-0001](docs/decisions/0001-api-surface.md).
+</details>
 
-| API | Gateway validation | Real backend validation |
-| --- | --- | --- |
-| `POST /v1/chat/completions` | Non-streaming and streaming tests pass | Qwen2.5-7B-Instruct on vLLM 0.8.5 verified in M4.2 |
-| `POST /v1/responses` | Minimal text-only, non-streaming subset tested with controlled backends | Qwen2.5-7B-Instruct on native vLLM 0.10.1+cu118 verified in M4.3; the separate M4.2 vLLM 0.8.5 deployment does not advertise this endpoint |
+## About the project
 
-Responses requires explicit `store=false`; `stream` and `background` may only be false. Unknown fields are rejected. See the [Responses contract](docs/M4/RESPONSES_CONTRACT.md) for the supported fields and limits. This adapter does not make a Chat-only backend support Responses.
+InferGate sits between a client and one or more model servers. It routes
+requests to healthy backends, limits incoming traffic, and forwards ordinary
+and streaming responses. Both API endpoints use the same routing, quota, and
+concurrency state.
 
-See the [M4.3 acceptance record](docs/M4/RESPONSES_ACCEPTANCE.md) for real request evidence and the dedicated inference environment. The tested backend omits `store` from response JSON; InferGate forwards that response unchanged. Temporary M4.3 services were stopped after acceptance and the original M4.2 Chat deployment was restored.
+The project focuses on what happens around a model call: what to do when a
+backend stops responding, how long to hold a concurrency slot, and how to
+account for a stream that sends HTTP 200 but fails before finishing.
 
-For the original M0 workflow, see the [M0 full workflow guide](docs/M0/FULL_WORKFLOW_GUIDE.md).
-The M1 streaming and backend-health acceptance record is in
-[docs/M1/ACCEPTANCE.md](docs/M1/ACCEPTANCE.md).
+- **Routing:** round-robin across healthy backends, with periodic probes to
+  remove failed instances and restore recovered ones.
+- **Admission:** per-key token buckets and a global concurrency limit, with
+  immediate rejection when capacity is exhausted.
+- **Failure handling:** at most two backend attempts, with fallback restricted
+  to connection-establishment failures. Opened streams are never replayed.
+- **Observability:** request and backend-attempt metrics, JSON completion logs,
+  and OpenTelemetry spans correlated by trace ID.
 
-## Current status
+```mermaid
+flowchart LR
+    Client --> API[Chat / Responses]
+    API --> Admission[Rate limit / concurrency limit]
+    Admission --> Router[Health-aware round-robin]
+    Router --> A[Backend A]
+    Router --> B[Backend B]
+    Health[Health probes] -.-> Router
+```
 
-M0, M1, and the scoped single-process M2 implementation are complete.
-M2 passed 122 automated tests and seven local HTTP acceptance scenarios.
-See the [M2 acceptance record and limitations](docs/M2/ACCEPTANCE.md).
-M3 observability is complete within its agreed scope; see the acceptance record.
-M4.1–M4.4 are complete within their agreed scope: mock container packaging,
-real single-backend ordinary/SSE requests and failure recovery, native Responses,
-and local plus real-model benchmarks. Author teach-back is recorded. M4.5 now
-provides CI and delivery documentation. M1–M4 final acceptance passed on
-2026-10-08: current-code Docker packaging passed on Linux ARM64 locally and
-Linux AMD64 in hosted CI; all 435 tests passed. See the [M4 work plan](docs/M4/WORKPLAN.md).
+For streaming requests, the response object owns downstream cleanup and slot
+release once the endpoint hands it the opened stream. The slot stays occupied
+until cleanup finishes. This includes cancellation and failures while sending
+headers or body chunks. The [architecture guide][architecture] explains the
+ownership rules and links to the tests.
 
-Start with the [current architecture](docs/ARCHITECTURE.md),
-[installation and reproduction guide](docs/REPRODUCING.md), and
-[project acceptance and remaining verification](docs/PROJECT_ACCEPTANCE.md).
-The [CI workflow](.github/workflows/ci.yml) runs locked-install tests and isolated
-Docker packaging checks. Its [first hosted run](https://github.com/Zemaokk/infergate/actions/runs/37645717168)
-passed both jobs for commit `35c6902`.
+### Built with
 
-InferGate currently provides:
+Python 3.13, FastAPI, HTTPX, and AnyIO form the gateway. Prometheus and
+OpenTelemetry provide metrics and tracing; the local observation stack uses
+Grafana and Jaeger. Docker Compose runs the demo.
 
-- a validated `POST /v1/chat/completions` endpoint with non-streaming and
-  streaming passthrough;
-- a minimal native `POST /v1/responses` endpoint sharing the same admission,
-  routing, backend client and observation resources;
-- model-aware round-robin routing that skips unhealthy backends and restores
-  them after a successful health probe;
-- parallel startup probes, periodic `GET /health` checks, and `503` when no
-  backend is healthy;
-- transparent backend status, body, and `Content-Type` forwarding;
-- per-key token bucket limits with `429` rejection;
-- process-wide concurrency limits with immediate `503` rejection and streaming cleanup;
-- at most two backend attempts, with fallback only for connection establishment failures;
-- stable `400`, `429`, `502`, and `503` gateway error mappings; and
-- automated coverage for validation, routing, transport failures, streaming
-  cleanup, and the gateway request path.
+Real-model integration was tested with Qwen2.5-7B-Instruct served by vLLM.
+Model serving runs separately from the gateway.
 
-## Run locally
+## Getting started
 
-### Docker Compose
+### Prerequisites
 
-With Docker Engine running and host port 8000 available:
+- Docker Engine with Docker Compose for the demo.
+- Python 3.13 and uv for native development and verification scripts.
+  The recorded uv version is 0.12.2.
 
-```bash
+The demo uses two mock backends and needs no GPU. Port 8000 must be available.
+
+### Installation
+
+```sh
+git clone https://github.com/Zemaokk/infergate.git
+cd infergate
 docker compose up --build -d --wait
 ```
 
-This builds the application and starts two mock backends plus a single-worker
-gateway at `http://127.0.0.1:8000`. Backends are reachable inside the Compose
-network as `backend-a:8000` and `backend-b:8000`; their ports are not published.
-The request examples below work unchanged. Gateway container health checks
-verify `/metrics` availability, not inference readiness or backend health.
-The stack does not start the separate M3 observability services or enable OTLP export.
+The gateway listens on `http://127.0.0.1:8000`. The backends are reachable only
+inside the Compose network.
 
-```bash
-docker compose logs -f gateway
-docker compose down
+For a native Python setup, install the locked environment:
+
+```sh
+uv sync --locked --no-editable
 ```
 
-Reproduce the packaging checks with port 8000 free:
+Then follow the [native startup instructions][usage] to run the two mock servers
+and gateway in separate terminals. Use one gateway worker.
 
-```bash
-uv run python scripts/verify_m4.py --output /tmp/infergate-m4-evidence.json
-```
+## Usage
 
-The script builds and starts its own Compose project, checks real HTTP routing,
-SSE chunks, backend failure/recovery and all-backend rejection, saves evidence,
-and removes its containers. It refuses to reuse an existing project or occupied
-port. These are mock integration checks, not model-performance benchmarks.
+Send a Chat Completions request:
 
-### Native Python
-
-Install the project and run the test suite:
-
-```bash
-uv sync
-uv run python -m pytest -q
-```
-
-Start the two mock backends in separate terminals:
-
-```bash
-uv run uvicorn infergate.mock_backend:app --host 127.0.0.1 --port 8001
-```
-
-```bash
-uv run uvicorn infergate.mock_backend:app --host 127.0.0.1 --port 8002
-```
-
-Start InferGate in a third terminal:
-
-```bash
-uv run uvicorn infergate.runtime:app --host 127.0.0.1 --port 8000 --log-config configs/logging.json
-```
-
-Send the same request repeatedly:
-
-```bash
+```sh
 curl -i http://127.0.0.1:8000/v1/chat/completions \
   -H 'Content-Type: application/json' \
-  -H 'X-InferGate-Key: local-demo' \
+  -H 'X-InferGate-Key: demo' \
   -d '{
     "model": "mock-model",
     "messages": [{"role": "user", "content": "hello"}]
   }'
 ```
 
-The local defaults are a burst capacity of 2 requests per key, replenished at
-1 request/second, and 2 concurrent downstream tasks across all keys. Rapidly
-repeating a key can return `429`; excess global concurrency returns `503`.
-Use `X-InferGate-Key` as a quota label, not an authentication credential.
+The `X-InferGate-Backend` response header identifies the selected backend.
+Successful requests rotate between A and B while both are healthy.
 
-Native runtime backend addresses can be configured with
-`INFERGATE_BACKEND_A_URL` and `INFERGATE_BACKEND_B_URL`. When unset they default
-to `http://127.0.0.1:8001` and `http://127.0.0.1:8002`. Empty or invalid values
-raise `ValueError` at app creation before HTTP clients are created. Both health
-probes and inference calls use the configured base URL; changes require a new
-app/process. URLs must use HTTP(S), have a host, and contain no userinfo, query,
-fragment or path prefix. See the packaging contract for the supported subset.
+For a streaming response:
 
-For a real single backend, set `INFERGATE_MODEL_NAME` to its served model alias
-and `INFERGATE_BACKEND_COUNT=1` (default: `2`). Only A is then created, validated
-and probed; B can be empty and is ignored. With count `2`, both URLs must be valid.
-The default model alias is `mock-model`. These settings are also frozen per app.
-
-For admitted requests, `X-InferGate-Backend` alternates between `backend-a` and
-`backend-b` while both are healthy. Wait for quota to refill before this streaming example:
-
-```bash
-curl -N -i http://127.0.0.1:8000/v1/chat/completions \
+```sh
+curl -N http://127.0.0.1:8000/v1/chat/completions \
   -H 'Content-Type: application/json' \
-  -H 'X-InferGate-Key: local-demo' \
+  -H 'X-InferGate-Key: stream-demo' \
   -d '{
     "model": "mock-model",
     "messages": [{"role": "user", "content": "hello"}],
@@ -161,154 +132,125 @@ curl -N -i http://127.0.0.1:8000/v1/chat/completions \
   }'
 ```
 
-The mock backend waits briefly between its first SSE event and `[DONE]`.
-Stopping one backend removes it from routing after the next probe; before that
-probe, a connection failure can fall back to the other backend. If both fail to
-connect, an admitted request returns `502`; after probes mark both unhealthy,
-initial routing returns `503 no_backend_available`. A restarted backend rejoins
-after one successful probe.
+The mock sends one content event, waits briefly, then sends `[DONE]`.
+Default admission limits are a burst of 2 requests per key, a refill rate of
+1 request/second, and 2 concurrent downstream tasks. Excess traffic receives
+429 for key limits or 503 for concurrency limits. Keys are caller-supplied
+quota labels, not authentication credentials.
 
-## Reproduce M2 acceptance
+| Endpoint | Support |
+| --- | --- |
+| `POST /v1/chat/completions` | Text messages, ordinary responses, and SSE |
+| `POST /v1/responses` | Text-only, non-streaming subset; explicit `store=false` |
+| `GET /metrics` | Prometheus metrics; no key required |
 
-With ports 8000–8002 unused:
+Requests go to the same endpoint on the backend. Responses therefore requires
+a server with native Responses support; the demo mocks only implement Chat.
+See [API examples and backend configuration][usage] for supported fields and
+how to connect an existing vLLM server.
 
-```bash
-uv run python scripts/verify_m2.py --output /tmp/infergate-m2-evidence.json
+The Prometheus, Grafana, and Jaeger services run in a
+[separate observation stack][observation-stack]. The application Compose stack
+does not start them or enable OTLP export. Its gateway health check tests
+`/metrics` availability, not backend readiness.
+
+Stop the demo with:
+
+```sh
+docker compose down
 ```
 
-The script starts and stops its own three processes, using controlled mock
-streams and a temporary 3600-second health-probe interval to exercise fallback
-before health updates. Production runtime defaults remain unchanged.
-Key-state cleanup, multi-process quotas, total request deadlines, and performance
-validation remain outside this acceptance; see the limitations linked above.
+## Tests and benchmarks
 
-## M3 request metrics (initial slice)
+With the Python environment installed:
 
-With the gateway running, scrape `GET /metrics` (no key required):
-
-```bash
-curl http://127.0.0.1:8000/metrics
+```sh
+uv run --no-sync python -m pytest -q
 ```
 
-- `infergate_requests_total{route,status,outcome,reason}` counts finalized business
-  requests, including validation/admission rejections and interrupted streams.
-- `infergate_request_duration_seconds{route,outcome}` is a histogram of gateway
-  request duration through response execution and cleanup, in seconds. Buckets
-  range from 0.01 to 300 seconds plus infinity; they are initial design choices,
-  not measured latency targets.
+As of the 2026-10-08 acceptance, **435 tests pass**, covering validation, routing,
+admission, fallback, stream cleanup, and observation lifecycles. [CI][ci] also
+builds the Docker image and checks routing, SSE, backend recovery, and rejection
+when all backends are unavailable. Linux ARM64 and AMD64 packaging results are
+linked in the [acceptance record][acceptance].
 
-Each app owns an independent, single-process registry. Metrics scrapes are not
-business requests. Labels exclude caller keys, arbitrary model names and body
-content. A stream may have status `200` and outcome `stream_error`; do not infer
-success from status alone. Status `none` means this observer did not successfully
-send headers before finalization. Series appear after their first observation.
+The real-model benchmark compared direct and gateway access on one RTX 4090:
+24 cases, three rounds, and 1,200 measured requests in total. All returned valid
+model responses under the [experiment's criteria][benchmarks].
 
-`infergate_request_first_byte_seconds{route,outcome}` records time from request
-entry to the first nonempty backend stream chunk, including any fallback time.
-It is not TTFT or client receive latency. Samples are exported at request
-finalization, grouped by final outcome. Missing first bytes produce no sample;
-an observed zero duration is retained. Non-streaming responses do not sample it.
+| Protocol | Concurrency | Direct req/s | Gateway req/s |
+| --- | ---: | ---: | ---: |
+| Chat | 1 | 0.890 | 0.888 |
+| Chat | 2 | 1.710 | 1.710 |
+| Responses | 1 | 0.879 | 0.877 |
+| Responses | 2 | 1.674 | 1.674 |
 
-`infergate_active_requests` is a Gauge of occupied global concurrency slots,
-read directly from the limiter at scrape time. It includes streaming cleanup
-and stays occupied across fallback. For buffered non-streaming responses, the
-slot is released before sending to the client, so it does not count all HTTP
-responses still being sent. It is a current snapshot, not a historical peak.
+These are median successful throughputs across three rounds. The workload used
+a short repeated prompt, warm prefix cache, and a 64-token output cap.
+The 1,200 requests include both direct and gateway measurements. Throughput was
+comparable in this workload; long inputs, cold caches, and production load
+were not measured.
 
-`infergate_backend_healthy{backend}` reads the existing HealthManager state for
-configured backend IDs: 1 means marked healthy for routing; 0 means marked
-unhealthy or not yet probed. It reflects the last stored state, not a fresh
-probe or a guarantee that the next request will succeed. Scraping never probes
-backends. Apps without a HealthManager omit this metric.
+![Direct and gateway throughput and latency][benchmark-plot]
 
-`infergate_backend_attempts_total{backend,outcome}` counts finalized backend
-attempts. `infergate_backend_attempt_duration_seconds{backend,outcome}` records
-each attempt's duration from its own call start, including cleanup for opened
-streams. A failed A followed by successful B produces two attempt samples and
-one request sample. Both attempt metrics are submitted at request finalization;
-even a finished A remains unexported while B is still streaming. Rejections
-before any backend call produce no attempt samples. Labels use configured
-backend IDs, never backend URLs or exception text.
+The [benchmark guide][benchmarks] includes latency results, three-round ranges,
+controlled local overload experiments, and links to raw records. To redraw the
+saved data without a GPU or collect new measurements, see [Reproduction][reproduction].
+GPU experiments are separate from CI.
 
-`infergate_backend_first_byte_seconds{backend,outcome}` measures each streaming
-attempt from its own call start to the first nonempty backend body chunk. It
-excludes earlier fallback attempts and is not TTFT or client receive latency.
-Samples are submitted at request finalization, grouped by the attempt's final
-outcome. Empty streams, failures before the first chunk and non-streaming calls
-produce no samples; zero duration and first bytes observed before later failure
-are retained. Whitespace chunks count as nonempty.
-The gateway startup command loads `configs/logging.json`. Each business request
-emits one JSON completion record to stderr after cleanup, with its request ID,
-final result and ordered backend-attempt details. Uvicorn server/access logs keep
-their normal format. Completion logs exclude keys, bodies and exception text.
-Logging and metric submission failures do not change business results.
-The application factory does not install handlers; other launchers must configure
-the `infergate.observability` logger at INFO to enable these records.
+## Project status
 
-Each app now creates an OpenTelemetry request span, ending after response cleanup.
-Completion logs include its `trace_id` and `span_id`; no IDs are metric labels.
-Each actual backend attempt has a CLIENT span under that request, with its own
-outcome, duration and optional first-byte timing. Fallback attempts are siblings;
-opened stream spans remain active through cleanup. Attempt log entries include
-their span IDs. Valid incoming W3C `traceparent` headers continue the upstream
-trace; missing or invalid headers start a new trace. Only `traceparent` and
-`tracestate` are extracted, never baggage or business headers. Backend calls inject
-the current attempt's W3C context, including on fallback; caller keys and baggage
-are not forwarded. The local Prometheus, Jaeger and Grafana stack has passed
-controlled integration checks; `/metrics` exposes current in-process aggregates.
+The current version runs in a single process. Multi-backend routing and fallback
+were checked with controlled HTTP servers; real inference, SSE, and stop/recovery
+were checked against a single vLLM backend.
 
-## Trace export
+Runtime state is local to one worker. There is no waiting queue, shared quota
+across workers, key-state eviction, or total generation deadline. A stream
+that keeps producing data, or a stalled downstream close, can retain a slot.
+First-byte metrics measure backend body reads, not model TTFT.
 
-To enable OTLP/HTTP protobuf export, start the gateway with a trace receiver's
-full endpoint (including `/v1/traces`):
+Responses supports a small subset of the API, without tools, multimodal input,
+conversation storage, or background execution. The recorded native Responses
+validation used vLLM 0.10.1+cu118; the earlier Chat deployment used 0.8.5.
+This repository has not been validated as a production service.
 
-```bash
-OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://127.0.0.1:4318/v1/traces \
-  uv run uvicorn infergate.runtime:app --host 127.0.0.1 --port 8000 --log-config configs/logging.json
-```
+Current limits are documented in [Architecture][architecture]. The original
+M0–M4 plans and dated records remain available through the
+[documentation index][docs].
 
-Start an OTLP receiver separately; this command does not launch one. Without this
-variable, spans and log correlation still work but no exporter or batch worker
-is installed. Only the traces-specific endpoint enables export in this runtime;
-the generic `OTEL_EXPORTER_OTLP_ENDPOINT` alone does not enable it.
+## Contributing
 
-The runtime installs one batch processor at startup, with a 2048-span queue,
-256-span batches and a 1-second schedule. Export HTTP requests have a 2-second
-timeout. Request completion only enqueues spans, so receiver failures do not
-change business outcomes or metrics. Export is best effort; queue overflow,
-failed sends or interrupted shutdown can lose spans.
+For a bug report, include the request, relevant configuration, observed result,
+and a small reproduction. A trace ID or completion log is useful for lifecycle
+and fallback issues; leave credentials and private request content out.
 
-After stopping health probes and closing HTTP clients, runtime shutdown asks the
-provider to drain and close in a daemon thread, waiting at most 5 seconds without
-blocking the event loop. This bounds lifecycle waiting, not forcibly terminating
-the SDK operation or guaranteeing delivery; timed-out cleanup can finish later.
-Local Jaeger reception and Grafana rendering have been verified.
+Keep changes focused and include a regression test for behavior changes.
+For routing, admission, or streaming changes, explain the effect on state
+ownership and failure handling. The [development records][docs] describe the
+existing decisions.
 
-The local Prometheus/Jaeger/Grafana Compose configuration, provisioned dashboard
-and controlled acceptance script are described in [observability/README.md](observability/README.md).
-Docker Desktop integration passed on 2026-10-05 with 9 requests and 10 attempts;
-see [acceptance evidence](docs/M3/ACCEPTANCE.md). M3 author teach-back is complete.
+Maintained by [Zemao Chen](https://github.com/Zemaokk).
 
-## Benchmark tooling
+## Acknowledgments
 
-The [M4 benchmark tools](scripts/m4_benchmark/README.md) run loopback HTTP
-experiments for direct-versus-gateway overhead, global concurrency rejection and
-per-key quotas. Start with the small `pilot` profile before the three-round
-`local` profile. Production limiter defaults are unchanged; experiment settings,
-source snapshots, per-request data and completion logs are retained separately.
-Successful latency excludes rejections; success rate includes all issued attempts.
-These controlled mock experiments do not measure GPU inference performance.
-See the [experiment contract](docs/M4/BENCHMARK_CONTRACT.md) for workloads and scope.
+README structure adapted from [Best-README-Template][readme-template].
 
-The separate native-model profile compares direct and gateway Chat/Responses
-requests on one GPU host. The [2026-10-07 real-model results](docs/M4/benchmark-real-20261007/RESULTS.md)
-include 1,200 successful measured requests, three-round ranges and portable raw
-evidence. Results cover a short repeated prompt, warm prefix cache and concurrency
-1/2; they do not establish production tail-latency guarantees.
+Zemao Chen led the core routing, health-state, admission, fallback, and
+shared-execution implementations. AI tools helped with review, integration,
+tests, deployment, benchmark design, and documentation. Details are in the
+[collaboration record][collaboration] and [contribution summary][contributions].
 
-Both local original/retry records and real-model raw evidence are shipped as
-small archives with [SHA256 checksums](docs/M4/evidence/SHA256SUMS).
-The [reproduction guide](docs/REPRODUCING.md) explains extraction and redrawing
-without a GPU. Quotas are single-process and caller keys are not authentication;
-there is no total generation deadline or key-state eviction. This project has
-not been validated as a production service.
+<p align="right"><a href="#readme-top">Back to top</a></p>
+
+[docs]: docs/README.md
+[architecture]: docs/ARCHITECTURE.md
+[usage]: docs/USAGE.md
+[benchmarks]: docs/BENCHMARKS.md
+[reproduction]: docs/REPRODUCING.md
+[acceptance]: docs/PROJECT_ACCEPTANCE.md
+[ci]: .github/workflows/ci.yml
+[observation-stack]: observability/README.md
+[benchmark-plot]: docs/M4/benchmark-real-20261007/real-comparison.png
+[collaboration]: docs/COLLABORATION_CONTRACT.md
+[contributions]: docs/PROJECT_ACCEPTANCE.md#作者理解与贡献记录
+[readme-template]: https://github.com/othneildrew/Best-README-Template
