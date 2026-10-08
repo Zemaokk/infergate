@@ -10,7 +10,7 @@ Noteworthy changes to this project are recorded here, following
 - Documentation organized into tutorials, how-to guides, reference, and explanation.
 - An ADR index, template, and explicitly retrospective records for admission,
   fallback, stream ownership, and request/attempt observations.
-- Contribution guidance and automated local-link/archive-integrity checks.
+- Development guidance and automated local-link/archive-integrity checks.
 - A dated archive with a SHA256 manifest for the previous documents and evidence.
 
 ### Changed

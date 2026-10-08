@@ -31,7 +31,7 @@ All commands assume the repository root unless a page says otherwise.
 - [Architecture](explanation/architecture.md): components, shared state, and deployment boundaries.
 - [Streaming and failures](explanation/streaming-and-failures.md): ownership, cancellation, health, and fallback.
 - [Benchmark methodology](explanation/benchmark-methodology.md): what the experiments establish and how to read them.
-- [Development and contributions](explanation/development.md): project scope, author-led work, and AI assistance.
+- [Project development](explanation/development.md): milestones, scope, and further changes.
 
 ## Project records
 

@@ -235,11 +235,6 @@ Maintained by [Zemao Chen](https://github.com/Zemaokk).
 
 README structure adapted from [Best-README-Template][readme-template].
 
-Zemao Chen led the core routing, health-state, admission, fallback, and
-shared-execution implementations. AI tools helped with review, integration,
-tests, deployment, benchmark design, and documentation. Details are in the
-[collaboration record][collaboration] and [contribution summary][contributions].
-
 <p align="right"><a href="#readme-top">Back to top</a></p>
 
 [docs]: docs/README.md
@@ -251,6 +246,4 @@ tests, deployment, benchmark design, and documentation. Details are in the
 [ci]: .github/workflows/ci.yml
 [observation-stack]: observability/README.md
 [benchmark-plot]: docs/M4/benchmark-real-20261007/real-comparison.png
-[collaboration]: docs/COLLABORATION_CONTRACT.md
-[contributions]: docs/PROJECT_ACCEPTANCE.md#作者理解与贡献记录
 [readme-template]: https://github.com/othneildrew/Best-README-Template

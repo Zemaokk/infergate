@@ -23,7 +23,7 @@ proof of a historical observation.
 ## Useful historical records
 
 - [Project acceptance](docs/PROJECT_ACCEPTANCE.md) and [project plan](docs/PROJECT_PLAN.md).
-- [Detailed collaboration agreement](docs/COLLABORATION_CONTRACT.md).
+- [Historical development notes](docs/COLLABORATION_CONTRACT.md).
 - [Original API ADR](docs/decisions/0001-api-surface.md).
 - Acceptance: [M1](docs/M1/ACCEPTANCE.md), [M2](docs/M2/ACCEPTANCE.md),
   [M3](docs/M3/ACCEPTANCE.md), [M4 packaging](docs/M4/ACCEPTANCE.md),

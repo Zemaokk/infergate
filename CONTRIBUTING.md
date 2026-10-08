@@ -1,10 +1,9 @@
 # Contributing
 
-InferGate is an author-led learning project. Read the
-[collaboration agreement](docs/COLLABORATION_CONTRACT.md) before changing core
-mechanisms. For routing, shared state, streaming, admission, and fallback, the
-author writes the first draft, followed by focused review, verification, and
-teach-back. Engineering support and documentation may be AI-assisted.
+For changes to routing, shared state, streaming, admission, or fallback,
+start with the [architecture](docs/explanation/architecture.md) and the relevant
+[decision records](docs/decisions/README.md). Describe the behavior being changed
+and the tests that establish the new contract.
 
 ## Make a change
 
