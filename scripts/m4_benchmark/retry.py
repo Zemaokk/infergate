@@ -77,7 +77,7 @@ def main():
         raise ValueError("Only unchanged formal local runs may use this retry tool")
     # The measured client, service and validation implementation must stay identical.
     for relative, digest in original_manifest["source_sha256"].items():
-        if relative.endswith("BENCHMARK_CONTRACT.md"):
+        if relative.endswith(("BENCHMARK_CONTRACT.md", "docs/reference/benchmarks.md")):
             continue
         if hashlib.sha256((ROOT / relative).read_bytes()).hexdigest() != digest:
             raise ValueError(f"Source changed since original measurement: {relative}")
@@ -108,7 +108,7 @@ def main():
         manifest["finished_utc"] = datetime.now(timezone.utc).isoformat()
         manifest["source_changed_during_run"] = [
             relative for relative, digest in original_manifest["source_sha256"].items()
-            if not relative.endswith("BENCHMARK_CONTRACT.md")
+            if not relative.endswith(("BENCHMARK_CONTRACT.md", "docs/reference/benchmarks.md"))
             and hashlib.sha256((ROOT / relative).read_bytes()).hexdigest() != digest]
         write_json(output / "manifest.json", manifest)
     if not valid or manifest["source_changed_during_run"]:

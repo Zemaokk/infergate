@@ -262,3 +262,51 @@ def test_real_token_summary_reports_missing_usage_without_inventing_counts():
             {"valid_response": False, "usage": {"output_tokens": 200}}]
     assert token_summary(rows, "responses") == {"samples": 1, "missing": 2,
                                                "min": 64, "max": 64, "mean": 64}
+
+
+@pytest.mark.parametrize("document", ["docs/M4/BENCHMARK_CONTRACT.md",
+                                      "docs/reference/benchmarks.md"])
+@pytest.mark.parametrize("code_changed", [False, True])
+def test_retry_after_document_migration_still_protects_measured_code(
+    tmp_path, monkeypatch, document, code_changed
+):
+    import hashlib
+    import json
+
+    from scripts.m4_benchmark import retry
+
+    source = tmp_path / "original"
+    source.mkdir()
+    code = tmp_path / "src/infergate/app.py"
+    code.parent.mkdir(parents=True)
+    code.write_bytes(b"changed" if code_changed else b"original code")
+    # The old document may be absent; the current one may have editorial changes.
+    if document == "docs/reference/benchmarks.md":
+        current_doc = tmp_path / document
+        current_doc.parent.mkdir(parents=True)
+        current_doc.write_text("updated explanation")
+    manifest = {"profile": "local", "source_changed_during_run": [],
+                "started_utc": "2026-10-07T00:00:00+00:00", "source_sha256": {
+                    document: hashlib.sha256(b"original explanation").hexdigest(),
+                    "src/infergate/app.py": hashlib.sha256(b"original code").hexdigest()}}
+    (source / "manifest.json").write_text(json.dumps(manifest))
+    (source / "summary.json").write_text(json.dumps({
+        "cases": [{"case": "invalid", "valid_case": False}]}))
+    output = tmp_path / "replacement"
+    monkeypatch.setattr(retry, "ROOT", tmp_path)
+    monkeypatch.setattr(retry.sys, "argv", ["retry", str(source), "--output", str(output)])
+
+    async def stop_before_measurement(*args):
+        raise RuntimeError("retry reached measurement")
+
+    monkeypatch.setattr(retry, "rerun", stop_before_measurement)
+    if code_changed:
+        with pytest.raises(ValueError, match="Source changed since original measurement"):
+            retry.main()
+        assert not output.exists()
+    else:
+        with pytest.raises(RuntimeError, match="retry reached measurement"):
+            retry.main()
+        result = json.loads((output / "manifest.json").read_text())
+        assert result["outcome"] == "failed"
+        assert result["source_changed_during_run"] == []

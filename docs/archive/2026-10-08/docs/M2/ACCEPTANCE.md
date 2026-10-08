@@ -39,7 +39,7 @@
 
 ## 3. 本地真实 HTTP 验收
 
-使用 [verify_m2.py](../../scripts/verify_m2.py) 在 127.0.0.1 上启动三个独立
+使用 [verify_m2.py](../../../../../scripts/verify_m2.py) 在 127.0.0.1 上启动三个独立
 Uvicorn 进程：gateway 8000，两个受控 mock backend 8001/8002。
 网关复用正式 `create_runtime_app()`。mock 提供测试用的流保持与释放接口，
 让并发占用与客户端断开可稳定观察。

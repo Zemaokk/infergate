@@ -353,7 +353,7 @@ def main():
     sources.mkdir()
     source_paths = [*(ROOT / "scripts/m4_benchmark").glob("*.py"),
                     *(ROOT / "src/infergate").rglob("*.py"),
-                    ROOT / "configs/logging.json", ROOT / "docs/M4/BENCHMARK_CONTRACT.md"]
+                    ROOT / "configs/logging.json", ROOT / "docs/reference/benchmarks.md"]
     manifest["source_sha256"] = {}
     for source in source_paths:
         relative = source.relative_to(ROOT)

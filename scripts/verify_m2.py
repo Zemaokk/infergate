@@ -1,6 +1,6 @@
 """Local M2 acceptance against three owned processes on ports 8000-8002.
 
-Run: uv run python scripts/verify_m2.py --output docs/M2/acceptance_evidence.json
+Run: uv run python scripts/verify_m2.py --output /tmp/infergate-m2-new.json
 Requires these ports to be unused. All child processes are stopped on exit.
 The gateway uses production create_runtime_app with probe interval set to 3600s
 so stopped backends remain routing candidates during deterministic fallback checks.

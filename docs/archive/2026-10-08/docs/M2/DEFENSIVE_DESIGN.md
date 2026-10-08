@@ -1,7 +1,7 @@
 # M2.2 的防御性设计：保护什么，做到哪里
 
-本文讨论当前 [app.py](../../src/infergate/app.py) 与
-[并发控制器](../../src/infergate/concurrency_limiter.py) 的设计取舍。
+本文讨论当前 [app.py](../../../../../src/infergate/app.py) 与
+[并发控制器](../../../../../src/infergate/concurrency_limiter.py) 的设计取舍。
 
 ## 1. 判断标准：失败后会破坏什么？
 
@@ -81,7 +81,7 @@ finally:
 
 ## 6. 当前证据与边界
 
-[test_app.py](../../tests/test_app.py) 覆盖发送 headers/body 失败、下游关闭异常、
+[test_app.py](../../../../../tests/test_app.py) 覆盖发送 headers/body 失败、下游关闭异常、
 取消、客户端断开、构造响应失败，以及正常和错误路径上的名额恢复。最近一次完整
 测试为 **79 passed**，其中关键路径检查了释放次数。
 
