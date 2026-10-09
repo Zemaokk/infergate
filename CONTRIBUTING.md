@@ -47,17 +47,19 @@ release history from commits or milestone dates.
 
 ## Preserve navigation and evidence
 
-The root README's existing uppercase documentation links have compatibility
-pages. Keep those pages short and point them to the canonical document.
-The legacy M4 plot path is retained for the README image; its bytes match the
-archived original. The [2026-10-08 archive](docs/archive/2026-10-08/README.md) is a
-historical snapshot with hashes. New verification output belongs in a new path,
-not inside that snapshot. Any necessary correction should explain the original
-record and add a clearly dated erratum rather than silently altering evidence.
+Link directly to canonical pages under `docs/tutorials`, `docs/how-to`,
+`docs/reference`, `docs/explanation`, and `docs/decisions`. Keep README links
+aligned when a page moves; do not add compatibility copies of old guides.
 
-The documentation checker verifies local links and archived hashes. Remote links
-are reviewed against primary sources when the affected claims change; the
-checker does not make network requests.
+Published figures live in `docs/assets/`; machine-readable validation data and
+portable benchmark data live in `docs/evidence/`. The checksums there use
+repository-relative paths. Preserve evidence bytes; record a new run separately
+instead of replacing a dated result. Update the checksum list when deliberately
+adding evidence.
+
+`docs/archive/` is a local-only backup ignored by Git. Current pages must not link
+to it, and checks must work when it is absent. The documentation checker validates
+local navigation and published evidence checksums. It does not fetch remote URLs.
 
 ## Hand off the result
 

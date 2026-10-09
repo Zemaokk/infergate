@@ -39,10 +39,9 @@ All commands assume the repository root unless a page says otherwise.
 consequences. [CHANGELOG](../CHANGELOG.md) records noteworthy changes;
 [CONTRIBUTING](../CONTRIBUTING.md) describes development and documentation changes.
 
-The [2026-10-08 archive](archive/2026-10-08/README.md) contains the previous
-documentation tree and its dated evidence. Old milestone plans describe their
-own point in time. Uppercase document paths remain as navigation pages for
-existing README links; current content lives in the categories above.
+Dated validation data and benchmark archives live in `docs/evidence/`;
+figures live in `docs/assets/`. The documentation and CI checks work from a
+fresh checkout without local historical notes.
 
 The categories follow [Diátaxis](https://diataxis.fr/). They distinguish the
 reader's needs; they are not release stages or levels of expertise.

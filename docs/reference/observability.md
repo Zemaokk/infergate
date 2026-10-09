@@ -14,7 +14,7 @@ logs, and OpenTelemetry spans.
 
 A fallback produces one request span with two sibling CLIENT attempt spans.
 Context propagation alone does not create spans in uninstrumented clients or
-model services. See [dated M3 acceptance](../archive/2026-10-08/docs/M3/ACCEPTANCE.md) for checked traces.
+model services. See [M3 verification data](../evidence/acceptance/m3-2026-10-08.json) for checked traces.
 
 ## Metrics reference
 

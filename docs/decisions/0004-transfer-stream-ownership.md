@@ -28,4 +28,4 @@ not cover all response failures.
 
 ## Evidence
 
-[Lifecycle tests](../../tests/test_app.py), [stream response](../../src/infergate/app.py), [M1 streaming contract](../archive/2026-10-08/docs/M1/STREAMING_CONTRACT.md).
+[Lifecycle tests](../../tests/test_app.py), [stream response](../../src/infergate/app.py), [stream ownership](../explanation/streaming-and-failures.md#a-slot-follows-the-downstream-work).

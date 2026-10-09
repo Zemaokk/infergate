@@ -1,0 +1,13 @@
+b340f23b3da1b97d969163f134d053e5633be0f1d8e884111dfa57bf57119abf  docs/assets/admission-2026-10-07.png
+1151a703d213d650a96e6e57da76e3d691e0babe5ccf4bb90f5f74cbe56824f8  docs/assets/grafana-2026-10-05.jpg
+82181b73066d4778969157c7707b5cf7f7516b0f8b3555a324ea9c3fde24d2c2  docs/assets/real-comparison-2026-10-07.png
+51eacd60d614df94c6d001b7fba4085bb9cd909113a81f0678375e8aae360ae7  docs/evidence/acceptance/chat-backend-2026-10-06.json
+63e81483a83ad765e6aa81c2a62e0493572c94efcc976ad4e842c1dd7b2906cb  docs/evidence/acceptance/ci-2026-10-08.json
+ec0a9fcf45e4254cabddcdb23f2665c22c5e1bb7c4befdf5d29032e016690e26  docs/evidence/acceptance/m2-2026-10-08.json
+f34cefb38ea74649393f3185e698d46b10ce474d36d10be031ec5d539923418e  docs/evidence/acceptance/m3-2026-10-08.json
+2d86d68a7d7385652ec4427621fff87121b926a4d1bae4b5ed8129e2db2ec0ad  docs/evidence/acceptance/packaging-amd64-2026-10-08.json
+55fa735dba0518d7c5cec33e740c2aea7bc6798898ed175244fab5bffe312e1a  docs/evidence/acceptance/packaging-arm64-2026-10-07.json
+4e22caa1679dda17f4c74ba2d2873f3b567141e95d84b27e7e0681020b8a1f3c  docs/evidence/acceptance/project-2026-10-08.json
+05a746ec2935e47bc45d26e1669c31066c5a72327f5ff72f70a2b7a319aadc7c  docs/evidence/acceptance/responses-backend-2026-10-06.json
+c3aa81a9a8324cf4ab1b29daff04335c880629197b16214493d17a70115a6398  docs/evidence/benchmarks/benchmark-local-2026-10-07.tar.gz
+f900803ff6e06feda4d5a2b708e887fe823ee3e8d342df9a5f67d8d910e6d5c7  docs/evidence/benchmarks/benchmark-real-2026-10-07.tar.gz

@@ -28,4 +28,4 @@ it would need its own cancellation and scheduling design.
 
 ## Evidence
 
-[M2 acceptance](../archive/2026-10-08/docs/M2/ACCEPTANCE.md), [limiter tests](../../tests/test_concurrency_limiter.py), [request order](../reference/api.md#admission-order).
+[M2 verification data](../evidence/acceptance/m2-2026-10-08.json), [limiter tests](../../tests/test_concurrency_limiter.py), [request order](../reference/api.md#admission-order).

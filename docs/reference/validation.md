@@ -8,21 +8,21 @@ check was rerun whenever this page changes.
 
 | Check | Recorded result | Evidence |
 | --- | --- | --- |
-| Automated tests | 435 passed, two dependency deprecation warnings | [Project record](../archive/2026-10-08/docs/PROJECT_ACCEPTANCE.md) |
-| M2 actual loopback HTTP | Seven scenario groups passed | [2026-10-08 JSON](../archive/2026-10-08/docs/M2/acceptance-2026-10-08.json) |
-| M3 observation integration | Nine requests, ten attempts, final active=0; eleven provisioned panels | [2026-10-08 JSON](../archive/2026-10-08/docs/M3/evidence/acceptance-2026-10-08.json) |
-| Local container package | Linux ARM64, non-root UID 10001, Python 3.13.16; eleven business requests and cleanup passed | [2026-10-07 JSON](../archive/2026-10-08/docs/M4/evidence/delivery-packaging-2026-10-07.json) |
-| First hosted CI | Tests and Linux AMD64 packaging passed for `35c6902d096b8a36440a54b2a3364d5bfe0d8d4d` | [CI metadata](../archive/2026-10-08/docs/M4/evidence/ci-2026-10-08.json), [packaging](../archive/2026-10-08/docs/M4/evidence/ci-packaging-2026-10-08.json) |
-| Real Chat ordinary/SSE and stop/recovery | Qwen2.5-7B-Instruct, vLLM 0.8.5, one RTX 4090 | [2026-10-06 acceptance](../archive/2026-10-08/docs/M4/REAL_BACKEND_ACCEPTANCE.md) |
-| Native Responses and Chat regression | vLLM 0.10.1+cu118; temporary service stopped and prior Chat service restored | [2026-10-06 acceptance](../archive/2026-10-08/docs/M4/RESPONSES_ACCEPTANCE.md) |
+| Automated tests | 435 passed, two dependency deprecation warnings | [Project record](../evidence/acceptance/project-2026-10-08.json) |
+| M2 actual loopback HTTP | Seven scenario groups passed | [2026-10-08 JSON](../evidence/acceptance/m2-2026-10-08.json) |
+| M3 observation integration | Nine requests, ten attempts, final active=0; eleven provisioned panels | [2026-10-08 JSON](../evidence/acceptance/m3-2026-10-08.json) |
+| Local container package | Linux ARM64, non-root UID 10001, Python 3.13.16; eleven business requests and cleanup passed | [2026-10-07 JSON](../evidence/acceptance/packaging-arm64-2026-10-07.json) |
+| First hosted CI | Tests and Linux AMD64 packaging passed for `35c6902d096b8a36440a54b2a3364d5bfe0d8d4d` | [CI metadata](../evidence/acceptance/ci-2026-10-08.json), [packaging](../evidence/acceptance/packaging-amd64-2026-10-08.json) |
+| Real Chat ordinary/SSE and stop/recovery | Qwen2.5-7B-Instruct, vLLM 0.8.5, one RTX 4090 | [2026-10-06 JSON](../evidence/acceptance/chat-backend-2026-10-06.json) |
+| Native Responses and Chat regression | vLLM 0.10.1+cu118; temporary service stopped and prior Chat service restored | [2026-10-06 JSON](../evidence/acceptance/responses-backend-2026-10-06.json) |
 
-The [complete project acceptance record](../archive/2026-10-08/docs/PROJECT_ACCEPTANCE.md)
-retains stage-level results and qualifications. The 2026-10-08 review did not
+The [project verification JSON](../evidence/acceptance/project-2026-10-08.json)
+records the checked revision, test totals, and service results. The 2026-10-08 review did not
 start a new GPU environment or repeat formal GPU measurements. Core source
 identity was checked against the saved real-model experiment. Grafana provisioning
 was rechecked; browser rendering evidence remains from 2026-10-05.
 
-![Dated Grafana demonstration](../archive/2026-10-08/docs/M3/evidence/grafana-2026-10-05.jpg)
+![Dated Grafana demonstration](../assets/grafana-2026-10-05.jpg)
 
 ## Benchmark results
 
@@ -54,11 +54,13 @@ The 1,200 total includes 600 direct and 600 gateway requests.
 | Responses | 1 | 0.879 | 0.877 | 1140.16 | 1141.74 |
 | Responses | 2 | 1.674 | 1.674 | 1197.69 | 1199.17 |
 
-Values are medians of three per-round statistics. Full min–max ranges, p50,
-output-token counts, and environment details are in the
-[original real-model report](../archive/2026-10-08/docs/M4/benchmark-real-20261007/RESULTS.md).
+Values are medians of three per-round statistics. Per-round measurements,
+output-token counts, and environment details are retained in the
+[real-model data](../evidence/benchmarks/benchmark-real-2026-10-07.tar.gz).
+The [redraw guide](../how-to/redraw-benchmarks.md) regenerates the full report
+with min–max ranges and p50/p95 statistics.
 
-![Real-model throughput and latency](../archive/2026-10-08/docs/M4/benchmark-real-20261007/real-comparison.png)
+![Real-model throughput and latency](../assets/real-comparison-2026-10-07.png)
 
 Throughput was comparable between direct and gateway access within this
 workload. This does not establish a general overhead percentage or production
@@ -99,10 +101,10 @@ made zero backend attempts. Completed waves returned active capacity to zero,
 and subsequent recovery requests succeeded. A separate order check verified
 that concurrency rejection still consumes key quota.
 
-![Controlled admission and rejection](../archive/2026-10-08/docs/M4/benchmark-local-20261007/protection.png)
+![Controlled admission and rejection](../assets/admission-2026-10-07.png)
 
-The [original local report](../archive/2026-10-08/docs/M4/benchmark-local-20261007/RESULTS.md) contains all
-overhead results and three-round ranges. The client, gateway, and mock shared
+The [local data](../evidence/benchmarks/benchmark-local-2026-10-07.tar.gz)
+retains overhead measurements and per-round results for report regeneration. The client, gateway, and mock shared
 one machine, so scheduler and HTTP overhead affect the measurements. Absolute
 local mock numbers cannot be compared with Linux GPU inference numbers.
 
@@ -115,13 +117,10 @@ include 29,837 local request records across original and replacement runs;
 
 ## Evidence index
 
-- [Original local report](../archive/2026-10-08/docs/M4/benchmark-local-20261007/RESULTS.md)
-  and [real-model report](../archive/2026-10-08/docs/M4/benchmark-real-20261007/RESULTS.md).
-- [Portable local archive](../archive/2026-10-08/docs/M4/evidence/benchmark-local-2026-10-07.tar.gz)
-  and [portable real archive](../archive/2026-10-08/docs/M4/evidence/benchmark-real-2026-10-07.tar.gz).
-- [Original SHA256SUMS](../archive/2026-10-08/docs/M4/evidence/SHA256SUMS)
-  and [migration manifest](../archive/2026-10-08/manifest.json).
-- [Full review JSON](../archive/2026-10-08/docs/M4/evidence/project-acceptance-2026-10-08.json).
+- [Project verification](../evidence/acceptance/project-2026-10-08.json): checked revision, test totals, and acceptance scope.
+- [Local benchmark data](../evidence/benchmarks/benchmark-local-2026-10-07.tar.gz): original and replacement runs, manifests, source snapshots, and request records.
+- [Real-model benchmark data](../evidence/benchmarks/benchmark-real-2026-10-07.tar.gz): formal measurements, pilots, environment records, and logs.
+- [SHA256 checksums](../evidence/SHA256SUMS): integrity of the published evidence and figures, using paths relative to the repository root.
 
 Warmups and pilots are excluded from formal summaries. Current procedures live
 in [Verify an installation](../how-to/verify-installation.md) and

@@ -26,4 +26,4 @@ version has no backend idempotency contract.
 
 ## Evidence
 
-[Retry tests](../../tests/test_retry.py), [backend classification](../../src/infergate/backend_client.py), [M2 retry contract](../archive/2026-10-08/docs/M2/RETRY_CONTRACT.md).
+[Retry tests](../../tests/test_retry.py), [backend classification](../../src/infergate/backend_client.py), [failure behavior](../explanation/streaming-and-failures.md#fallback-has-a-narrow-replay-boundary).

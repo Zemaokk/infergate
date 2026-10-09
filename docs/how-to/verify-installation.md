@@ -2,7 +2,7 @@
 
 Use Python 3.13 with the lockfile. These checks verify the revision you run;
 [dated acceptance evidence](../reference/validation.md) describes prior runs.
-Write fresh outputs outside the archive.
+Write fresh outputs to a separate directory, leaving dated evidence unchanged.
 
 ## Check the checkout
 
@@ -14,7 +14,7 @@ uv run --no-sync python -m pytest -q
 git diff --check
 ```
 
-The documentation check validates local links and archive hashes. Pytest checks
+The documentation check validates current links and published evidence hashes. Pytest checks
 request handling, state transitions, cleanup, observation, and benchmark evidence
 boundaries. A test count is a dated observation, not a release version.
 

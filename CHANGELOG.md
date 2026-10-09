@@ -10,15 +10,17 @@ Noteworthy changes to this project are recorded here, following
 - Documentation organized into tutorials, how-to guides, reference, and explanation.
 - An ADR index, template, and explicitly retrospective records for admission,
   fallback, stream ownership, and request/attempt observations.
-- Development guidance and automated local-link/archive-integrity checks.
-- A dated archive with a SHA256 manifest for the previous documents and evidence.
+- Development guidance and automated local-link/evidence-integrity checks.
+- Dedicated asset and evidence directories with SHA256 checksums.
 
 ### Changed
 
-- Existing documentation entry points now direct readers to the current guides;
-  the completed root README remains unchanged in this migration.
+- README and documentation links point directly to current guides.
+- Legacy documents remain local under a Git-ignored directory; compatibility
+  pages are removed from the published tree.
 - CI and benchmark source snapshots use the reorganized documentation paths.
 
 No release date is inferred from milestone acceptance or the package metadata's
-`0.1.0`. This changelog begins with the documentation migration; earlier work is
-recorded in the [dated project archive](docs/archive/2026-10-08/README.md).
+`0.1.0`. This changelog begins with the documentation migration.
+[Dated validation results](docs/reference/validation.md) summarize the accepted
+first-version scope.

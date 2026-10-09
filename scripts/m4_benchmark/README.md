@@ -8,6 +8,3 @@ installed gateway runtime. Run them from the repository root.
 - [Collect model measurements](../../docs/how-to/collect-model-benchmarks.md): GPU setup and native-protocol comparison.
 - [Redraw saved measurements](../../docs/how-to/redraw-benchmarks.md): no-GPU reproduction.
 - [Methodology](../../docs/explanation/benchmark-methodology.md) and [recorded results](../../docs/reference/validation.md#benchmark-results).
-
-The [previous tool guide](../../docs/archive/2026-10-08/scripts/m4_benchmark/README.md)
-is archived with the original contracts and evidence.

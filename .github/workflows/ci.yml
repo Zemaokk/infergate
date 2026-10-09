@@ -33,7 +33,6 @@ jobs:
           uv run --no-sync python -m compileall -q src scripts
           uv run --no-sync python -m pytest -q
           uv run --no-sync python scripts/check_docs.py
-          (cd docs/archive/2026-10-08 && sha256sum --check docs/M4/evidence/SHA256SUMS)
 
   packaging:
     runs-on: ubuntu-latest

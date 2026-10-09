@@ -1,4 +1,4 @@
-"""Check repository Markdown navigation and the dated documentation archive.
+"""Check published Markdown navigation and evidence integrity.
 
 Uses only the standard library; remote URLs are deliberately not fetched.
 Run from any directory: python scripts/check_docs.py
@@ -6,14 +6,14 @@ Run from any directory: python scripts/check_docs.py
 
 import hashlib
 import html
-import json
 import re
 from collections import Counter
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
-ARCHIVE = ROOT / "docs/archive/2026-10-08"
+LOCAL_ARCHIVE = ROOT / "docs/archive"
+CHECKSUMS = ROOT / "docs/evidence/SHA256SUMS"
 
 
 def prose(text):
@@ -72,6 +72,7 @@ def links(text):
 def check_navigation():
     paths = sorted(set([*ROOT.glob("*.md"), *(ROOT / "docs").rglob("*.md"),
                         ROOT / "observability/README.md", ROOT / "scripts/m4_benchmark/README.md"]))
+    paths = [path for path in paths if not path.is_relative_to(LOCAL_ARCHIVE)]
     errors = []
     cache = {}
     count = 0
@@ -88,7 +89,9 @@ def check_navigation():
             count += 1
             destination = ((ROOT if url.path.startswith("/") else path.parent)
                            / unquote(url.path).lstrip("/")).resolve() if url.path else path
-            if not destination.exists():
+            if destination.is_relative_to(LOCAL_ARCHIVE):
+                errors.append(f"{path.relative_to(ROOT)}: link targets local-only archive {target}")
+            elif not destination.exists():
                 errors.append(f"{path.relative_to(ROOT)}: missing target {target}")
             elif url.fragment and destination.suffix.lower() == ".md":
                 if destination not in cache:
@@ -98,34 +101,28 @@ def check_navigation():
     return errors, len(paths), count
 
 
-def check_archive():
-    manifest = json.loads((ARCHIVE / "manifest.json").read_text())
+def check_evidence():
     errors = []
-    for item in manifest["files"]:
-        path = ROOT / item["archived_path"]
+    entries = CHECKSUMS.read_text().splitlines()
+    for entry in entries:
+        digest, relative = entry.split("  ", 1)
+        path = ROOT / relative
         if not path.is_file():
-            errors.append(f"archive file missing: {item['archived_path']}")
+            errors.append(f"evidence file missing: {relative}")
             continue
-        digest = hashlib.sha256(path.read_bytes()).hexdigest()
-        if digest != item["archived_sha256"]:
-            errors.append(f"archive content changed: {item['archived_path']}")
-        if path.suffix.lower() != ".md" and digest != item["original_sha256"]:
-            errors.append(f"non-Markdown evidence differs: {item['archived_path']}")
-    current_plot = ROOT / "docs/M4/benchmark-real-20261007/real-comparison.png"
-    old_plot = ARCHIVE / "docs/M4/benchmark-real-20261007/real-comparison.png"
-    if current_plot.read_bytes() != old_plot.read_bytes():
-        errors.append("README compatibility plot differs from archived original")
-    return errors, len(manifest["files"])
+        if hashlib.sha256(path.read_bytes()).hexdigest() != digest:
+            errors.append(f"evidence content changed: {relative}")
+    return errors, len(entries)
 
 
 def main():
     errors, pages, local_links = check_navigation()
-    archive_errors, files = check_archive()
-    errors.extend(archive_errors)
+    evidence_errors, files = check_evidence()
+    errors.extend(evidence_errors)
     if errors:
         raise SystemExit("\n".join(errors))
     print(f"Documentation OK: {pages} Markdown pages, {local_links} local links, "
-          f"{files} archived files verified")
+          f"{files} evidence files verified")
 
 
 if __name__ == "__main__":

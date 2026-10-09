@@ -116,5 +116,4 @@ under `artifacts/` are ignored by Git and require deliberate backup.
 
 [Recorded results](validation.md#benchmark-results) and
 [methodology](../explanation/benchmark-methodology.md) explain the historical
-measurements. The [original experiment contract](../archive/2026-10-08/docs/M4/BENCHMARK_CONTRACT.md)
-preserves the design as it was recorded in M4.
+measurements. This specification is the current workload and validity contract.

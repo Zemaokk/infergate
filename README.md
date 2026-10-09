@@ -6,9 +6,9 @@
   <p>
     <a href="docs/README.md"><strong>Documentation</strong></a>
     &middot;
-    <a href="docs/ARCHITECTURE.md">Architecture</a>
+    <a href="docs/explanation/architecture.md">Architecture</a>
     &middot;
-    <a href="docs/BENCHMARKS.md">Benchmarks</a>
+    <a href="docs/reference/validation.md#benchmark-results">Benchmarks</a>
     &middot;
     <a href="https://github.com/Zemaokk/infergate/issues">Report an issue</a>
   </p>
@@ -146,8 +146,8 @@ quota labels, not authentication credentials.
 
 Requests go to the same endpoint on the backend. Responses therefore requires
 a server with native Responses support; the demo mocks only implement Chat.
-See [API examples and backend configuration][usage] for supported fields and
-how to connect an existing vLLM server.
+See the [API reference](docs/reference/api.md) for supported fields and
+[backend setup](docs/how-to/connect-backend.md) to connect an existing vLLM server.
 
 The Prometheus, Grafana, and Jaeger services run in a
 [separate observation stack][observation-stack]. The application Compose stack
@@ -193,9 +193,11 @@ were not measured.
 
 ![Direct and gateway throughput and latency][benchmark-plot]
 
-The [benchmark guide][benchmarks] includes latency results, three-round ranges,
-controlled local overload experiments, and links to raw records. To redraw the
-saved data without a GPU or collect new measurements, see [Reproduction][reproduction].
+The [benchmark guide][benchmarks] includes latency results, controlled local
+overload experiments, and links to raw records. To redraw the saved data without
+a GPU, see [Reproduction][reproduction]; to collect new measurements, follow the
+[local](docs/how-to/collect-local-benchmarks.md) or
+[model](docs/how-to/collect-model-benchmarks.md) collection guide.
 GPU experiments are separate from CI.
 
 ## Project status
@@ -214,9 +216,9 @@ conversation storage, or background execution. The recorded native Responses
 validation used vLLM 0.10.1+cu118; the earlier Chat deployment used 0.8.5.
 This repository has not been validated as a production service.
 
-Current limits are documented in [Architecture][architecture]. The original
-M0–M4 plans and dated records remain available through the
-[documentation index][docs].
+Current limits are documented in [Architecture][architecture]. The
+[documentation index][docs] links current guides, design decisions, and dated
+validation results.
 
 ## Contributing
 
@@ -238,12 +240,12 @@ README structure adapted from [Best-README-Template][readme-template].
 <p align="right"><a href="#readme-top">Back to top</a></p>
 
 [docs]: docs/README.md
-[architecture]: docs/ARCHITECTURE.md
-[usage]: docs/USAGE.md
-[benchmarks]: docs/BENCHMARKS.md
-[reproduction]: docs/REPRODUCING.md
-[acceptance]: docs/PROJECT_ACCEPTANCE.md
+[architecture]: docs/explanation/architecture.md
+[usage]: docs/how-to/run-locally.md
+[benchmarks]: docs/reference/validation.md#benchmark-results
+[reproduction]: docs/how-to/redraw-benchmarks.md
+[acceptance]: docs/reference/validation.md#first-version-acceptance
 [ci]: .github/workflows/ci.yml
 [observation-stack]: observability/README.md
-[benchmark-plot]: docs/M4/benchmark-real-20261007/real-comparison.png
+[benchmark-plot]: docs/assets/real-comparison-2026-10-07.png
 [readme-template]: https://github.com/othneildrew/Best-README-Template

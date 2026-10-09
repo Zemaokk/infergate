@@ -11,3 +11,6 @@ wheels/
 
 # Local benchmark raw data, logs and source snapshots
 artifacts/m4-benchmark/
+
+# Local backup of superseded documentation
+/docs/archive/

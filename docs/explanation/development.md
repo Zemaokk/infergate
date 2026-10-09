@@ -8,18 +8,18 @@ it does not claim a distributed serving platform or production readiness.
 
 ## How the work progressed
 
-| Stage | Delivered focus | Historical record |
+| Stage | Delivered focus | Current description |
 | --- | --- | --- |
-| M0 | Ordinary Chat forwarding and round-robin routing | [Workflow](../archive/2026-10-08/docs/M0/FULL_WORKFLOW_GUIDE.md) |
-| M1 | Streaming lifecycle and health updates | [Acceptance](../archive/2026-10-08/docs/M1/ACCEPTANCE.md) |
-| M2 | Token bucket, concurrency admission, bounded fallback | [Acceptance](../archive/2026-10-08/docs/M2/ACCEPTANCE.md) |
-| M3 | Request/attempt observations and local observation stack | [Acceptance](../archive/2026-10-08/docs/M3/ACCEPTANCE.md) |
-| M4 | Packaging, real model, Responses adapter, experiments, CI | [Project acceptance](../archive/2026-10-08/docs/PROJECT_ACCEPTANCE.md) |
+| M0 | Ordinary Chat forwarding and round-robin routing | [Architecture](architecture.md) |
+| M1 | Streaming lifecycle and health updates | [Streaming and failures](streaming-and-failures.md) |
+| M2 | Token bucket, concurrency admission, bounded fallback | [Admission and errors](../reference/api.md#admission-order) |
+| M3 | Request/attempt observations and local observation stack | [Observability](../reference/observability.md) |
+| M4 | Packaging, real model, Responses adapter, experiments, CI | [Validation](../reference/validation.md) |
 
 The first-version acceptance was completed on 2026-10-08 within the agreed
-scope. Earlier milestone plans retain the future tense they had when written;
-current behavior is described by [Architecture](architecture.md) and the
-[API reference](../reference/api.md).
+scope. Current behavior is described by [Architecture](architecture.md) and
+the [API reference](../reference/api.md); dated results are in
+[Validation](../reference/validation.md).
 
 ## Further changes
 

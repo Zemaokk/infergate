@@ -29,4 +29,4 @@ stream failures and retry amplification.
 
 ## Evidence
 
-[Observation lifecycle tests](../../tests/test_observation_lifecycle.py), [M3 acceptance](../archive/2026-10-08/docs/M3/ACCEPTANCE.md), [reference](../reference/observability.md).
+[Observation lifecycle tests](../../tests/test_observation_lifecycle.py), [M3 verification data](../evidence/acceptance/m3-2026-10-08.json), [reference](../reference/observability.md).

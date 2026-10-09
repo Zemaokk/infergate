@@ -1,6 +1,6 @@
 # ADR-0006: Organize documentation by reader need
 
-- Status: Accepted
+- Status: Superseded by [ADR-0007](0007-publish-current-documentation.md)
 - Recorded: 2026-10-08
 - Decision authority: project author's documentation-refactoring request
 
@@ -45,4 +45,4 @@ sources of truth. Both alternatives were rejected for this migration.
 [Diátaxis](https://diataxis.fr/),
 [ADR guidance](https://github.com/architecture-decision-record/architecture-decision-record),
 [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/),
-[migration archive](../archive/2026-10-08/README.md).
+[current publication policy](0007-publish-current-documentation.md).

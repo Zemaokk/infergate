@@ -13,7 +13,8 @@ was chosen. Their format follows the
 | [0003: Limit fallback](0003-limit-backend-fallback.md) | Accepted, retrospective | Recorded 2026-10-08; existing implementation |
 | [0004: Stream ownership](0004-transfer-stream-ownership.md) | Accepted, retrospective | Recorded 2026-10-08; existing implementation |
 | [0005: Request/attempt observations](0005-separate-request-attempt-observations.md) | Accepted, retrospective | Recorded 2026-10-08; existing implementation |
-| [0006: Documentation organization](0006-organize-project-documentation.md) | Accepted | Author-requested migration, 2026-10-08 |
+| [0006: Documentation organization](0006-organize-project-documentation.md) | Superseded by 0007 | Initial migration, 2026-10-08 |
+| [0007: Publish current documentation](0007-publish-current-documentation.md) | Accepted | Publication policy, 2026-10-08 |
 
 A retrospective record documents verified behavior; it does not invent the date
 on which a historical choice was approved. ADR-0001 contains original planning
