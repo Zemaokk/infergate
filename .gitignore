@@ -14,3 +14,5 @@ artifacts/m4-benchmark/
 
 # Local backup of superseded documentation
 /docs/archive/
+.DS_Store
+**/.DS_Store

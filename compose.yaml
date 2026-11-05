@@ -26,6 +26,7 @@ services:
     environment:
       INFERGATE_BACKEND_A_URL: http://backend-a:8000
       INFERGATE_BACKEND_B_URL: http://backend-b:8000
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://host.docker.internal:4318/v1/traces
     ports:
       - '127.0.0.1:8000:8000'
     depends_on:
