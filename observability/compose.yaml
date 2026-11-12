@@ -34,6 +34,8 @@ services:
       # 只有 Alloy 能访问 Docker socket，Agent 只通过 Loki 的只读查询接口拿日志。
       # 注意：给 docker.sock 加 :ro 并不能让 Docker API 变成只读，所以这里不加，避免产生错误的安全感。
       - /var/run/docker.sock:/var/run/docker.sock
+      # 读取位置（positions 文件）存在这里；不持久化的话，Alloy 容器一重建就会把所有容器的历史日志重发一遍
+      - alloy-data:/var/lib/alloy/data
     command:
       - run
       - --server.http.listen-addr=0.0.0.0:12345
@@ -69,3 +71,4 @@ volumes:
   prometheus-data:
   grafana-data:
   loki-data:
+  alloy-data:
