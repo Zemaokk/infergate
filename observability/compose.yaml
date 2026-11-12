@@ -59,6 +59,12 @@ services:
       - prometheus
       - jaeger
       - loki
+  container-exporter:
+    build:
+      context: ..
+      dockerfile: observability/container-exporter/Dockerfile
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 volumes:
   prometheus-data:
   grafana-data:

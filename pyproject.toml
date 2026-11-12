@@ -29,3 +29,9 @@ build-backend = "uv_build"
 
 [tool.fastapi]
 entrypoint = "infergate.runtime:app"
+
+[dependency-groups]
+exporter = [
+    "docker>=7.2.0",
+    "prometheus-client>=0.26.0",
+]

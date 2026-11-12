@@ -9,6 +9,7 @@
 !src/**
 !configs/
 !configs/logging.json
+!observability/container-exporter/exporter.py
 **/__pycache__/
 **/*.pyc
 **/.DS_Store

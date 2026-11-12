@@ -6,3 +6,24 @@ scrape_configs:
     metrics_path: /metrics
     static_configs:
       - targets: [host.docker.internal:8000]
+  # 观测组件自己的指标：每个组件一条 up，回答"它还在正常工作吗"。
+  # 这些服务和 Prometheus 在同一个 compose 项目里，用服务名访问。
+  - job_name: prometheus
+    static_configs:
+      - targets: [localhost:9090]
+  - job_name: alloy
+    static_configs:
+      - targets: [alloy:12345]
+  - job_name: loki
+    static_configs:
+      - targets: [loki:3100]
+  - job_name: jaeger
+    static_configs:
+      - targets: [jaeger:8888]  # Jaeger v2 的内部遥测端口
+  - job_name: grafana
+    static_configs:
+      - targets: [grafana:3000]
+  - job_name: container-exporter
+    static_configs:
+      - targets: [container-exporter:9101]
+
